@@ -16,7 +16,7 @@
     "@mantine/form": "^6.0.21",
     "@mantine/hooks": "^6.0.21",
     "@mantine/modals": "^6.0.21",
-    "@mantine/next": "^6.0.21",
+    "@mantine/next": "^6.0.22",
     "@mantine/notifications": "^6.0.21",
     "axios": "^1.7.7",
     "cookies-next": "^4.2.1",
