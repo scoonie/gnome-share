@@ -1,11 +1,16 @@
 version: 2
 updates:
-  # Maintain dependencies for the Backend (Node.js/npm)
+# Maintain dependencies for the Backend (Node.js/npm)
   - package-ecosystem: "npm"
     directory: "/backend"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
+    groups:
+      backend-ts-tools:
+        patterns:
+          - "typescript"
+          - "@typescript-eslint*"
 
 # Maintain dependencies for the Frontend (Node.js/npm)
   - package-ecosystem: "npm"
