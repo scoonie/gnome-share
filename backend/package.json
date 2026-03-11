@@ -64,7 +64,7 @@
     "@types/clamscan": "^2.4.1",
     "@types/cookie-parser": "^1.4.8",
     "@types/cron": "^2.4.0",
-    "@types/express": "^5.0.1",
+    "@types/express": "^5.0.6",
     "@types/mime-types": "^2.1.4",
     "@types/multer": "^2.1.0",
     "@types/node": "^22.14.1",
