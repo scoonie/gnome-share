@@ -1,0 +1,28 @@
+version: 2
+updates:
+  # Maintain dependencies for the Backend (Node.js/npm)
+  - package-ecosystem: "npm"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  # Maintain dependencies for the Frontend (Node.js/npm)
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  # Maintain the base Docker images in the Dockerfile
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 3
+
+  # Maintain any GitHub Actions workflows you add in the future
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
