@@ -1,6 +1,5 @@
 name: Build and Publish Versioned Docker Image
 
-# This tells the script to ONLY run when you publish a new Release in GitHub
 on:
   release:
     types: [published]
@@ -13,6 +12,7 @@ jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
     
+    # Required to securely upload to your free GHCR account without passwords
     permissions:
       contents: read
       packages: write
@@ -21,6 +21,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Adds support for ARM processors (Apple Silicon, AWS Graviton, Raspberry Pi)
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      # Enables advanced Docker features like caching
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
@@ -28,8 +36,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # This is where the magic happens!
-      # It reads the "v1.2.0" tag from your GitHub Release and applies it to the Docker image.
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
@@ -44,6 +50,10 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          # Speeds up future builds by caching previous layers
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
