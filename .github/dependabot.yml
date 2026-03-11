@@ -7,12 +7,17 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 5
 
-  # Maintain dependencies for the Frontend (Node.js/npm)
+# Maintain dependencies for the Frontend (Node.js/npm)
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
+    groups:
+      eslint-tools:
+        patterns:
+          - "eslint*"
+          - "@typescript-eslint*"
 
   # Maintain the base Docker images in the Dockerfile
   - package-ecosystem: "docker"
