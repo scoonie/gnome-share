@@ -57,7 +57,7 @@
     "yaml": "^2.7.1"
   },
   "devDependencies": {
-    "@nestjs/cli": "^11.0.6",
+    "@nestjs/cli": "^11.0.16",
     "@nestjs/schematics": "^11.0.5",
     "@nestjs/testing": "^11.0.17",
     "@types/archiver": "^6.0.3",
