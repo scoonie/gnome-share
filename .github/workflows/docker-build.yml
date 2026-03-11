@@ -1,10 +1,9 @@
-name: Build and Publish Docker Image
+name: Build and Publish Versioned Docker Image
 
-# This tells the script to run EVERY time code is merged into the 'main' branch
+# This tells the script to ONLY run when you publish a new Release in GitHub
 on:
-  push:
-    branches:
-      - main
+  release:
+    types: [published]
 
 env:
   REGISTRY: ghcr.io
@@ -14,7 +13,6 @@ jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
     
-    # Grants the script permission to upload the Docker image to your GitHub account
     permissions:
       contents: read
       packages: write
@@ -30,14 +28,17 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # This is where the magic happens!
+      # It reads the "v1.2.0" tag from your GitHub Release and applies it to the Docker image.
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
             type=raw,value=latest
-            type=sha
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
