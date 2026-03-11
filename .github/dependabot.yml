@@ -1,4 +1,4 @@
-version: 2
+version: 4
 updates:
 # Maintain dependencies for the Backend (Node.js/npm)
   - package-ecosystem: "npm"
