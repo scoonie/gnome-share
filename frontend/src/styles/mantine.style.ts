@@ -2,20 +2,20 @@ import { MantineThemeOverride } from "@mantine/core";
 
 export default <MantineThemeOverride>{
   colors: {
-    victoria: [
-      "#E2E1F1",
-      "#C2C0E7",
-      "#A19DE4",
-      "#7D76E8",
-      "#544AF4",
-      "#4940DE",
-      "#4239C8",
-      "#463FA8",
-      "#47428E",
-      "#464379",
+    maroon: [
+      "#F4E2E4", // [0] Lightest (subtle backgrounds)
+      "#E7C2C7", // [1]
+      "#D89DA6", // [2]
+      "#C67683", // [3]
+      "#B24E5E", // [4]
+      "#9E2A3B", // [5] Primary Button Color (Rich Maroon)
+      "#8A2433", // [6] Hover State
+      "#751F2A", // [7]
+      "#5E1A23", // [8]
+      "#4A151C", // [9] Darkest
     ],
   },
-  primaryColor: "victoria",
+  primaryColor: "maroon", // Tell the app to use the maroon array
   components: {
     Modal: {
       styles: (theme) => ({
