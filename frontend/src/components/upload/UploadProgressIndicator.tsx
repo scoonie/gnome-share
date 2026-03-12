@@ -4,7 +4,7 @@ const UploadProgressIndicator = ({ progress }: { progress: number }) => {
   if (progress > 0 && progress < 100) {
     return (
       <RingProgress
-        sections={[{ value: progress, color: "victoria" }]}
+        sections={[{ value: progress, color: "maroon" }]}
         thickness={3}
         size={25}
       />
