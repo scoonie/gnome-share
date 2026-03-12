@@ -10,12 +10,11 @@ export default class _Document extends Document {
     return (
       <Html>
         <Head>
-          <link rel="manifest" href="/manifest.json" />
+          {/* Standard browser tab icon */}
           <link rel="icon" type="image/x-icon" href="/img/favicon.ico" />
-          <link rel="apple-touch-icon" href="/img/icons/icon-128x128.png" />
-
+          
+          {/* Keeps your private server off Google Search */}
           <meta name="robots" content="noindex" />
-          <meta name="theme-color" content="#46509e" />
         </Head>
         <body>
           <Main />
