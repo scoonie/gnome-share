@@ -43,6 +43,18 @@ export class LocalFileService {
       throw new BadRequestException("Invalid file ID format");
     }
 
+    // Resolve and validate the share directory and file paths to keep them under SHARE_DIRECTORY
+    const shareRoot = path.resolve(SHARE_DIRECTORY, safeShareId);
+    const tempChunkPath = path.resolve(shareRoot, `${safeFileId}.tmp-chunk`);
+    const finalFilePath = path.resolve(shareRoot, safeFileId);
+    const resolvedShareRoot = path.resolve(SHARE_DIRECTORY);
+    if (
+      !tempChunkPath.startsWith(resolvedShareRoot + path.sep) ||
+      !finalFilePath.startsWith(resolvedShareRoot + path.sep)
+    ) {
+      throw new BadRequestException("Invalid file path");
+    }
+
     // Prevent overwriting already-completed files
     const existingFile = await this.prisma.file.findUnique({
       where: { id: file.id },
@@ -137,18 +149,18 @@ export class LocalFileService {
     }
 
     await fs.appendFile(
-      `${SHARE_DIRECTORY}/${safeShareId}/${safeFileId}.tmp-chunk`,
+      tempChunkPath,
       buffer,
     );
 
     const isLastChunk = chunk.index == chunk.total - 1;
     if (isLastChunk) {
       await fs.rename(
-        `${SHARE_DIRECTORY}/${safeShareId}/${safeFileId}.tmp-chunk`,
-        `${SHARE_DIRECTORY}/${safeShareId}/${safeFileId}`,
+        tempChunkPath,
+        finalFilePath,
       );
       const fileSize = (
-        await fs.stat(`${SHARE_DIRECTORY}/${safeShareId}/${safeFileId}`)
+        await fs.stat(finalFilePath)
       ).size;
       await this.prisma.file.create({
         data: {
