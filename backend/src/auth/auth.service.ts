@@ -230,10 +230,18 @@ export class AuthService {
   }
 
   async signOut(accessToken: string) {
-    const { refreshTokenId } =
-      (this.jwtService.decode(accessToken) as {
-        refreshTokenId: string;
-      }) || {};
+    let refreshTokenId: string | undefined;
+  
+    try {
+      const payload = await this.jwtService.verifyAsync(accessToken, {
+        secret: this.config.get("internal.jwtSecret"),
+        ignoreExpiration: true, // Allow logging out with an expired token
+      });
+      refreshTokenId = payload.refreshTokenId;
+    } catch (e) {
+      // If the token is entirely invalid or tampered with, just return
+      return;
+    }
 
     if (refreshTokenId) {
       const oauthIDToken = await this.prisma.refreshToken
