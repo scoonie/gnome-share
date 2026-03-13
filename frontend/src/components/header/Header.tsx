@@ -2,9 +2,7 @@ import {
   Box,
   Burger,
   Container,
-  createStyles,
   Group,
-  Header as MantineHeader,
   Paper,
   Stack,
   Text,
@@ -20,6 +18,7 @@ import useTranslate from "../../hooks/useTranslate.hook";
 import Logo from "../Logo";
 import ActionAvatar from "./ActionAvatar";
 import NavbarShareMenu from "./NavbarShareMenu";
+import classes from "./Header.module.css";
 
 const HEADER_HEIGHT = 60;
 
@@ -29,85 +28,6 @@ type NavLink = {
   component?: ReactNode;
   action?: () => Promise<void>;
 };
-
-const useStyles = createStyles((theme) => ({
-  root: {
-    position: "relative",
-    zIndex: 1,
-  },
-
-  dropdown: {
-    position: "absolute",
-    top: HEADER_HEIGHT,
-    left: 0,
-    right: 0,
-    zIndex: 0,
-    borderTopRightRadius: 0,
-    borderTopLeftRadius: 0,
-    borderTopWidth: 0,
-    overflow: "hidden",
-
-    [theme.fn.largerThan("sm")]: {
-      display: "none",
-    },
-  },
-
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    height: "100%",
-  },
-
-  links: {
-    [theme.fn.smallerThan("sm")]: {
-      display: "none",
-    },
-  },
-
-  burger: {
-    [theme.fn.largerThan("sm")]: {
-      display: "none",
-    },
-  },
-
-  link: {
-    display: "block",
-    lineHeight: 1,
-    padding: "8px 12px",
-    borderRadius: theme.radius.sm,
-    textDecoration: "none",
-    color:
-      theme.colorScheme === "dark"
-        ? theme.colors.dark[0]
-        : theme.colors.gray[7],
-    fontSize: theme.fontSizes.sm,
-    fontWeight: 500,
-
-    "&:hover": {
-      backgroundColor:
-        theme.colorScheme === "dark"
-          ? theme.colors.dark[6]
-          : theme.colors.gray[0],
-    },
-
-    [theme.fn.smallerThan("sm")]: {
-      borderRadius: 0,
-      padding: theme.spacing.md,
-    },
-  },
-
-  linkActive: {
-    "&, &:hover": {
-      backgroundColor:
-        theme.colorScheme === "dark"
-          ? theme.fn.rgba(theme.colors[theme.primaryColor][9], 0.25)
-          : theme.colors[theme.primaryColor][0],
-      color:
-        theme.colors[theme.primaryColor][theme.colorScheme === "dark" ? 3 : 7],
-    },
-  },
-}));
 
 const Header = () => {
   const { user } = useUser();
@@ -162,7 +82,6 @@ const Header = () => {
       label: t("navbar.signup"),
     });
 
-  const { classes, cx } = useStyles();
   const items = (
     <>
       {(user ? authenticatedLinks : unauthenticatedLinks).map((link, i) => {
@@ -178,9 +97,7 @@ const Header = () => {
             key={link.label}
             href={link.link ?? ""}
             onClick={() => toggleOpened.toggle()}
-            className={cx(classes.link, {
-              [classes.linkActive]: currentRoute == link.link,
-            })}
+            className={`${classes.link} ${currentRoute == link.link ? classes.linkActive : ""}`}
           >
             {link.label}
           </Link>
@@ -188,16 +105,26 @@ const Header = () => {
       })}
     </>
   );
+
   return (
-    <MantineHeader height={HEADER_HEIGHT} mb={40} className={classes.root}>
+    <Box
+      component="header"
+      h={HEADER_HEIGHT}
+      mb={40}
+      className={classes.root}
+      style={{
+        borderBottom: "1px solid var(--mantine-color-default-border)",
+        backgroundColor: "var(--mantine-color-body)",
+      }}
+    >
       <Container className={classes.header}>
         <Link href="/" passHref>
           <Group>
             <Logo height={35} width={35} />
-            <Text weight={600}>{config.get("general.appName")}</Text>
+            <Text fw={600}>{config.get("general.appName")}</Text>
           </Group>
         </Link>
-        <Group spacing={5} className={classes.links}>
+        <Group gap={5} className={classes.links}>
           <Group>{items} </Group>
         </Group>
         <Burger
@@ -209,12 +136,12 @@ const Header = () => {
         <Transition transition="pop-top-right" duration={200} mounted={opened}>
           {(styles) => (
             <Paper className={classes.dropdown} withBorder style={styles}>
-              <Stack spacing={0}> {items}</Stack>
+              <Stack gap={0}>{items}</Stack>
             </Paper>
           )}
         </Transition>
       </Container>
-    </MantineHeader>
+    </Box>
   );
 };
 

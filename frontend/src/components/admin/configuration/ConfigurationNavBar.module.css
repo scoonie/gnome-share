@@ -1,0 +1,6 @@
+.activeLink {
+  background-color: var(--mantine-primary-color-light);
+  color: var(--mantine-primary-color-light-color);
+  border-radius: var(--mantine-radius-sm);
+  font-weight: 600;
+}

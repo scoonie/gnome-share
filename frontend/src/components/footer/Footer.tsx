@@ -1,4 +1,4 @@
-import { Anchor, Footer as MFooter, SimpleGrid, Text } from "@mantine/core";
+import { Anchor, Box, SimpleGrid, Text } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import useConfig from "../../hooks/config.hook";
 import useTranslate from "../../hooks/useTranslate.hook";
@@ -24,10 +24,18 @@ const Footer = () => {
   const isMobile = useMediaQuery("(max-width: 700px)");
 
   return (
-    <MFooter height="auto" py={6} px="xl" zIndex={100}>
+    <Box
+      component="footer"
+      py={6}
+      px="xl"
+      style={{
+        zIndex: 100,
+        borderTop: "1px solid var(--mantine-color-default-border)",
+      }}
+    >
       <SimpleGrid cols={isMobile ? 2 : 3} m={0}>
         {!isMobile && <div></div>}
-        <Text size="xs" color="dimmed" align={isMobile ? "left" : "center"}>
+        <Text size="xs" c="dimmed" ta={isMobile ? "left" : "center"}>
           Powered by{" "}
           <Anchor
             size="xs"
@@ -39,7 +47,7 @@ const Footer = () => {
         </Text>
         <div>
           {config.get("legal.enabled") && (
-            <Text size="xs" color="dimmed" align="right">
+            <Text size="xs" c="dimmed" ta="right">
               {hasImprint && (
                 <Anchor size="xs" href={imprintUrl}>
                   {t("imprint.title")}
@@ -55,7 +63,7 @@ const Footer = () => {
           )}
         </div>
       </SimpleGrid>
-    </MFooter>
+    </Box>
   );
 };
 
