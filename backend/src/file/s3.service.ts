@@ -167,9 +167,11 @@ export class S3FileService {
   }
 
   async get(shareId: string, fileId: string): Promise<File> {
-    const fileName = (
-      await this.prisma.file.findUnique({ where: { id: fileId } })
-    ).name;
+    const fileMetaData = await this.prisma.file.findFirst({ 
+      where: { id: fileId, shareId } 
+    });
+    if (!fileMetaData) throw new NotFoundException("File not found");
+    const fileName = fileMetaData.name;
 
     const s3Instance = this.getS3Instance();
     const key = `${this.getS3Path()}${shareId}/${fileName}`;
@@ -196,8 +198,8 @@ export class S3FileService {
   }
 
   async remove(shareId: string, fileId: string) {
-    const fileMetaData = await this.prisma.file.findUnique({
-      where: { id: fileId },
+    const fileMetaData = await this.prisma.file.findFirst({
+      where: { id: fileId, shareId },
     });
 
     if (!fileMetaData) throw new NotFoundException("File not found");

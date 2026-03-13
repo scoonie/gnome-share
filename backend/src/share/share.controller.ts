@@ -152,12 +152,11 @@ export class ShareController {
         key,
         payload: this.jwtService.decode(value),
       }));
-
     const expiredTokens = shareTokenCookies.filter(
-      (cookie) => cookie.payload.exp < dayjs().unix(),
+      (cookie) => !cookie.payload || cookie.payload.exp < dayjs().unix(),
     );
     const validTokens = shareTokenCookies.filter(
-      (cookie) => cookie.payload.exp >= dayjs().unix(),
+      (cookie) => cookie.payload && cookie.payload.exp >= dayjs().unix(),
     );
 
     expiredTokens.forEach((cookie) => response.clearCookie(cookie.key));
