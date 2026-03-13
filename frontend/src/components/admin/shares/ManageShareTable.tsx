@@ -2,7 +2,6 @@ import {
   ActionIcon,
   Box,
   Group,
-  MediaQuery,
   Skeleton,
   Table,
   Text,
@@ -34,7 +33,7 @@ const ManageShareTable = ({
   const t = useTranslate();
 
   return (
-    <Box sx={{ display: "block", overflowX: "auto" }}>
+    <Box style={{ display: "block", overflowX: "auto" }}>
       <Table verticalSpacing="sm">
         <thead>
           <tr>
@@ -70,7 +69,7 @@ const ManageShareTable = ({
                     {share.creator ? (
                       share.creator.username
                     ) : (
-                      <Text color="dimmed">Anonymous</Text>
+                      <Text c="dimmed">Anonymous</Text>
                     )}
                   </td>
                   <td>{share.views}</td>
@@ -81,7 +80,7 @@ const ManageShareTable = ({
                       : dayjs(share.expiration).format("LLL")}
                   </td>
                   <td>
-                    <Group position="right">
+                    <Group justify="flex-end">
                       <ActionIcon
                         color="maroon"
                         variant="light"
@@ -122,11 +121,9 @@ const skeletonRows = [...Array(10)].map((v, i) => (
     <td>
       <Skeleton key={i} height={20} />
     </td>
-    <MediaQuery smallerThan="md" styles={{ display: "none" }}>
-      <td>
-        <Skeleton key={i} height={20} />
-      </td>
-    </MediaQuery>
+    <td>
+      <Skeleton key={i} height={20} />
+    </td>
     <td>
       <Skeleton key={i} height={20} />
     </td>

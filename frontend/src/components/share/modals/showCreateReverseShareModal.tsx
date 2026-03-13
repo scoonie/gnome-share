@@ -1,6 +1,5 @@
 import {
   Button,
-  Col,
   Grid,
   Group,
   NumberInput,
@@ -130,7 +129,7 @@ const Body = ({
         <Stack align="stretch">
           <div>
             <Grid align={form.errors.expiration_num ? "center" : "flex-end"}>
-              <Col xs={6}>
+              <Grid.Col span={6}>
                 <NumberInput
                   min={1}
                   max={99999}
@@ -139,8 +138,8 @@ const Body = ({
                   label={t("account.reverseShares.modal.expiration.label")}
                   {...form.getInputProps("expiration_num")}
                 />
-              </Col>
-              <Col xs={6}>
+              </Grid.Col>
+              <Grid.Col span={6}>
                 <Select
                   {...form.getInputProps("expiration_unit")}
                   data={[
@@ -189,15 +188,13 @@ const Body = ({
                     },
                   ]}
                 />
-              </Col>
+              </Grid.Col>
             </Grid>
             <Text
               mt="sm"
               italic
               size="xs"
-              sx={(theme) => ({
-                color: theme.colors.gray[6],
-              })}
+              c="dimmed"
             >
               {getExpirationPreview(
                 {

@@ -59,7 +59,7 @@ const Users = () => {
   return (
     <>
       <Meta title={t("admin.users.title")} />
-      <Group position="apart" align="baseline" mb={20}>
+      <Group justify="space-between" align="baseline" mb={20}>
         <Title mb={30} order={3}>
           <FormattedMessage id="admin.users.title" />
         </Title>

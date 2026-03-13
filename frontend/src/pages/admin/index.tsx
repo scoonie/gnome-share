@@ -1,12 +1,11 @@
 import {
   Center,
-  Col,
-  createStyles,
   Grid,
   Paper,
   Stack,
   Text,
   Title,
+  useMantineTheme,
 } from "@mantine/core";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -15,24 +14,10 @@ import { FormattedMessage } from "react-intl";
 import Meta from "../../components/Meta";
 import useTranslate from "../../hooks/useTranslate.hook";
 import configService from "../../services/config.service";
-
-const useStyles = createStyles((theme) => ({
-  item: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    textAlign: "center",
-    height: 90,
-    "&:hover": {
-      boxShadow: `${theme.shadows.sm} !important`,
-      transform: "scale(1.01)",
-    },
-  },
-}));
+import classes from "./admin.module.css";
 
 const Admin = () => {
-  const { classes, theme } = useStyles();
+  const theme = useMantineTheme();
   const t = useTranslate();
 
   const [managementOptions, setManagementOptions] = useState([
@@ -83,7 +68,7 @@ const Admin = () => {
           <Grid>
             {managementOptions.map((item) => {
               return (
-                <Col xs={6} key={item.route}>
+                <Grid.Col span={6} key={item.route}>
                   <Paper
                     withBorder
                     component={Link}
@@ -94,14 +79,14 @@ const Admin = () => {
                     <item.icon color={theme.colors.maroon[8]} size={35} />
                     <Text mt={7}>{item.title}</Text>
                   </Paper>
-                </Col>
+                </Grid.Col>
               );
             })}
           </Grid>
         </Paper>
 
         <Center>
-          <Text size="xs" color="dimmed">
+          <Text size="xs" c="dimmed">
             <FormattedMessage id="admin.version" /> {process.env.VERSION}
           </Text>
         </Center>

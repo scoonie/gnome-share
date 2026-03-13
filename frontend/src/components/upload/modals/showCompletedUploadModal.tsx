@@ -39,21 +39,14 @@ const Body = ({ share }: { share: CompletedShare }) => {
       {share.notifyReverseShareCreator === true && (
         <Text
           size="sm"
-          sx={(theme) => ({
-            color:
-              theme.colorScheme === "dark"
-                ? theme.colors.gray[3]
-                : theme.colors.dark[4],
-          })}
+          c="dimmed"
         >
           {t("upload.modal.completed.notified-reverse-share-creator")}
         </Text>
       )}
       <Text
         size="xs"
-        sx={(theme) => ({
-          color: theme.colors.gray[6],
-        })}
+        c="dimmed"
       >
         {/* If our share.expiration is timestamp 0, show a different message */}
         {dayjs(share.expiration).unix() === 0

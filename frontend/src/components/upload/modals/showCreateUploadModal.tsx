@@ -3,7 +3,6 @@ import {
   Alert,
   Button,
   Checkbox,
-  Col,
   Grid,
   Group,
   MultiSelect,
@@ -260,16 +259,14 @@ const CreateUploadModalBody = ({
             truncate
             italic
             size="xs"
-            sx={(theme) => ({
-              color: theme.colors.gray[6],
-            })}
+            c="dimmed"
           >
             {`${window.location.origin}/s/${form.values.link}`}
           </Text>
           {!options.isReverseShare && (
             <>
               <Grid align={form.errors.expiration_num ? "center" : "flex-end"}>
-                <Col xs={6}>
+                <Grid.Col span={6}>
                   <NumberInput
                     min={1}
                     max={99999}
@@ -279,8 +276,8 @@ const CreateUploadModalBody = ({
                     disabled={form.values.never_expires}
                     {...form.getInputProps("expiration_num")}
                   />
-                </Col>
-                <Col xs={6}>
+                </Grid.Col>
+                <Grid.Col span={6}>
                   <Select
                     disabled={form.values.never_expires}
                     {...form.getInputProps("expiration_unit")}
@@ -329,9 +326,7 @@ const CreateUploadModalBody = ({
                       },
                     ]}
                   />
-                </Col>
-              </Grid>
-              {options.maxExpiration.value == 0 && (
+                </Grid.Col>
                 <Checkbox
                   label={t("upload.modal.expires.never-long")}
                   {...form.getInputProps("never_expires")}
@@ -340,9 +335,7 @@ const CreateUploadModalBody = ({
               <Text
                 italic
                 size="xs"
-                sx={(theme) => ({
-                  color: theme.colors.gray[6],
-                })}
+                c="dimmed"
               >
                 {getExpirationPreview(
                   {
@@ -355,7 +348,7 @@ const CreateUploadModalBody = ({
             </>
           )}
           <Accordion>
-            <Accordion.Item value="description" sx={{ borderBottom: "none" }}>
+            <Accordion.Item value="description" style={{ borderBottom: "none" }}>
               <Accordion.Control>
                 <FormattedMessage id="upload.modal.accordion.name-and-description.title" />
               </Accordion.Control>
@@ -379,7 +372,7 @@ const CreateUploadModalBody = ({
               </Accordion.Panel>
             </Accordion.Item>
             {options.enableEmailRecepients && (
-              <Accordion.Item value="recipients" sx={{ borderBottom: "none" }}>
+              <Accordion.Item value="recipients" style={{ borderBottom: "none" }}>
                 <Accordion.Control>
                   <FormattedMessage id="upload.modal.accordion.email.title" />
                 </Accordion.Control>
@@ -432,7 +425,7 @@ const CreateUploadModalBody = ({
               </Accordion.Item>
             )}
 
-            <Accordion.Item value="security" sx={{ borderBottom: "none" }}>
+            <Accordion.Item value="security" style={{ borderBottom: "none" }}>
               <Accordion.Control>
                 <FormattedMessage id="upload.modal.accordion.security.title" />
               </Accordion.Control>

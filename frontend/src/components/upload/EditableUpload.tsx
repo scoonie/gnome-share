@@ -209,7 +209,7 @@ const EditableUpload = ({
 
   return (
     <>
-      <Group position="right" mb={20}>
+      <Group justify="flex-end" mb={20}>
         <Button loading={isUploading} disabled={!dirty} onClick={() => save()}>
           <FormattedMessage id="common.button.save" />
         </Button>

@@ -30,7 +30,7 @@ const showShareInformationsModal = (
     title: t("account.shares.modal.share-informations"),
 
     children: (
-      <Stack align="stretch" spacing="md">
+      <Stack align="stretch" gap="md">
         <Text size="sm">
           <b>
             <FormattedMessage id="account.shares.table.id" />:{" "}

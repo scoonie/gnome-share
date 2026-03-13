@@ -53,8 +53,8 @@ const MyShares = () => {
   return (
     <>
       <Meta title={t("account.reverseShares.title")} />
-      <Group position="apart" align="baseline" mb={20}>
-        <Group align="center" spacing={3} mb={30}>
+      <Group justify="space-between" align="baseline" mb={20}>
+        <Group align="center" gap={3} mb={30}>
           <Title order={3}>
             <FormattedMessage id="account.reverseShares.title" />
           </Title>
@@ -86,7 +86,7 @@ const MyShares = () => {
       </Group>
       {reverseShares.length == 0 ? (
         <Center style={{ height: "70vh" }}>
-          <Stack align="center" spacing={10}>
+          <Stack align="center" gap={10}>
             <Title order={3}>
               <FormattedMessage id="account.reverseShares.title.empty" />
             </Title>
@@ -96,7 +96,7 @@ const MyShares = () => {
           </Stack>
         </Center>
       ) : (
-        <Box sx={{ display: "block", overflowX: "auto" }}>
+        <Box style={{ display: "block", overflowX: "auto" }}>
           <Table>
             <thead>
               <tr>
@@ -120,14 +120,14 @@ const MyShares = () => {
                 <tr key={reverseShare.id}>
                   <td style={{ width: 220 }}>
                     {reverseShare.shares.length == 0 ? (
-                      <Text color="dimmed" size="sm">
+                      <Text c="dimmed" size="sm">
                         <FormattedMessage id="account.reverseShares.table.no-shares" />
                       </Text>
                     ) : (
                       <Accordion>
                         <Accordion.Item
                           value="customization"
-                          sx={{ borderBottom: "none" }}
+                          style={{ borderBottom: "none" }}
                         >
                           <Accordion.Control p={0}>
                             <Text size="sm">
@@ -187,7 +187,7 @@ const MyShares = () => {
                       : dayjs(reverseShare.shareExpiration).format("LLL")}
                   </td>
                   <td>
-                    <Group position="right">
+                    <Group justify="flex-end">
                       <ActionIcon
                         color="maroon"
                         variant="light"
