@@ -161,13 +161,19 @@ export class LocalFileService {
 
   async get(shareId: string, fileId: string) {
     const safeShareId = path.basename(shareId);
+    if (!isValidUUID(fileId)) {
+      throw new BadRequestException("Invalid file id");
+    }
+    const safeFileId = fileId;
     const fileMetaData = await this.prisma.file.findFirst({
-      where: { id: fileId, shareId: safeShareId },
+      where: { id: safeFileId, shareId: safeShareId },
     });
 
     if (!fileMetaData) throw new NotFoundException("File not found");
 
-    const file = createReadStream(`${SHARE_DIRECTORY}/${safeShareId}/${fileId}`);
+    const file = createReadStream(
+      `${SHARE_DIRECTORY}/${safeShareId}/${safeFileId}`,
+    );
 
     return {
       metaData: {
@@ -181,15 +187,19 @@ export class LocalFileService {
 
   async remove(shareId: string, fileId: string) {
     const safeShareId = path.basename(shareId);
+    if (!isValidUUID(fileId)) {
+      throw new BadRequestException("Invalid file id");
+    }
+    const safeFileId = fileId;
     const fileMetaData = await this.prisma.file.findFirst({
-      where: { id: fileId, shareId: safeShareId },
+      where: { id: safeFileId, shareId: safeShareId },
     });
 
     if (!fileMetaData) throw new NotFoundException("File not found");
 
-    await fs.unlink(`${SHARE_DIRECTORY}/${safeShareId}/${fileId}`);
+    await fs.unlink(`${SHARE_DIRECTORY}/${safeShareId}/${safeFileId}`);
 
-    await this.prisma.file.delete({ where: { id: fileId } });
+    await this.prisma.file.delete({ where: { id: safeFileId } });
   }
 
   async deleteAllFiles(shareId: string) {
