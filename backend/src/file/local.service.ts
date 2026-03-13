@@ -38,7 +38,7 @@ export class LocalFileService {
     }
 
     const safeFileId = file.id as string;
-    if (safeFileId.includes("/") || safeFileId.includes("\\")) {
+    if (safeFileId.includes("/") || safeFileId.includes("\")) {
       // Defensive check to ensure the file ID cannot be used for path traversal
       throw new BadRequestException("Invalid file ID format");
     }
@@ -67,8 +67,10 @@ export class LocalFileService {
     if (!file.name || typeof file.name !== "string") {
       throw new BadRequestException("File name is required and must be a string");
     }
-    file.name = path.basename(file.name.replace(/\\/g, "/"));
-    if (!file.name || file.name === "." || file.name === "..") {
+    const safeName: string = path.basename(
+      (file.name as string).replace(/\\/g, "/"),
+    );
+    if (!safeName || safeName === "." || safeName === "..") {
       throw new BadRequestException("Invalid file name");
     }
 
@@ -118,7 +120,7 @@ export class LocalFileService {
     try {
       const dirEntries = await fs.readdir(`${SHARE_DIRECTORY}/${safeShareId}`);
       for (const entry of dirEntries) {
-        if (entry.endsWith(".tmp-chunk") && entry !== `${file.id}.tmp-chunk`) {
+        if (entry.endsWith(".tmp-chunk") && entry !== `${safeFileId}.tmp-chunk`) {
           try {
             const stat = await fs.stat(
               `${SHARE_DIRECTORY}/${safeShareId}/${entry}`,
@@ -163,7 +165,7 @@ export class LocalFileService {
       await this.prisma.file.create({
         data: {
           id: safeFileId,
-          name: file.name,
+          name: safeName,
           size: fileSize.toString(),
           share: { connect: { id: safeShareId } },
         },
