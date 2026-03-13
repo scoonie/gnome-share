@@ -1,9 +1,9 @@
 import {
   SiDiscord,
   SiGithub,
-  SiGoogle,
-  SiOpenid,
+  SiGoogle, 
   SiWindows,
+  SiOpenid
 } from "react-icons/si";
 import React from "react";
 import api from "../services/api.service";
