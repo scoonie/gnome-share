@@ -185,9 +185,8 @@ export class LocalFileService {
 
     if (!fileMetaData) throw new NotFoundException("File not found");
 
-    const file = createReadStream(
-      `${SHARE_DIRECTORY}/${safeShareId}/${safeFileId}`,
-    );
+    const filePath = path.join(SHARE_DIRECTORY, safeShareId, fileMetaData.name);
+    const file = createReadStream(filePath);
 
     return {
       metaData: {
@@ -211,7 +210,8 @@ export class LocalFileService {
 
     if (!fileMetaData) throw new NotFoundException("File not found");
 
-    await fs.unlink(`${SHARE_DIRECTORY}/${safeShareId}/${safeFileId}`);
+    const filePath = path.join(SHARE_DIRECTORY, safeShareId, fileMetaData.name);
+    await fs.unlink(filePath);
 
     await this.prisma.file.delete({ where: { id: safeFileId } });
   }
