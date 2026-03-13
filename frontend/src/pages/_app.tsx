@@ -5,7 +5,7 @@ import "../styles/global.css";
 import {
   MantineProvider,
   MantineColorScheme,
-  cookieStorageColorSchemeManager,
+  localStorageColorSchemeManager,
   Container,
   Stack,
 } from "@mantine/core";
@@ -101,7 +101,7 @@ const DAYJS_LOCALE_MAP: Record<string, string> = {
 
 const excludeDefaultLayoutRoutes = ["/admin/config/[category]"];
 
-const colorSchemeManager = cookieStorageColorSchemeManager({
+const colorSchemeManager = localStorageColorSchemeManager({
   key: "mantine-color-scheme",
 });
 

@@ -67,7 +67,7 @@ const Users = () => {
           onClick={() =>
             showCreateUserModal(modals, config.get("smtp.enabled"), getUsers)
           }
-          leftIcon={<TbPlus size={20} />}
+          leftSection={<TbPlus size={20} />}
         >
           <FormattedMessage id="common.button.create" />
         </Button>

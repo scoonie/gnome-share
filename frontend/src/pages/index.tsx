@@ -67,7 +67,7 @@ export default function Home() {
 
             <List
               mt={30}
-              gap="sm"
+              spacing="sm"
               size="sm"
               icon={
                 <ThemeIcon size={20} radius="xl">

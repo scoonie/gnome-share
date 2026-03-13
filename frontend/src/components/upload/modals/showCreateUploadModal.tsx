@@ -257,7 +257,7 @@ const CreateUploadModalBody = ({
 
           <Text
             truncate
-            italic
+            fs="italic"
             size="xs"
             c="dimmed"
           >
@@ -270,7 +270,7 @@ const CreateUploadModalBody = ({
                   <NumberInput
                     min={1}
                     max={99999}
-                    precision={0}
+                    decimalScale={0}
                     variant="filled"
                     label={t("upload.modal.expires.label")}
                     disabled={form.values.never_expires}
@@ -331,9 +331,9 @@ const CreateUploadModalBody = ({
                   label={t("upload.modal.expires.never-long")}
                   {...form.getInputProps("never_expires")}
                 />
-              )}
+              </Grid>
               <Text
-                italic
+                fs="italic"
                 size="xs"
                 c="dimmed"
               >
@@ -381,25 +381,8 @@ const CreateUploadModalBody = ({
                     data={form.values.recipients}
                     placeholder={t("upload.modal.accordion.email.placeholder")}
                     searchable
-                    creatable
                     id="recipient-emails"
                     inputMode="email"
-                    getCreateLabel={(query) => `+ ${query}`}
-                    onCreate={(query) => {
-                      if (!query.match(/^\S+@\S+\.\S+$/)) {
-                        form.setFieldError(
-                          "recipients",
-                          t("upload.modal.accordion.email.invalid-email"),
-                        );
-                      } else {
-                        form.setFieldError("recipients", null);
-                        form.setFieldValue("recipients", [
-                          ...form.values.recipients,
-                          query,
-                        ]);
-                        return query;
-                      }
-                    }}
                     {...form.getInputProps("recipients")}
                     onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                       // Add email on comma or semicolon
@@ -442,7 +425,7 @@ const CreateUploadModalBody = ({
                   />
                   <NumberInput
                     min={1}
-                    type="number"
+                    inputMode="numeric"
                     variant="filled"
                     placeholder={t(
                       "upload.modal.accordion.security.max-views.placeholder",

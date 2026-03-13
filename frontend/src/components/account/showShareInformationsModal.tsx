@@ -83,11 +83,16 @@ const showShareInformationsModal = (
           )}
           <Progress
             value={shareSizeProgress}
-            label={share.size / maxShareSize >= 0.1 ? formattedShareSize : ""}
             style={{ width: share.size / maxShareSize < 0.1 ? "70%" : "80%" }}
             size="xl"
             radius="xl"
-          />
+          >
+            <Progress.Section value={shareSizeProgress}>
+              {share.size / maxShareSize >= 0.1 && (
+                <Progress.Label>{formattedShareSize}</Progress.Label>
+              )}
+            </Progress.Section>
+          </Progress>
           <Text size="xs" style={{ marginLeft: "4px" }}>
             {formattedMaxShareSize}
           </Text>

@@ -231,7 +231,7 @@ const Account = () => {
                 {oauth.map((provider) => (
                   <Tabs.Tab
                     value={provider}
-                    icon={getOAuthIcon(provider)}
+                    leftSection={getOAuthIcon(provider)}
                     key={provider}
                   >
                     {t(`account.card.oauth.${provider}`)}
@@ -297,7 +297,7 @@ const Account = () => {
 
           <Tabs defaultValue="totp">
             <Tabs.List>
-              <Tabs.Tab value="totp" icon={<TbAuth2Fa size={14} />}>
+              <Tabs.Tab value="totp" leftSection={<TbAuth2Fa size={14} />}>
                 TOTP
               </Tabs.Tab>
             </Tabs.List>

@@ -61,7 +61,7 @@ const MyShares = () => {
           <Tooltip
             position="bottom"
             multiline
-            width={220}
+            w={220}
             label={t("account.reverseShares.description")}
             events={{ hover: true, focus: false, touch: true }}
           >
@@ -79,7 +79,7 @@ const MyShares = () => {
               getReverseShares,
             )
           }
-          leftIcon={<TbPlus size={20} />}
+          leftSection={<TbPlus size={20} />}
         >
           <FormattedMessage id="common.button.create" />
         </Button>

@@ -31,8 +31,9 @@ const Dropzone = ({
         }}
         disabled={isUploading}
         openRef={openRef as ForwardedRef<() => void>}
-        onDrop={(files: FileUpload[]) => {
-          const fileSizeSum = files.reduce((n, { size }) => n + size, 0);
+        onDrop={(files) => {
+          const typedFiles = files as unknown as FileUpload[];
+          const fileSizeSum = typedFiles.reduce((n, { size }) => n + size, 0);
 
           if (fileSizeSum > maxShareSize) {
             toast.error(
@@ -41,11 +42,11 @@ const Dropzone = ({
               }),
             );
           } else {
-            files = files.map((newFile) => {
+            const mappedFiles = typedFiles.map((newFile) => {
               newFile.uploadingProgress = 0;
               return newFile;
             });
-            onFilesChanged(files);
+            onFilesChanged(mappedFiles);
           }
         }}
         className={classes.dropzone}

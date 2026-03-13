@@ -133,7 +133,7 @@ const Body = ({
                 <NumberInput
                   min={1}
                   max={99999}
-                  precision={0}
+                  decimalScale={0}
                   variant="filled"
                   label={t("account.reverseShares.modal.expiration.label")}
                   {...form.getInputProps("expiration_num")}
@@ -192,7 +192,7 @@ const Body = ({
             </Grid>
             <Text
               mt="sm"
-              italic
+              fs="italic"
               size="xs"
               c="dimmed"
             >
@@ -213,7 +213,7 @@ const Body = ({
           <NumberInput
             min={1}
             max={1000}
-            precision={0}
+            decimalScale={0}
             variant="filled"
             label={t("account.reverseShares.modal.max-use.label")}
             description={t("account.reverseShares.modal.max-use.description")}
