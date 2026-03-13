@@ -1,5 +1,4 @@
 import {
-  Badge,
   Button,
   Center,
   Container,
@@ -143,9 +142,6 @@ const Account = () => {
         <Paper withBorder p="xl">
           <Title order={5} mb="xs">
             <FormattedMessage id="account.card.info.title" />
-            {user?.isLdap ? (
-              <Badge style={{ marginLeft: "1em" }}>LDAP</Badge>
-            ) : null}
           </Title>
           <form
             onSubmit={accountForm.onSubmit((values) =>
@@ -161,26 +157,21 @@ const Account = () => {
             <Stack>
               <TextInput
                 label={t("account.card.info.username")}
-                disabled={user?.isLdap}
                 {...accountForm.getInputProps("username")}
               />
               <TextInput
                 label={t("account.card.info.email")}
-                disabled={user?.isLdap}
                 {...accountForm.getInputProps("email")}
               />
-              {!user?.isLdap && (
-                <Group justify="flex-end">
-                  <Button type="submit">
-                    <FormattedMessage id="common.button.save" />
-                  </Button>
-                </Group>
-              )}
+              <Group justify="flex-end">
+                <Button type="submit">
+                  <FormattedMessage id="common.button.save" />
+                </Button>
+              </Group>
             </Stack>
           </form>
         </Paper>
-        {user?.isLdap ? null : (
-          <Paper withBorder p="xl" mt="lg">
+        <Paper withBorder p="xl" mt="lg">
             <Title order={5} mb="xs">
               <FormattedMessage id="account.card.password.title" />
             </Title>
@@ -219,7 +210,6 @@ const Account = () => {
               </Stack>
             </form>
           </Paper>
-        )}
         {oauth.length > 0 && (
           <Paper withBorder p="xl" mt="lg">
             <Title order={5} mb="xs">

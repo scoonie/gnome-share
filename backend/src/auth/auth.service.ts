@@ -21,7 +21,6 @@ import { GenericOidcProvider } from "../oauth/provider/genericOidc.provider";
 import { UserSevice } from "../user/user.service";
 import { AuthRegisterDTO } from "./dto/authRegister.dto";
 import { AuthSignInDTO } from "./dto/authSignIn.dto";
-import { LdapService } from "./ldap.service";
 
 @Injectable()
 export class AuthService {
@@ -30,7 +29,6 @@ export class AuthService {
     private jwtService: JwtService,
     private config: ConfigService,
     private emailService: EmailService,
-    private ldapService: LdapService,
     private userService: UserSevice,
     @Inject(forwardRef(() => OAuthService)) private oAuthService: OAuthService,
   ) {}
@@ -89,28 +87,6 @@ export class AuthService {
       }
     }
 
-    if (this.config.get("ldap.enabled")) {
-      /*
-       * E-mail-like user credentials are passed as the email property
-       * instead of the username. Since the username format does not matter
-       * when searching for users in LDAP, we simply use the username
-       * in whatever format it is provided.
-       */
-      const ldapUsername = dto.username || dto.email;
-      this.logger.debug(`Trying LDAP login for user ${ldapUsername}`);
-      const ldapUser = await this.ldapService.authenticateUser(
-        ldapUsername,
-        dto.password,
-      );
-      if (ldapUser) {
-        const user = await this.userService.findOrCreateFromLDAP(dto, ldapUser);
-        this.logger.log(
-          `Successful LDAP login for user ${ldapUsername} (${user.id}) from IP ${ip}`,
-        );
-        return this.generateToken(user);
-      }
-    }
-
     this.logger.log(
       `Failed login attempt for user ${dto.email || dto.username} from IP ${ip}`,
     );
@@ -145,15 +121,6 @@ export class AuthService {
     });
 
     if (!user) return;
-
-    if (user.ldapDN) {
-      this.logger.log(
-        `Failed password reset request for user ${email} because it is an LDAP user`,
-      );
-      throw new BadRequestException(
-        "This account can't reset its password here. Please contact your administrator.",
-      );
-    }
 
     // Delete old reset password token
     if (user.resetPasswordToken) {
@@ -382,10 +349,6 @@ export class AuthService {
   }
 
   async verifyPassword(user: User, password: string) {
-    if (!user.password && this.config.get("ldap.enabled")) {
-      return !!this.ldapService.authenticateUser(user.username, password);
-    }
-
     return argon.verify(user.password, password);
   }
 }

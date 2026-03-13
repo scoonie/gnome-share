@@ -13,7 +13,6 @@
     "seed": "ts-node prisma/seed/config.seed.ts"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1008.0",
     "@keyv/redis": "^4.4.0",
     "@nestjs/cache-manager": "^3.0.1",
     "@nestjs/common": "^11.0.17",
@@ -39,7 +38,6 @@
     "cookie-parser": "^1.4.7",
     "dayjs": "^1.11.20",
     "jmespath": "^0.16.0",
-    "ldapts": "^8.1.7",
     "mime-types": "^3.0.1",
     "nanoid": "^3.3.7",
     "nodemailer": "^7.0.11",
