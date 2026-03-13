@@ -172,51 +172,6 @@ export const configVariables = {
       obscured: true,
     },
   },
-  ldap: {
-    enabled: {
-      type: "boolean",
-      defaultValue: "false",
-      secret: false,
-    },
-
-    url: {
-      type: "string",
-      defaultValue: "",
-    },
-
-    bindDn: {
-      type: "string",
-      defaultValue: "",
-    },
-    bindPassword: {
-      type: "string",
-      defaultValue: "",
-      obscured: true,
-    },
-
-    searchBase: {
-      type: "string",
-      defaultValue: "",
-    },
-    searchQuery: {
-      type: "string",
-      defaultValue: "",
-    },
-
-    adminGroups: {
-      type: "string",
-      defaultValue: "",
-    },
-
-    fieldNameMemberOf: {
-      type: "string",
-      defaultValue: "memberOf",
-    },
-    fieldNameEmail: {
-      type: "string",
-      defaultValue: "userPrincipalName",
-    },
-  },
   oauth: {
     allowRegistration: {
       type: "boolean",
@@ -337,42 +292,6 @@ export const configVariables = {
       obscured: true,
     },
   },
-  s3: {
-    enabled: {
-      type: "boolean",
-      defaultValue: "false",
-    },
-    endpoint: {
-      type: "string",
-      defaultValue: "",
-    },
-    region: {
-      type: "string",
-      defaultValue: "",
-    },
-    bucketName: {
-      type: "string",
-      defaultValue: "",
-    },
-    bucketPath: {
-      type: "string",
-      defaultValue: "",
-    },
-    key: {
-      type: "string",
-      defaultValue: "",
-      secret: true,
-    },
-    secret: {
-      type: "string",
-      defaultValue: "",
-      obscured: true,
-    },
-    useChecksum: {
-      type: "boolean",
-      defaultValue: "true",
-    },
-  },
   legal: {
     enabled: {
       type: "boolean",
@@ -413,7 +332,6 @@ export type YamlConfig = {
     email: string;
     password: string;
     isAdmin: boolean;
-    ldapDN: string;
   };
 };
 

@@ -3,7 +3,6 @@ type User = {
   username: string;
   email: string;
   isAdmin: boolean;
-  isLdap: boolean;
   totpVerified: boolean;
   hasPassword: boolean;
 };
