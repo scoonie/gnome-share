@@ -6,7 +6,7 @@ import {
 } from "@nestjs/common";
 import { JwtService, JwtSignOptions } from "@nestjs/jwt";
 import { Share, User } from "@prisma/client";
-import * as archiver from "archiver";
+import archiver from "archiver";
 import * as argon from "argon2";
 import * as fs from "fs";
 import dayjs, { ManipulateType } from "dayjs";
