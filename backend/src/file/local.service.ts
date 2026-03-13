@@ -27,16 +27,32 @@ export class LocalFileService {
   async create(
     data: string,
     chunk: { index: number; total: number },
-    file: { id?: string; name: string },
+    file: { id?: string; name?: unknown },
     shareId: string,
   ) {
+    const safeShareId = path.basename(shareId);
     if (!file.id) {
       file.id = crypto.randomUUID();
     } else if (!isValidUUID(file.id)) {
       throw new BadRequestException("Invalid file ID format");
     }
 
-    // Prevent overwriting already-completed files
+    const safeFileId = file.id as string;
+    if (safeFileId.includes("/") || safeFileId.includes("\\")) {
+      throw new BadRequestException("Invalid file ID format");
+    }
+
+    const shareRoot = path.resolve(SHARE_DIRECTORY, safeShareId);
+    const tempChunkPath = path.resolve(shareRoot, `${safeFileId}.tmp-chunk`);
+    const finalFilePath = path.resolve(shareRoot, safeFileId);
+    const resolvedShareRoot = path.resolve(SHARE_DIRECTORY);
+    if (
+      !tempChunkPath.startsWith(resolvedShareRoot + path.sep) ||
+      !finalFilePath.startsWith(resolvedShareRoot + path.sep)
+    ) {
+      throw new BadRequestException("Invalid file path");
+    }
+
     const existingFile = await this.prisma.file.findUnique({
       where: { id: file.id },
     });
@@ -44,17 +60,18 @@ export class LocalFileService {
       throw new BadRequestException("File ID already exists");
     }
 
-    // Sanitize file name to prevent path traversal (Zip Slip)
-    if (!file.name || typeof file.name !== 'string') {
+    if (!file.name || typeof file.name !== "string") {
       throw new BadRequestException("File name is required and must be a string");
     }
-    file.name = path.basename(file.name);
-    if (!file.name) {
+    const safeName: string = path.basename(
+      (file.name as string).replace(/\\/g, "/"),
+    );
+    if (!safeName || safeName === "." || safeName === "..") {
       throw new BadRequestException("Invalid file name");
     }
 
     const share = await this.prisma.share.findUnique({
-      where: { id: shareId },
+      where: { id: safeShareId },
       include: { files: true, reverseShare: true },
     });
 
@@ -63,14 +80,11 @@ export class LocalFileService {
 
     let diskFileSize: number;
     try {
-      diskFileSize = (
-        await fs.stat(`${SHARE_DIRECTORY}/${shareId}/${file.id}.tmp-chunk`)
-      ).size;
+      diskFileSize = (await fs.stat(tempChunkPath)).size;
     } catch {
       diskFileSize = 0;
     }
 
-    // If the sent chunk index and the expected chunk index doesn't match throw an error
     const chunkSize = this.config.get("share.chunkSize");
     const expectedChunkIndex = Math.ceil(diskFileSize / chunkSize);
 
@@ -83,28 +97,25 @@ export class LocalFileService {
 
     const buffer = Buffer.from(data, "base64");
 
-    // Check if there is enough space on the server
     const space = await fs.statfs(SHARE_DIRECTORY);
     const availableSpace = space.bavail * space.bsize;
     if (availableSpace < buffer.byteLength) {
       throw new InternalServerErrorException("Not enough space on the server");
     }
 
-    // Check if share size limit is exceeded
     const fileSizeSum = share.files.reduce(
       (n, { size }) => n + parseInt(size),
       0,
     );
 
-    // Also account for in-progress uploads (.tmp-chunk files)
     let inProgressSize = 0;
     try {
-      const dirEntries = await fs.readdir(`${SHARE_DIRECTORY}/${shareId}`);
+      const dirEntries = await fs.readdir(`${SHARE_DIRECTORY}/${safeShareId}`);
       for (const entry of dirEntries) {
-        if (entry.endsWith(".tmp-chunk") && entry !== `${file.id}.tmp-chunk`) {
+        if (entry.endsWith(".tmp-chunk") && entry !== `${safeFileId}.tmp-chunk`) {
           try {
             const stat = await fs.stat(
-              `${SHARE_DIRECTORY}/${shareId}/${entry}`,
+              `${SHARE_DIRECTORY}/${safeShareId}/${entry}`,
             );
             inProgressSize += stat.size;
           } catch {
@@ -130,25 +141,25 @@ export class LocalFileService {
     }
 
     await fs.appendFile(
-      `${SHARE_DIRECTORY}/${shareId}/${file.id}.tmp-chunk`,
+      tempChunkPath,
       buffer,
     );
 
     const isLastChunk = chunk.index == chunk.total - 1;
     if (isLastChunk) {
       await fs.rename(
-        `${SHARE_DIRECTORY}/${shareId}/${file.id}.tmp-chunk`,
-        `${SHARE_DIRECTORY}/${shareId}/${file.id}`,
+        tempChunkPath,
+        finalFilePath,
       );
       const fileSize = (
-        await fs.stat(`${SHARE_DIRECTORY}/${shareId}/${file.id}`)
+        await fs.stat(finalFilePath)
       ).size;
       await this.prisma.file.create({
         data: {
-          id: file.id,
-          name: file.name,
+          id: safeFileId,
+          name: safeName,
           size: fileSize.toString(),
-          share: { connect: { id: shareId } },
+          share: { connect: { id: safeShareId } },
         },
       });
     }
@@ -157,13 +168,23 @@ export class LocalFileService {
   }
 
   async get(shareId: string, fileId: string) {
+    const safeShareId = path.basename(shareId);
+    if (!isValidUUID(fileId)) {
+      throw new BadRequestException("Invalid file id");
+    }
+    const safeFileId = fileId;
     const fileMetaData = await this.prisma.file.findFirst({
-      where: { id: fileId, shareId },
+      where: { id: safeFileId, shareId: safeShareId },
     });
 
     if (!fileMetaData) throw new NotFoundException("File not found");
 
-    const file = createReadStream(`${SHARE_DIRECTORY}/${shareId}/${fileId}`);
+    const rootDir = path.resolve(SHARE_DIRECTORY);
+    const filePath = path.resolve(rootDir, safeShareId, safeFileId);
+    if (!filePath.startsWith(rootDir + path.sep)) {
+      throw new BadRequestException("Invalid file path");
+    }
+    const file = createReadStream(filePath);
 
     return {
       metaData: {
@@ -176,29 +197,49 @@ export class LocalFileService {
   }
 
   async remove(shareId: string, fileId: string) {
+    const safeShareId = path.basename(shareId);
+    if (!isValidUUID(fileId)) {
+      throw new BadRequestException("Invalid file id");
+    }
+    const safeFileId = fileId;
     const fileMetaData = await this.prisma.file.findFirst({
-      where: { id: fileId, shareId },
+      where: { id: safeFileId, shareId: safeShareId },
     });
 
     if (!fileMetaData) throw new NotFoundException("File not found");
 
-    await fs.unlink(`${SHARE_DIRECTORY}/${shareId}/${fileId}`);
+    const rootDir = path.resolve(SHARE_DIRECTORY);
+    const filePath = path.resolve(rootDir, safeShareId, safeFileId);
+    if (!filePath.startsWith(rootDir + path.sep)) {
+      throw new BadRequestException("Invalid file path");
+    }
+    await fs.unlink(filePath);
 
-    await this.prisma.file.delete({ where: { id: fileId } });
+    await this.prisma.file.delete({ where: { id: safeFileId } });
   }
 
   async deleteAllFiles(shareId: string) {
-    await fs.rm(`${SHARE_DIRECTORY}/${shareId}`, {
+    const safeShareId = path.basename(shareId);
+    const rootDir = path.resolve(SHARE_DIRECTORY);
+    const directoryPath = path.resolve(rootDir, safeShareId);
+    if (!directoryPath.startsWith(rootDir + path.sep)) {
+      throw new BadRequestException("Invalid directory path");
+    }
+    await fs.rm(directoryPath, {
       recursive: true,
       force: true,
     });
   }
 
   async getZip(shareId: string): Promise<Readable> {
+    const safeShareId = path.basename(shareId);
+    const rootDir = path.resolve(SHARE_DIRECTORY);
+    const zipPath = path.resolve(rootDir, safeShareId, "archive.zip");
+    if (!zipPath.startsWith(rootDir + path.sep)) {
+      throw new BadRequestException("Invalid file path");
+    }
     return new Promise((resolve, reject) => {
-      const zipStream = createReadStream(
-        `${SHARE_DIRECTORY}/${shareId}/archive.zip`,
-      );
+      const zipStream = createReadStream(zipPath);
 
       zipStream.on("error", (err) => {
         reject(new InternalServerErrorException(err));

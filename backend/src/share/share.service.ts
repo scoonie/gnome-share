@@ -152,7 +152,10 @@ export class ShareService {
           this.prisma.share.update({ where: { id }, data: { isZipReady: true } }),
         )
         .catch((err) => {
-          this.logger.error(`Failed to create zip for share ${id}: ${err.message}`);
+          this.logger.error(
+            `Failed to create zip for share ${id}: ${err instanceof Error ? err.message : err}`,
+            err instanceof Error ? err.stack : undefined,
+          );
         });
 
     // Send email for each recipient

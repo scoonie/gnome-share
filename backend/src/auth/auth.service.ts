@@ -349,6 +349,7 @@ export class AuthService {
   }
 
   async verifyPassword(user: User, password: string) {
+    if (!user.password) return false;
     return argon.verify(user.password, password);
   }
 }
