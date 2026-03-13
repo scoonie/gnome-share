@@ -122,6 +122,7 @@ const CreateUploadModalBody = ({
   const generatedLink = generateShareId(options.shareIdLength);
 
   const [showNotSignedInAlert, setShowNotSignedInAlert] = useState(true);
+  const [recipientSearchValue, setRecipientSearchValue] = useState("");
 
   const validationSchema = yup.object().shape({
     link: yup
@@ -327,10 +328,12 @@ const CreateUploadModalBody = ({
                     ]}
                   />
                 </Grid.Col>
-                <Checkbox
-                  label={t("upload.modal.expires.never-long")}
-                  {...form.getInputProps("never_expires")}
-                />
+                <Grid.Col span={12}>
+                  <Checkbox
+                    label={t("upload.modal.expires.never-long")}
+                    {...form.getInputProps("never_expires")}
+                  />
+                </Grid.Col>
               </Grid>
               <Text
                 fs="italic"
@@ -383,24 +386,28 @@ const CreateUploadModalBody = ({
                     searchable
                     id="recipient-emails"
                     inputMode="email"
+                    searchValue={recipientSearchValue}
+                    onSearchChange={setRecipientSearchValue}
                     {...form.getInputProps("recipients")}
                     onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                      // Add email on comma or semicolon
+                      // Add email on Enter, comma or semicolon
                       if (e.key === "Enter" || e.key === "," || e.key === ";") {
                         e.preventDefault();
-                        const inputValue = (
-                          e.target as HTMLInputElement
-                        ).value.trim();
+                        const inputValue = recipientSearchValue.trim();
                         if (inputValue.match(/^\S+@\S+\.\S+$/)) {
                           form.setFieldValue("recipients", [
                             ...form.values.recipients,
                             inputValue,
                           ]);
-                          (e.target as HTMLInputElement).value = "";
+                          setRecipientSearchValue("");
+                        } else if (inputValue) {
+                          form.setFieldError(
+                            "recipients",
+                            t("upload.modal.accordion.email.invalid-email"),
+                          );
                         }
                       } else if (e.key === " ") {
                         e.preventDefault();
-                        (e.target as HTMLInputElement).value = "";
                       }
                     }}
                   />

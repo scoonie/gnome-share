@@ -12,7 +12,7 @@ import { User } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import * as argon from "argon2";
 import { Request, Response } from "express";
-import dayjs from "dayjs";
+import dayjs, { ManipulateType } from "dayjs";
 import { ConfigService } from "src/config/config.service";
 import { EmailService } from "src/email/email.service";
 import { PrismaService } from "src/prisma/prisma.service";
@@ -343,7 +343,7 @@ export class AuthService {
       const now = dayjs();
       const sessionDuration = this.config.get("general.sessionDuration");
       const maxAge = now
-        .add(sessionDuration.value, sessionDuration.unit as dayjs.ManipulateType)
+        .add(sessionDuration.value, sessionDuration.unit as ManipulateType)
         .diff(now);
       response.cookie("refresh_token", refreshToken, {
         path: "/api/auth/token",
