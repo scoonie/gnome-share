@@ -37,7 +37,11 @@ export class LocalFileService {
       throw new BadRequestException("Invalid file ID format");
     }
 
-    const safeFileId = file.id;
+    const safeFileId = file.id as string;
+    if (safeFileId.includes("/") || safeFileId.includes("\\")) {
+      // Defensive check to ensure the file ID cannot be used for path traversal
+      throw new BadRequestException("Invalid file ID format");
+    }
 
     // Prevent overwriting already-completed files
     const existingFile = await this.prisma.file.findUnique({
