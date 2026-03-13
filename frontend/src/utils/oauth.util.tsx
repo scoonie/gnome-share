@@ -2,7 +2,7 @@ import {
   SiDiscord,
   SiGithub,
   SiGoogle,
-  SiMicrosoft,
+  SiMicrosoft365,
   SiOpenid,
 } from "react-icons/si";
 import React from "react";
@@ -15,7 +15,7 @@ const getOAuthUrl = (appUrl: string, provider: string) => {
 const getOAuthIcon = (provider: string) => {
   return {
     google: <SiGoogle />,
-    microsoft: <SiMicrosoft />,
+    microsoft: <SiMicrosoft365 />,
     github: <SiGithub />,
     discord: <SiDiscord />,
     oidc: <SiOpenid />,
