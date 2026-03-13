@@ -45,6 +45,9 @@ export class LocalFileService {
     }
 
     // Sanitize file name to prevent path traversal (Zip Slip)
+    if (!file.name || typeof file.name !== 'string') {
+      throw new BadRequestException("File name is required and must be a string");
+    }
     file.name = path.basename(file.name);
     if (!file.name) {
       throw new BadRequestException("Invalid file name");
