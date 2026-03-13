@@ -1,15 +1,18 @@
+import "@mantine/core/styles.css";
+import "@mantine/notifications/styles.css";
+import "@mantine/dropzone/styles.css";
+import "../styles/global.css";
 import {
-  ColorScheme,
-  ColorSchemeProvider,
-  Container,
   MantineProvider,
+  MantineColorScheme,
+  cookieStorageColorSchemeManager,
+  Container,
   Stack,
 } from "@mantine/core";
-import { useColorScheme } from "@mantine/hooks";
 import { ModalsProvider } from "@mantine/modals";
 import { Notifications } from "@mantine/notifications";
 import axios from "axios";
-import { getCookie, setCookie } from "cookies-next";
+import { getCookie } from "cookies-next";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -54,12 +57,10 @@ import { LOCALES } from "../i18n/locales";
 import authService from "../services/auth.service";
 import configService from "../services/config.service";
 import userService from "../services/user.service";
-import GlobalStyle from "../styles/global.style";
-import globalStyle from "../styles/mantine.style";
+import mantineTheme from "../styles/mantine.style";
 import Config from "../types/config.type";
 import { CurrentUser } from "../types/user.type";
 import i18nUtil from "../utils/i18n.util";
-import userPreferences from "../utils/userPreferences.util";
 import Footer from "../components/footer/Footer";
 
 dayjs.extend(localizedFormat);
@@ -100,11 +101,12 @@ const DAYJS_LOCALE_MAP: Record<string, string> = {
 
 const excludeDefaultLayoutRoutes = ["/admin/config/[category]"];
 
-function App({ Component, pageProps }: AppProps) {
-  const systemTheme = useColorScheme(pageProps.colorScheme);
-  const router = useRouter();
+const colorSchemeManager = cookieStorageColorSchemeManager({
+  key: "mantine-color-scheme",
+});
 
-  const [colorScheme, setColorScheme] = useState<ColorScheme>(systemTheme);
+function App({ Component, pageProps }: AppProps) {
+  const router = useRouter();
 
   const [user, setUser] = useState<CurrentUser | null>(pageProps.user);
   const [route, setRoute] = useState<string>(pageProps.route);
@@ -135,22 +137,6 @@ function App({ Component, pageProps }: AppProps) {
     }
   }, []);
 
-  useEffect(() => {
-    const colorScheme =
-      userPreferences.get("colorScheme") == "system"
-        ? systemTheme
-        : userPreferences.get("colorScheme");
-
-    toggleColorScheme(colorScheme);
-  }, [systemTheme]);
-
-  const toggleColorScheme = (value: ColorScheme) => {
-    setColorScheme(value ?? "light");
-    setCookie("mantine-color-scheme", value ?? "light", {
-      sameSite: "lax",
-    });
-  };
-
   const language = useRef(pageProps.language);
   dayjs.locale(DAYJS_LOCALE_MAP[language.current] ?? language.current);
 
@@ -168,57 +154,51 @@ function App({ Component, pageProps }: AppProps) {
         defaultLocale={LOCALES.ENGLISH.code}
       >
         <MantineProvider
-          withGlobalStyles
-          withNormalizeCSS
-          theme={{ colorScheme, ...globalStyle }}
+          theme={mantineTheme}
+          defaultColorScheme={pageProps.colorScheme ?? "light"}
+          colorSchemeManager={colorSchemeManager}
         >
-          <ColorSchemeProvider
-            colorScheme={colorScheme}
-            toggleColorScheme={toggleColorScheme}
-          >
-            <GlobalStyle />
-            <Notifications />
-            <ModalsProvider>
-              <ConfigContext.Provider
+          <Notifications />
+          <ModalsProvider>
+            <ConfigContext.Provider
+              value={{
+                configVariables,
+                refresh: async () => {
+                  setConfigVariables(await configService.list());
+                },
+              }}
+            >
+              <UserContext.Provider
                 value={{
-                  configVariables,
-                  refresh: async () => {
-                    setConfigVariables(await configService.list());
+                  user,
+                  refreshUser: async () => {
+                    const user = await userService.getCurrentUser();
+                    setUser(user);
+                    return user;
                   },
                 }}
               >
-                <UserContext.Provider
-                  value={{
-                    user,
-                    refreshUser: async () => {
-                      const user = await userService.getCurrentUser();
-                      setUser(user);
-                      return user;
-                    },
-                  }}
-                >
-                  {excludeDefaultLayoutRoutes.includes(route) ? (
-                    <Component {...pageProps} />
-                  ) : (
-                    <>
-                      <Stack
-                        justify="space-between"
-                        sx={{ minHeight: "100vh" }}
-                      >
-                        <div>
-                          <Header />
-                          <Container>
-                            <Component {...pageProps} />
-                          </Container>
-                        </div>
-                        <Footer />
-                      </Stack>
-                    </>
-                  )}
-                </UserContext.Provider>
-              </ConfigContext.Provider>
-            </ModalsProvider>
-          </ColorSchemeProvider>
+                {excludeDefaultLayoutRoutes.includes(route) ? (
+                  <Component {...pageProps} />
+                ) : (
+                  <>
+                    <Stack
+                      justify="space-between"
+                      style={{ minHeight: "100vh" }}
+                    >
+                      <div>
+                        <Header />
+                        <Container>
+                          <Component {...pageProps} />
+                        </Container>
+                      </div>
+                      <Footer />
+                    </Stack>
+                  </>
+                )}
+              </UserContext.Provider>
+            </ConfigContext.Provider>
+          </ModalsProvider>
         </MantineProvider>
       </IntlProvider>
     </>
@@ -232,12 +212,12 @@ App.getInitialProps = async ({ ctx }: { ctx: GetServerSidePropsContext }) => {
     user?: CurrentUser;
     configVariables?: Config[];
     route?: string;
-    colorScheme: ColorScheme;
+    colorScheme: MantineColorScheme;
     language?: string;
   } = {
     route: ctx.resolvedUrl,
     colorScheme:
-      (getCookie("mantine-color-scheme", ctx) as ColorScheme) ?? "light",
+      (getCookie("mantine-color-scheme", ctx) as MantineColorScheme) ?? "light",
   };
 
   if (ctx.req) {

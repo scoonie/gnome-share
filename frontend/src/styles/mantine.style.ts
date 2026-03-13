@@ -1,6 +1,6 @@
-import { MantineThemeOverride } from "@mantine/core";
+import { createTheme } from "@mantine/core";
 
-export default <MantineThemeOverride>{
+export default createTheme({
   colors: {
     maroon: [
       "#F4E2E4", // [0] Lightest (subtle backgrounds)
@@ -15,15 +15,15 @@ export default <MantineThemeOverride>{
       "#4A151C", // [9] Darkest
     ],
   },
-  primaryColor: "maroon", // Tell the app to use the maroon array
+  primaryColor: "maroon",
   components: {
     Modal: {
-      styles: (theme) => ({
+      styles: {
         title: {
-          fontSize: theme.fontSizes.lg,
+          fontSize: "var(--mantine-font-size-lg)",
           fontWeight: 700,
         },
-      }),
+      },
     },
   },
-};
+});
