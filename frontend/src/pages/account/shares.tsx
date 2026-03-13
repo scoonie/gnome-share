@@ -12,7 +12,7 @@ import {
 } from "@mantine/core";
 import { useClipboard } from "@mantine/hooks";
 import { useModals } from "@mantine/modals";
-import moment from "moment";
+import dayjs from "dayjs";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { TbEdit, TbInfoCircle, TbLink, TbLock, TbTrash } from "react-icons/tb";
@@ -111,10 +111,10 @@ const MyShares = () => {
                     )}
                   </td>
                   <td>
-                    {moment(share.expiration).unix() === 0 ? (
+                    {dayjs(share.expiration).unix() === 0 ? (
                       <FormattedMessage id="account.shares.table.expiry-never" />
                     ) : (
-                      moment(share.expiration).format("LLL")
+                      dayjs(share.expiration).format("LLL")
                     )}
                   </td>
                   <td>

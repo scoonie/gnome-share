@@ -10,8 +10,37 @@ import { ModalsProvider } from "@mantine/modals";
 import { Notifications } from "@mantine/notifications";
 import axios from "axios";
 import { getCookie, setCookie } from "cookies-next";
-import moment from "moment";
-import "moment/min/locales";
+import dayjs from "dayjs";
+import localizedFormat from "dayjs/plugin/localizedFormat";
+import relativeTime from "dayjs/plugin/relativeTime";
+import duration from "dayjs/plugin/duration";
+import "dayjs/locale/ar";
+import "dayjs/locale/cs";
+import "dayjs/locale/da";
+import "dayjs/locale/de";
+import "dayjs/locale/el";
+import "dayjs/locale/es";
+import "dayjs/locale/et";
+import "dayjs/locale/fi";
+import "dayjs/locale/fr";
+import "dayjs/locale/hr";
+import "dayjs/locale/hu";
+import "dayjs/locale/it";
+import "dayjs/locale/ja";
+import "dayjs/locale/ko";
+import "dayjs/locale/nl-be";
+import "dayjs/locale/pl";
+import "dayjs/locale/pt-br";
+import "dayjs/locale/ru";
+import "dayjs/locale/sl";
+import "dayjs/locale/sr";
+import "dayjs/locale/sv";
+import "dayjs/locale/th";
+import "dayjs/locale/tr";
+import "dayjs/locale/uk";
+import "dayjs/locale/vi";
+import "dayjs/locale/zh-cn";
+import "dayjs/locale/zh-tw";
 import { GetServerSidePropsContext } from "next";
 import type { AppProps } from "next/app";
 import Head from "next/head";
@@ -32,6 +61,42 @@ import { CurrentUser } from "../types/user.type";
 import i18nUtil from "../utils/i18n.util";
 import userPreferences from "../utils/userPreferences.util";
 import Footer from "../components/footer/Footer";
+
+dayjs.extend(localizedFormat);
+dayjs.extend(relativeTime);
+dayjs.extend(duration);
+
+const DAYJS_LOCALE_MAP: Record<string, string> = {
+  "ar-EG": "ar",
+  "cs-CZ": "cs",
+  "da-DK": "da",
+  "de-DE": "de",
+  "el-GR": "el",
+  "en-US": "en",
+  "es-ES": "es",
+  "et-EE": "et",
+  "fi-FI": "fi",
+  "fr-FR": "fr",
+  "hr-HR": "hr",
+  "hu-HU": "hu",
+  "it-IT": "it",
+  "ja-JP": "ja",
+  "ko-KR": "ko",
+  "nl-BE": "nl-be",
+  "pl-PL": "pl",
+  "pt-BR": "pt-br",
+  "ru-RU": "ru",
+  "sl-SI": "sl",
+  "sr-CS": "sr",
+  "sr-SP": "sr",
+  "sv-SE": "sv",
+  "th-TH": "th",
+  "tr-TR": "tr",
+  "uk-UA": "uk",
+  "vi-VN": "vi",
+  "zh-CN": "zh-cn",
+  "zh-TW": "zh-tw",
+};
 
 const excludeDefaultLayoutRoutes = ["/admin/config/[category]"];
 
@@ -87,7 +152,7 @@ function App({ Component, pageProps }: AppProps) {
   };
 
   const language = useRef(pageProps.language);
-  moment.locale(language.current);
+  dayjs.locale(DAYJS_LOCALE_MAP[language.current] ?? language.current);
 
   return (
     <>

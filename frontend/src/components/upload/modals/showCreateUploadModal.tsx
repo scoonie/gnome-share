@@ -18,7 +18,7 @@ import {
 import { useForm, yupResolver } from "@mantine/form";
 import { useModals } from "@mantine/modals";
 import { ModalsContextProps } from "@mantine/modals/lib/context";
-import moment from "moment";
+import dayjs, { ManipulateType } from "dayjs";
 import React, { useState } from "react";
 import { TbAlertCircle } from "react-icons/tb";
 import { FormattedMessage } from "react-intl";
@@ -172,29 +172,29 @@ const CreateUploadModalBody = ({
         ? "never"
         : form.values.expiration_num + form.values.expiration_unit;
 
-      const expirationDate = moment().add(
+      const expirationDate = dayjs().add(
         form.values.expiration_num,
         form.values.expiration_unit.replace(
           "-",
           "",
-        ) as moment.unitOfTime.DurationConstructor,
+        ) as ManipulateType,
       );
 
       if (
         options.maxExpiration.value != 0 &&
         (form.values.never_expires ||
           expirationDate.isAfter(
-            moment().add(
+            dayjs().add(
               options.maxExpiration.value,
-              options.maxExpiration.unit,
+              options.maxExpiration.unit as ManipulateType,
             ),
           ))
       ) {
         form.setFieldError(
           "expiration_num",
           t("upload.modal.expires.error.too-long", {
-            max: moment
-              .duration(options.maxExpiration.value, options.maxExpiration.unit)
+            max: dayjs
+              .duration(options.maxExpiration.value, options.maxExpiration.unit as ManipulateType)
               .humanize(),
           }),
         );

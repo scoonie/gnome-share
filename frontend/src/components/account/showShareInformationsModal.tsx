@@ -1,6 +1,6 @@
 import { Divider, Flex, Progress, Stack, Text } from "@mantine/core";
 import { ModalsContextProps } from "@mantine/modals/lib/context";
-import moment from "moment";
+import dayjs from "dayjs";
 import { FormattedMessage } from "react-intl";
 import { translateOutsideContext } from "../../hooks/useTranslate.hook";
 import { FileMetaData } from "../../types/File.type";
@@ -20,11 +20,11 @@ const showShareInformationsModal = (
   const formattedMaxShareSize = byteToHumanSizeString(maxShareSize);
   const shareSizeProgress = (share.size / maxShareSize) * 100;
 
-  const formattedCreatedAt = moment(share.createdAt).format("LLL");
+  const formattedCreatedAt = dayjs(share.createdAt).format("LLL");
   const formattedExpiration =
-    moment(share.expiration).unix() === 0
+    dayjs(share.expiration).unix() === 0
       ? "Never"
-      : moment(share.expiration).format("LLL");
+      : dayjs(share.expiration).format("LLL");
 
   return modals.openModal({
     title: t("account.shares.modal.share-informations"),

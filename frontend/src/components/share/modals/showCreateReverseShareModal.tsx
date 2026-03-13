@@ -13,7 +13,7 @@ import { useForm, yupResolver } from "@mantine/form";
 import { useModals } from "@mantine/modals";
 import { ModalsContextProps } from "@mantine/modals/lib/context";
 import { getCookie, setCookie } from "cookies-next";
-import moment from "moment";
+import dayjs, { ManipulateType } from "dayjs";
 import { FormattedMessage } from "react-intl";
 import * as yup from "yup";
 import useTranslate, {
@@ -84,24 +84,24 @@ const Body = ({
     setCookie("reverse-share.simplified", values.simplified);
     setCookie("reverse-share.public-access", values.publicAccess);
 
-    const expirationDate = moment().add(
+    const expirationDate = dayjs().add(
       form.values.expiration_num,
       form.values.expiration_unit.replace(
         "-",
         "",
-      ) as moment.unitOfTime.DurationConstructor,
+      ) as ManipulateType,
     );
     if (
       maxExpiration.value != 0 &&
       expirationDate.isAfter(
-        moment().add(maxExpiration.value, maxExpiration.unit),
+        dayjs().add(maxExpiration.value, maxExpiration.unit as ManipulateType),
       )
     ) {
       form.setFieldError(
         "expiration_num",
         t("upload.modal.expires.error.too-long", {
-          max: moment
-            .duration(maxExpiration.value, maxExpiration.unit)
+          max: dayjs
+            .duration(maxExpiration.value, maxExpiration.unit as ManipulateType)
             .humanize(),
         }),
       );

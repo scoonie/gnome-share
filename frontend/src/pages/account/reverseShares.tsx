@@ -14,7 +14,7 @@ import {
 } from "@mantine/core";
 import { useClipboard } from "@mantine/hooks";
 import { useModals } from "@mantine/modals";
-import moment from "moment";
+import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { TbInfoCircle, TbLink, TbPlus, TbTrash } from "react-icons/tb";
 import { FormattedMessage } from "react-intl";
@@ -182,9 +182,9 @@ const MyShares = () => {
                     {byteToHumanSizeString(parseInt(reverseShare.maxShareSize))}
                   </td>
                   <td>
-                    {moment(reverseShare.shareExpiration).unix() === 0
+                    {dayjs(reverseShare.shareExpiration).unix() === 0
                       ? "Never"
-                      : moment(reverseShare.shareExpiration).format("LLL")}
+                      : dayjs(reverseShare.shareExpiration).format("LLL")}
                   </td>
                   <td>
                     <Group position="right">
