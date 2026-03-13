@@ -14,7 +14,7 @@ import { JwtService } from "@nestjs/jwt";
 import { Throttle } from "@nestjs/throttler";
 import { User } from "@prisma/client";
 import { Request, Response } from "express";
-import * as moment from "moment";
+import dayjs from "dayjs";
 import { GetUser } from "src/auth/decorator/getUser.decorator";
 import { AdministratorGuard } from "src/auth/guard/isAdmin.guard";
 import { JwtGuard } from "src/auth/guard/jwt.guard";
@@ -154,10 +154,10 @@ export class ShareController {
       }));
 
     const expiredTokens = shareTokenCookies.filter(
-      (cookie) => cookie.payload.exp < moment().unix(),
+      (cookie) => cookie.payload.exp < dayjs().unix(),
     );
     const validTokens = shareTokenCookies.filter(
-      (cookie) => cookie.payload.exp >= moment().unix(),
+      (cookie) => cookie.payload.exp >= dayjs().unix(),
     );
 
     expiredTokens.forEach((cookie) => response.clearCookie(cookie.key));

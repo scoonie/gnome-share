@@ -1,4 +1,4 @@
-import { Anchor, Title, useMantineTheme } from "@mantine/core";
+import { Anchor, Title, useMantineColorScheme } from "@mantine/core";
 import Meta from "../../components/Meta";
 import useTranslate from "../../hooks/useTranslate.hook";
 import { FormattedMessage } from "react-intl";
@@ -7,7 +7,7 @@ import Markdown from "markdown-to-jsx";
 
 const Imprint = () => {
   const t = useTranslate();
-  const { colorScheme } = useMantineTheme();
+  const { colorScheme } = useMantineColorScheme();
   const config = useConfig();
   return (
     <>

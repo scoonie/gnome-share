@@ -2,14 +2,13 @@ import {
   ActionIcon,
   Box,
   Group,
-  MediaQuery,
   Skeleton,
   Table,
   Text,
 } from "@mantine/core";
 import { useClipboard } from "@mantine/hooks";
 import { useModals } from "@mantine/modals";
-import moment from "moment";
+import dayjs from "dayjs";
 import { TbLink, TbTrash } from "react-icons/tb";
 import { FormattedMessage } from "react-intl";
 import useConfig from "../../../hooks/config.hook";
@@ -34,7 +33,7 @@ const ManageShareTable = ({
   const t = useTranslate();
 
   return (
-    <Box sx={{ display: "block", overflowX: "auto" }}>
+    <Box style={{ display: "block", overflowX: "auto" }}>
       <Table verticalSpacing="sm">
         <thead>
           <tr>
@@ -70,18 +69,18 @@ const ManageShareTable = ({
                     {share.creator ? (
                       share.creator.username
                     ) : (
-                      <Text color="dimmed">Anonymous</Text>
+                      <Text c="dimmed">Anonymous</Text>
                     )}
                   </td>
                   <td>{share.views}</td>
                   <td>{byteToHumanSizeString(share.size)}</td>
                   <td>
-                    {moment(share.expiration).unix() === 0
+                    {dayjs(share.expiration).unix() === 0
                       ? "Never"
-                      : moment(share.expiration).format("LLL")}
+                      : dayjs(share.expiration).format("LLL")}
                   </td>
                   <td>
-                    <Group position="right">
+                    <Group justify="flex-end">
                       <ActionIcon
                         color="maroon"
                         variant="light"
@@ -122,11 +121,9 @@ const skeletonRows = [...Array(10)].map((v, i) => (
     <td>
       <Skeleton key={i} height={20} />
     </td>
-    <MediaQuery smallerThan="md" styles={{ display: "none" }}>
-      <td>
-        <Skeleton key={i} height={20} />
-      </td>
-    </MediaQuery>
+    <td>
+      <Skeleton key={i} height={20} />
+    </td>
     <td>
       <Skeleton key={i} height={20} />
     </td>

@@ -1,7 +1,6 @@
 import {
   Button,
   Container,
-  createStyles,
   Group,
   List,
   Text,
@@ -17,61 +16,9 @@ import Logo from "../components/Logo";
 import Meta from "../components/Meta";
 import useUser from "../hooks/user.hook";
 import useConfig from "../hooks/config.hook";
-
-const useStyles = createStyles((theme) => ({
-  inner: {
-    display: "flex",
-    justifyContent: "space-between",
-    paddingTop: `calc(${theme.spacing.md} * 4)`,
-    paddingBottom: `calc(${theme.spacing.md} * 4)`,
-  },
-
-  content: {
-    maxWidth: 480,
-    marginRight: `calc(${theme.spacing.md} * 3)`,
-
-    [theme.fn.smallerThan("md")]: {
-      maxWidth: "100%",
-      marginRight: 0,
-    },
-  },
-
-  title: {
-    color: theme.colorScheme === "dark" ? theme.white : theme.black,
-    fontSize: 44,
-    lineHeight: 1.2,
-    fontWeight: 900,
-
-    [theme.fn.smallerThan("xs")]: {
-      fontSize: 28,
-    },
-  },
-
-  control: {
-    [theme.fn.smallerThan("xs")]: {
-      flex: 1,
-    },
-  },
-
-  image: {
-    [theme.fn.smallerThan("md")]: {
-      display: "none",
-    },
-  },
-
-  highlight: {
-    position: "relative",
-    backgroundColor:
-      theme.colorScheme === "dark"
-        ? theme.fn.rgba(theme.colors[theme.primaryColor][6], 0.55)
-        : theme.colors[theme.primaryColor][0],
-    borderRadius: theme.radius.sm,
-    padding: "4px 12px",
-  },
-}));
+import classes from "./index.module.css";
 
 export default function Home() {
-  const { classes } = useStyles();
   const { refreshUser } = useUser();
   const router = useRouter();
   const config = useConfig();
@@ -114,7 +61,7 @@ export default function Home() {
                 }}
               />
             </Title>
-            <Text color="dimmed" mt="md">
+            <Text c="dimmed" mt="md">
               <FormattedMessage id="home.description" />
             </Text>
 

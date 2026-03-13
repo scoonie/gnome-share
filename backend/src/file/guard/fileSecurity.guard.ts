@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { Request } from "express";
-import * as moment from "moment";
+import dayjs from "dayjs";
 import { PrismaService } from "src/prisma/prisma.service";
 import { ShareSecurityGuard } from "src/share/guard/shareSecurity.guard";
 import { ShareService } from "src/share/share.service";
@@ -42,8 +42,8 @@ export class FileSecurityGuard extends ShareSecurityGuard {
     if (!shareToken) {
       if (
         !share ||
-        (moment().isAfter(share.expiration) &&
-          !moment(share.expiration).isSame(0))
+        (dayjs().isAfter(share.expiration) &&
+          dayjs(share.expiration).valueOf() !== 0)
       ) {
         throw new NotFoundException("File not found");
       }

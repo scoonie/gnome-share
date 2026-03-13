@@ -2,7 +2,6 @@ import {
   Anchor,
   Button,
   Container,
-  createStyles,
   Group,
   Loader,
   Paper,
@@ -27,53 +26,13 @@ import authService from "../../services/auth.service";
 import { getOAuthIcon, getOAuthUrl } from "../../utils/oauth.util";
 import { safeRedirectPath } from "../../utils/router.util";
 import toast from "../../utils/toast.util";
-
-const useStyles = createStyles((theme) => ({
-  signInWith: {
-    fontWeight: 500,
-    "&:before": {
-      content: "''",
-      flex: 1,
-      display: "block",
-    },
-    "&:after": {
-      content: "''",
-      flex: 1,
-      display: "block",
-    },
-  },
-  or: {
-    "&:before": {
-      content: "''",
-      flex: 1,
-      display: "block",
-      borderTopWidth: 1,
-      borderTopStyle: "solid",
-      borderColor:
-        theme.colorScheme === "dark"
-          ? theme.colors.dark[3]
-          : theme.colors.gray[4],
-    },
-    "&:after": {
-      content: "''",
-      flex: 1,
-      display: "block",
-      borderTopWidth: 1,
-      borderTopStyle: "solid",
-      borderColor:
-        theme.colorScheme === "dark"
-          ? theme.colors.dark[3]
-          : theme.colors.gray[4],
-    },
-  },
-}));
+import classes from "./SignInForm.module.css";
 
 const SignInForm = ({ redirectPath }: { redirectPath: string }) => {
   const config = useConfig();
   const router = useRouter();
   const t = useTranslate();
   const { refreshUser } = useUser();
-  const { classes } = useStyles();
 
   const [oauthProviders, setOauthProviders] = useState<string[] | null>(null);
   const [isRedirectingToOauthProvider, setIsRedirectingToOauthProvider] =
@@ -138,9 +97,9 @@ const SignInForm = ({ redirectPath }: { redirectPath: string }) => {
 
   if (isRedirectingToOauthProvider)
     return (
-      <Group align="center" position="center">
+      <Group align="center" justify="center">
         <Loader size="sm" />
-        <Text align="center">
+        <Text ta="center">
           <FormattedMessage id="common.text.redirecting" />
         </Text>
       </Group>
@@ -148,11 +107,11 @@ const SignInForm = ({ redirectPath }: { redirectPath: string }) => {
 
   return (
     <Container size={420} my={40}>
-      <Title order={2} align="center" weight={900}>
+      <Title order={2} ta="center" fw={900}>
         <FormattedMessage id="signin.title" />
       </Title>
       {config.get("share.allowRegistration") && (
-        <Text color="dimmed" size="sm" align="center" mt={5}>
+        <Text c="dimmed" size="sm" ta="center" mt={5}>
           <FormattedMessage id="signin.description" />{" "}
           <Anchor component={Link} href={"signUp"} size="sm">
             <FormattedMessage id="signin.button.signup" />
@@ -178,7 +137,7 @@ const SignInForm = ({ redirectPath }: { redirectPath: string }) => {
               {...form.getInputProps("password")}
             />
             {config.get("smtp.enabled") && (
-              <Group position="right" mt="xs">
+              <Group justify="flex-end" mt="xs">
                 <Anchor component={Link} href="/auth/resetPassword" size="xs">
                   <FormattedMessage id="resetPassword.title" />
                 </Anchor>
@@ -200,7 +159,7 @@ const SignInForm = ({ redirectPath }: { redirectPath: string }) => {
                 <Text>{t("signIn.oauth.or")}</Text>
               </Group>
             )}
-            <Group position="center">
+            <Group justify="center">
               {oauthProviders.map((provider) => (
                 <Button
                   key={provider}

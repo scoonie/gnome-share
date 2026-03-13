@@ -1,7 +1,6 @@
 import {
   Button,
   Container,
-  createStyles,
   Group,
   Paper,
   PasswordInput,
@@ -15,17 +14,9 @@ import * as yup from "yup";
 import useTranslate from "../../../hooks/useTranslate.hook";
 import authService from "../../../services/auth.service";
 import toast from "../../../utils/toast.util";
-
-const useStyles = createStyles((theme) => ({
-  control: {
-    [theme.fn.smallerThan("xs")]: {
-      width: "100%",
-    },
-  },
-}));
+import classes from "./resetPassword.module.css";
 
 const ResetPassword = () => {
-  const { classes } = useStyles();
   const router = useRouter();
   const t = useTranslate();
 
@@ -47,10 +38,10 @@ const ResetPassword = () => {
 
   return (
     <Container size={460} my={30}>
-      <Title order={2} weight={900} align="center">
+      <Title order={2} fw={900} ta="center">
         <FormattedMessage id="resetPassword.text.resetPassword" />
       </Title>
-      <Text color="dimmed" size="sm" align="center">
+      <Text c="dimmed" size="sm" ta="center">
         <FormattedMessage id="resetPassword.text.enterNewPassword" />
       </Text>
 
@@ -72,7 +63,7 @@ const ResetPassword = () => {
             placeholder="••••••••••"
             {...form.getInputProps("password")}
           />
-          <Group position="right" mt="lg">
+          <Group justify="flex-end" mt="lg">
             <Button type="submit" className={classes.control}>
               <FormattedMessage id="resetPassword.text.resetPassword" />
             </Button>

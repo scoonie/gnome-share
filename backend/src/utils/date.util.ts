@@ -1,12 +1,12 @@
-import * as moment from "moment";
+import dayjs, { ManipulateType } from "dayjs";
 
 export function parseRelativeDateToAbsolute(relativeDate: string) {
-  if (relativeDate == "never") return moment(0).toDate();
+  if (relativeDate == "never") return dayjs(0).toDate();
 
-  return moment()
+  return dayjs()
     .add(
-      relativeDate.split("-")[0],
-      relativeDate.split("-")[1] as moment.unitOfTime.DurationConstructor,
+      parseInt(relativeDate.split("-")[0]),
+      relativeDate.split("-")[1] as ManipulateType,
     )
     .toDate();
 }

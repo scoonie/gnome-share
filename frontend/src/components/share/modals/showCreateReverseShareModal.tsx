@@ -1,6 +1,5 @@
 import {
   Button,
-  Col,
   Grid,
   Group,
   NumberInput,
@@ -13,7 +12,7 @@ import { useForm, yupResolver } from "@mantine/form";
 import { useModals } from "@mantine/modals";
 import { ModalsContextProps } from "@mantine/modals/lib/context";
 import { getCookie, setCookie } from "cookies-next";
-import moment from "moment";
+import dayjs, { ManipulateType } from "dayjs";
 import { FormattedMessage } from "react-intl";
 import * as yup from "yup";
 import useTranslate, {
@@ -84,24 +83,24 @@ const Body = ({
     setCookie("reverse-share.simplified", values.simplified);
     setCookie("reverse-share.public-access", values.publicAccess);
 
-    const expirationDate = moment().add(
+    const expirationDate = dayjs().add(
       form.values.expiration_num,
       form.values.expiration_unit.replace(
         "-",
         "",
-      ) as moment.unitOfTime.DurationConstructor,
+      ) as ManipulateType,
     );
     if (
       maxExpiration.value != 0 &&
       expirationDate.isAfter(
-        moment().add(maxExpiration.value, maxExpiration.unit),
+        dayjs().add(maxExpiration.value, maxExpiration.unit as ManipulateType),
       )
     ) {
       form.setFieldError(
         "expiration_num",
         t("upload.modal.expires.error.too-long", {
-          max: moment
-            .duration(maxExpiration.value, maxExpiration.unit)
+          max: dayjs
+            .duration(maxExpiration.value, maxExpiration.unit as ManipulateType)
             .humanize(),
         }),
       );
@@ -130,17 +129,17 @@ const Body = ({
         <Stack align="stretch">
           <div>
             <Grid align={form.errors.expiration_num ? "center" : "flex-end"}>
-              <Col xs={6}>
+              <Grid.Col span={6}>
                 <NumberInput
                   min={1}
                   max={99999}
-                  precision={0}
+                  decimalScale={0}
                   variant="filled"
                   label={t("account.reverseShares.modal.expiration.label")}
                   {...form.getInputProps("expiration_num")}
                 />
-              </Col>
-              <Col xs={6}>
+              </Grid.Col>
+              <Grid.Col span={6}>
                 <Select
                   {...form.getInputProps("expiration_unit")}
                   data={[
@@ -189,15 +188,13 @@ const Body = ({
                     },
                   ]}
                 />
-              </Col>
+              </Grid.Col>
             </Grid>
             <Text
               mt="sm"
-              italic
+              fs="italic"
               size="xs"
-              sx={(theme) => ({
-                color: theme.colors.gray[6],
-              })}
+              c="dimmed"
             >
               {getExpirationPreview(
                 {
@@ -216,7 +213,7 @@ const Body = ({
           <NumberInput
             min={1}
             max={1000}
-            precision={0}
+            decimalScale={0}
             variant="filled"
             label={t("account.reverseShares.modal.max-use.label")}
             description={t("account.reverseShares.modal.max-use.description")}

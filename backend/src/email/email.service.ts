@@ -1,12 +1,11 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-} from "@nestjs/common";
+import { Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
 import { User } from "@prisma/client";
-import * as moment from "moment";
+import relativeTime from "dayjs/plugin/relativeTime";
+import dayjs from "dayjs";
 import * as nodemailer from "nodemailer";
 import { ConfigService } from "src/config/config.service";
+
+dayjs.extend(relativeTime);
 
 @Injectable()
 export class EmailService {
@@ -74,8 +73,8 @@ export class EmailService {
         .replaceAll("{desc}", description ?? "No description")
         .replaceAll(
           "{expires}",
-          moment(expiration).unix() != 0
-            ? moment(expiration).fromNow()
+          dayjs(expiration).unix() !== 0
+            ? dayjs(expiration).fromNow()
             : "in: never",
         ),
     );

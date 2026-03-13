@@ -12,7 +12,7 @@ import {
 } from "@mantine/core";
 import { useClipboard } from "@mantine/hooks";
 import { useModals } from "@mantine/modals";
-import moment from "moment";
+import dayjs from "dayjs";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { TbEdit, TbInfoCircle, TbLink, TbLock, TbTrash } from "react-icons/tb";
@@ -49,7 +49,7 @@ const MyShares = () => {
       </Title>
       {shares.length == 0 ? (
         <Center style={{ height: "70vh" }}>
-          <Stack align="center" spacing={10}>
+          <Stack align="center" gap={10}>
             <Title order={3}>
               <FormattedMessage id="account.shares.title.empty" />
             </Title>
@@ -63,7 +63,7 @@ const MyShares = () => {
           </Stack>
         </Center>
       ) : (
-        <Box sx={{ display: "block", overflowX: "auto" }}>
+        <Box style={{ display: "block", overflowX: "auto" }}>
           <Table>
             <thead>
               <tr>
@@ -86,7 +86,7 @@ const MyShares = () => {
               {shares.map((share) => (
                 <tr key={share.id}>
                   <td>
-                    <Group spacing="xs">
+                    <Group gap="xs">
                       {share.id}{" "}
                       {share.security.passwordProtected && (
                         <TbLock
@@ -111,14 +111,14 @@ const MyShares = () => {
                     )}
                   </td>
                   <td>
-                    {moment(share.expiration).unix() === 0 ? (
+                    {dayjs(share.expiration).unix() === 0 ? (
                       <FormattedMessage id="account.shares.table.expiry-never" />
                     ) : (
-                      moment(share.expiration).format("LLL")
+                      dayjs(share.expiration).format("LLL")
                     )}
                   </td>
                   <td>
-                    <Group position="right">
+                    <Group justify="flex-end">
                       <Link href={`/share/${share.id}/edit`}>
                         <ActionIcon color="orange" variant="light" size={25}>
                           <TbEdit />

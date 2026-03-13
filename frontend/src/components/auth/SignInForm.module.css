@@ -1,0 +1,41 @@
+.signInWith {
+  font-weight: 500;
+}
+
+.signInWith::before {
+  content: '';
+  flex: 1;
+  display: block;
+}
+
+.signInWith::after {
+  content: '';
+  flex: 1;
+  display: block;
+}
+
+.or::before {
+  content: '';
+  flex: 1;
+  display: block;
+  border-top-width: 1px;
+  border-top-style: solid;
+  border-color: var(--mantine-color-gray-4);
+}
+
+[data-mantine-color-scheme="dark"] .or::before {
+  border-color: var(--mantine-color-dark-3);
+}
+
+.or::after {
+  content: '';
+  flex: 1;
+  display: block;
+  border-top-width: 1px;
+  border-top-style: solid;
+  border-color: var(--mantine-color-gray-4);
+}
+
+[data-mantine-color-scheme="dark"] .or::after {
+  border-color: var(--mantine-color-dark-3);
+}

@@ -3,7 +3,6 @@ import {
   Alert,
   Button,
   Checkbox,
-  Col,
   Grid,
   Group,
   MultiSelect,
@@ -18,7 +17,7 @@ import {
 import { useForm, yupResolver } from "@mantine/form";
 import { useModals } from "@mantine/modals";
 import { ModalsContextProps } from "@mantine/modals/lib/context";
-import moment from "moment";
+import dayjs, { ManipulateType } from "dayjs";
 import React, { useState } from "react";
 import { TbAlertCircle } from "react-icons/tb";
 import { FormattedMessage } from "react-intl";
@@ -123,6 +122,7 @@ const CreateUploadModalBody = ({
   const generatedLink = generateShareId(options.shareIdLength);
 
   const [showNotSignedInAlert, setShowNotSignedInAlert] = useState(true);
+  const [recipientSearchValue, setRecipientSearchValue] = useState("");
 
   const validationSchema = yup.object().shape({
     link: yup
@@ -172,29 +172,29 @@ const CreateUploadModalBody = ({
         ? "never"
         : form.values.expiration_num + form.values.expiration_unit;
 
-      const expirationDate = moment().add(
+      const expirationDate = dayjs().add(
         form.values.expiration_num,
         form.values.expiration_unit.replace(
           "-",
           "",
-        ) as moment.unitOfTime.DurationConstructor,
+        ) as ManipulateType,
       );
 
       if (
         options.maxExpiration.value != 0 &&
         (form.values.never_expires ||
           expirationDate.isAfter(
-            moment().add(
+            dayjs().add(
               options.maxExpiration.value,
-              options.maxExpiration.unit,
+              options.maxExpiration.unit as ManipulateType,
             ),
           ))
       ) {
         form.setFieldError(
           "expiration_num",
           t("upload.modal.expires.error.too-long", {
-            max: moment
-              .duration(options.maxExpiration.value, options.maxExpiration.unit)
+            max: dayjs
+              .duration(options.maxExpiration.value, options.maxExpiration.unit as ManipulateType)
               .humanize(),
           }),
         );
@@ -258,29 +258,27 @@ const CreateUploadModalBody = ({
 
           <Text
             truncate
-            italic
+            fs="italic"
             size="xs"
-            sx={(theme) => ({
-              color: theme.colors.gray[6],
-            })}
+            c="dimmed"
           >
             {`${window.location.origin}/s/${form.values.link}`}
           </Text>
           {!options.isReverseShare && (
             <>
               <Grid align={form.errors.expiration_num ? "center" : "flex-end"}>
-                <Col xs={6}>
+                <Grid.Col span={6}>
                   <NumberInput
                     min={1}
                     max={99999}
-                    precision={0}
+                    decimalScale={0}
                     variant="filled"
                     label={t("upload.modal.expires.label")}
                     disabled={form.values.never_expires}
                     {...form.getInputProps("expiration_num")}
                   />
-                </Col>
-                <Col xs={6}>
+                </Grid.Col>
+                <Grid.Col span={6}>
                   <Select
                     disabled={form.values.never_expires}
                     {...form.getInputProps("expiration_unit")}
@@ -329,20 +327,18 @@ const CreateUploadModalBody = ({
                       },
                     ]}
                   />
-                </Col>
+                </Grid.Col>
+                <Grid.Col span={12}>
+                  <Checkbox
+                    label={t("upload.modal.expires.never-long")}
+                    {...form.getInputProps("never_expires")}
+                  />
+                </Grid.Col>
               </Grid>
-              {options.maxExpiration.value == 0 && (
-                <Checkbox
-                  label={t("upload.modal.expires.never-long")}
-                  {...form.getInputProps("never_expires")}
-                />
-              )}
               <Text
-                italic
+                fs="italic"
                 size="xs"
-                sx={(theme) => ({
-                  color: theme.colors.gray[6],
-                })}
+                c="dimmed"
               >
                 {getExpirationPreview(
                   {
@@ -355,7 +351,7 @@ const CreateUploadModalBody = ({
             </>
           )}
           <Accordion>
-            <Accordion.Item value="description" sx={{ borderBottom: "none" }}>
+            <Accordion.Item value="description" style={{ borderBottom: "none" }}>
               <Accordion.Control>
                 <FormattedMessage id="upload.modal.accordion.name-and-description.title" />
               </Accordion.Control>
@@ -379,7 +375,7 @@ const CreateUploadModalBody = ({
               </Accordion.Panel>
             </Accordion.Item>
             {options.enableEmailRecepients && (
-              <Accordion.Item value="recipients" sx={{ borderBottom: "none" }}>
+              <Accordion.Item value="recipients" style={{ borderBottom: "none" }}>
                 <Accordion.Control>
                   <FormattedMessage id="upload.modal.accordion.email.title" />
                 </Accordion.Control>
@@ -388,43 +384,30 @@ const CreateUploadModalBody = ({
                     data={form.values.recipients}
                     placeholder={t("upload.modal.accordion.email.placeholder")}
                     searchable
-                    creatable
                     id="recipient-emails"
                     inputMode="email"
-                    getCreateLabel={(query) => `+ ${query}`}
-                    onCreate={(query) => {
-                      if (!query.match(/^\S+@\S+\.\S+$/)) {
-                        form.setFieldError(
-                          "recipients",
-                          t("upload.modal.accordion.email.invalid-email"),
-                        );
-                      } else {
-                        form.setFieldError("recipients", null);
-                        form.setFieldValue("recipients", [
-                          ...form.values.recipients,
-                          query,
-                        ]);
-                        return query;
-                      }
-                    }}
+                    searchValue={recipientSearchValue}
+                    onSearchChange={setRecipientSearchValue}
                     {...form.getInputProps("recipients")}
                     onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                      // Add email on comma or semicolon
+                      // Add email on Enter, comma or semicolon
                       if (e.key === "Enter" || e.key === "," || e.key === ";") {
                         e.preventDefault();
-                        const inputValue = (
-                          e.target as HTMLInputElement
-                        ).value.trim();
+                        const inputValue = recipientSearchValue.trim();
                         if (inputValue.match(/^\S+@\S+\.\S+$/)) {
                           form.setFieldValue("recipients", [
                             ...form.values.recipients,
                             inputValue,
                           ]);
-                          (e.target as HTMLInputElement).value = "";
+                          setRecipientSearchValue("");
+                        } else if (inputValue) {
+                          form.setFieldError(
+                            "recipients",
+                            t("upload.modal.accordion.email.invalid-email"),
+                          );
                         }
                       } else if (e.key === " ") {
                         e.preventDefault();
-                        (e.target as HTMLInputElement).value = "";
                       }
                     }}
                   />
@@ -432,7 +415,7 @@ const CreateUploadModalBody = ({
               </Accordion.Item>
             )}
 
-            <Accordion.Item value="security" sx={{ borderBottom: "none" }}>
+            <Accordion.Item value="security" style={{ borderBottom: "none" }}>
               <Accordion.Control>
                 <FormattedMessage id="upload.modal.accordion.security.title" />
               </Accordion.Control>
@@ -449,7 +432,7 @@ const CreateUploadModalBody = ({
                   />
                   <NumberInput
                     min={1}
-                    type="number"
+                    inputMode="numeric"
                     variant="filled"
                     placeholder={t(
                       "upload.modal.accordion.security.max-views.placeholder",
