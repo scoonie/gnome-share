@@ -38,12 +38,10 @@ export class LocalFileService {
     }
 
     const safeFileId = file.id as string;
-    if (safeFileId.includes("/") || safeFileId.includes("\\")) {
-      // Defensive check to ensure the file ID cannot be used for path traversal
+    if (safeFileId.includes("/") || safeFileId.includes("\")) {
       throw new BadRequestException("Invalid file ID format");
     }
 
-    // Resolve and validate the share directory and file paths to keep them under SHARE_DIRECTORY
     const shareRoot = path.resolve(SHARE_DIRECTORY, safeShareId);
     const tempChunkPath = path.resolve(shareRoot, `${safeFileId}.tmp-chunk`);
     const finalFilePath = path.resolve(shareRoot, safeFileId);
@@ -55,7 +53,6 @@ export class LocalFileService {
       throw new BadRequestException("Invalid file path");
     }
 
-    // Prevent overwriting already-completed files
     const existingFile = await this.prisma.file.findUnique({
       where: { id: file.id },
     });
@@ -63,7 +60,6 @@ export class LocalFileService {
       throw new BadRequestException("File ID already exists");
     }
 
-    // Sanitize file name to prevent path traversal (Zip Slip)
     if (!file.name || typeof file.name !== "string") {
       throw new BadRequestException("File name is required and must be a string");
     }
@@ -89,7 +85,6 @@ export class LocalFileService {
       diskFileSize = 0;
     }
 
-    // If the sent chunk index and the expected chunk index doesn't match throw an error
     const chunkSize = this.config.get("share.chunkSize");
     const expectedChunkIndex = Math.ceil(diskFileSize / chunkSize);
 
@@ -102,20 +97,17 @@ export class LocalFileService {
 
     const buffer = Buffer.from(data, "base64");
 
-    // Check if there is enough space on the server
     const space = await fs.statfs(SHARE_DIRECTORY);
     const availableSpace = space.bavail * space.bsize;
     if (availableSpace < buffer.byteLength) {
       throw new InternalServerErrorException("Not enough space on the server");
     }
 
-    // Check if share size limit is exceeded
     const fileSizeSum = share.files.reduce(
       (n, { size }) => n + parseInt(size),
       0,
     );
 
-    // Also account for in-progress uploads (.tmp-chunk files)
     let inProgressSize = 0;
     try {
       const dirEntries = await fs.readdir(`${SHARE_DIRECTORY}/${safeShareId}`);
@@ -187,7 +179,7 @@ export class LocalFileService {
 
     if (!fileMetaData) throw new NotFoundException("File not found");
 
-    const filePath = path.join(SHARE_DIRECTORY, safeShareId, fileMetaData.name);
+    const filePath = path.join(SHARE_DIRECTORY, safeShareId, safeFileId);
     const file = createReadStream(filePath);
 
     return {
@@ -212,7 +204,7 @@ export class LocalFileService {
 
     if (!fileMetaData) throw new NotFoundException("File not found");
 
-    const filePath = path.join(SHARE_DIRECTORY, safeShareId, fileMetaData.name);
+    const filePath = path.join(SHARE_DIRECTORY, safeShareId, safeFileId);
     await fs.unlink(filePath);
 
     await this.prisma.file.delete({ where: { id: safeFileId } });
