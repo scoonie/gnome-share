@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from "@nestjs/common";
 import { JwtService, JwtSignOptions } from "@nestjs/jwt";
@@ -22,6 +23,8 @@ import { CreateShareDTO } from "./dto/createShare.dto";
 
 @Injectable()
 export class ShareService {
+  private readonly logger = new Logger(ShareService.name);
+
   constructor(
     private prisma: PrismaService,
     private configService: ConfigService,
@@ -144,9 +147,13 @@ export class ShareService {
 
     // Asynchronously create a zip of all files
     if (share.files.length > 1)
-      this.createZip(id).then(() =>
-        this.prisma.share.update({ where: { id }, data: { isZipReady: true } }),
-      );
+      this.createZip(id)
+        .then(() =>
+          this.prisma.share.update({ where: { id }, data: { isZipReady: true } }),
+        )
+        .catch((err) => {
+          this.logger.error(`Failed to create zip for share ${id}: ${err.message}`);
+        });
 
     // Send email for each recipient
     for (const recipient of share.recipients) {
