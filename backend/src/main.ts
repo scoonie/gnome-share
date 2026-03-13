@@ -47,16 +47,26 @@ async function bootstrap() {
 
   const config = app.get<ConfigService>(ConfigService);
 
+  let cachedChunkSize = config.get("share.chunkSize");
+  let rawParser = bodyParser.raw({
+    type: "application/octet-stream",
+    limit: `${cachedChunkSize}B`,
+  });
+
   app.use((req: Request, res: Response, next: NextFunction) => {
-    const chunkSize = config.get("share.chunkSize");
-    bodyParser.raw({
-      type: "application/octet-stream",
-      limit: `${chunkSize}B`,
-    })(req, res, next);
+    const currentChunkSize = config.get("share.chunkSize");
+    if (currentChunkSize !== cachedChunkSize) {
+      cachedChunkSize = currentChunkSize;
+      rawParser = bodyParser.raw({
+        type: "application/octet-stream",
+        limit: `${cachedChunkSize}B`,
+      });
+    }
+    rawParser(req, res, next);
   });
 
   app.use(cookieParser());
-  app.set("trust proxy", true);
+  app.set("trust proxy", process.env.TRUST_PROXY === "true");
 
   await fs.promises.mkdir(`${DATA_DIRECTORY}/uploads/_temp`, {
     recursive: true,

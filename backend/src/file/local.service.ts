@@ -10,6 +10,7 @@ import * as crypto from "crypto";
 import { createReadStream } from "fs";
 import * as fs from "fs/promises";
 import * as mime from "mime-types";
+import * as path from "path";
 import { ConfigService } from "src/config/config.service";
 import { PrismaService } from "src/prisma/prisma.service";
 import { validate as isValidUUID } from "uuid";
@@ -33,6 +34,23 @@ export class LocalFileService {
       file.id = crypto.randomUUID();
     } else if (!isValidUUID(file.id)) {
       throw new BadRequestException("Invalid file ID format");
+    }
+
+    // Prevent overwriting already-completed files
+    const existingFile = await this.prisma.file.findUnique({
+      where: { id: file.id },
+    });
+    if (existingFile) {
+      throw new BadRequestException("File ID already exists");
+    }
+
+    // Sanitize file name to prevent path traversal (Zip Slip)
+    if (!file.name || typeof file.name !== 'string') {
+      throw new BadRequestException("File name is required and must be a string");
+    }
+    file.name = path.basename(file.name);
+    if (!file.name) {
+      throw new BadRequestException("Invalid file name");
     }
 
     const share = await this.prisma.share.findUnique({
@@ -78,7 +96,27 @@ export class LocalFileService {
       0,
     );
 
-    const shareSizeSum = fileSizeSum + diskFileSize + buffer.byteLength;
+    // Also account for in-progress uploads (.tmp-chunk files)
+    let inProgressSize = 0;
+    try {
+      const dirEntries = await fs.readdir(`${SHARE_DIRECTORY}/${shareId}`);
+      for (const entry of dirEntries) {
+        if (entry.endsWith(".tmp-chunk") && entry !== `${file.id}.tmp-chunk`) {
+          try {
+            const stat = await fs.stat(
+              `${SHARE_DIRECTORY}/${shareId}/${entry}`,
+            );
+            inProgressSize += stat.size;
+          } catch {
+            // File may have been removed between readdir and stat
+          }
+        }
+      }
+    } catch {
+      // Directory may not exist yet
+    }
+
+    const shareSizeSum = fileSizeSum + inProgressSize + diskFileSize + buffer.byteLength;
 
     if (
       shareSizeSum > this.config.get("share.maxSize") ||
