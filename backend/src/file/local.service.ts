@@ -179,7 +179,11 @@ export class LocalFileService {
 
     if (!fileMetaData) throw new NotFoundException("File not found");
 
-    const filePath = path.join(SHARE_DIRECTORY, safeShareId, safeFileId);
+    const rootDir = path.resolve(SHARE_DIRECTORY);
+    const filePath = path.resolve(rootDir, safeShareId, safeFileId);
+    if (!filePath.startsWith(rootDir + path.sep)) {
+      throw new BadRequestException("Invalid file path");
+    }
     const file = createReadStream(filePath);
 
     return {
@@ -204,7 +208,11 @@ export class LocalFileService {
 
     if (!fileMetaData) throw new NotFoundException("File not found");
 
-    const filePath = path.join(SHARE_DIRECTORY, safeShareId, safeFileId);
+    const rootDir = path.resolve(SHARE_DIRECTORY);
+    const filePath = path.resolve(rootDir, safeShareId, safeFileId);
+    if (!filePath.startsWith(rootDir + path.sep)) {
+      throw new BadRequestException("Invalid file path");
+    }
     await fs.unlink(filePath);
 
     await this.prisma.file.delete({ where: { id: safeFileId } });
@@ -212,7 +220,12 @@ export class LocalFileService {
 
   async deleteAllFiles(shareId: string) {
     const safeShareId = path.basename(shareId);
-    await fs.rm(path.join(SHARE_DIRECTORY, safeShareId), {
+    const rootDir = path.resolve(SHARE_DIRECTORY);
+    const directoryPath = path.resolve(rootDir, safeShareId);
+    if (!directoryPath.startsWith(rootDir + path.sep)) {
+      throw new BadRequestException("Invalid directory path");
+    }
+    await fs.rm(directoryPath, {
       recursive: true,
       force: true,
     });
@@ -220,10 +233,13 @@ export class LocalFileService {
 
   async getZip(shareId: string): Promise<Readable> {
     const safeShareId = path.basename(shareId);
+    const rootDir = path.resolve(SHARE_DIRECTORY);
+    const zipPath = path.resolve(rootDir, safeShareId, "archive.zip");
+    if (!zipPath.startsWith(rootDir + path.sep)) {
+      throw new BadRequestException("Invalid file path");
+    }
     return new Promise((resolve, reject) => {
-      const zipStream = createReadStream(
-        `${SHARE_DIRECTORY}/${safeShareId}/archive.zip`,
-      );
+      const zipStream = createReadStream(zipPath);
 
       zipStream.on("error", (err) => {
         reject(new InternalServerErrorException(err));
