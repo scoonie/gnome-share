@@ -37,6 +37,8 @@ export class LocalFileService {
       throw new BadRequestException("Invalid file ID format");
     }
 
+    const safeFileId = file.id;
+
     // Prevent overwriting already-completed files
     const existingFile = await this.prisma.file.findUnique({
       where: { id: file.id },
@@ -131,22 +133,22 @@ export class LocalFileService {
     }
 
     await fs.appendFile(
-      `${SHARE_DIRECTORY}/${safeShareId}/${file.id}.tmp-chunk`,
+      `${SHARE_DIRECTORY}/${safeShareId}/${safeFileId}.tmp-chunk`,
       buffer,
     );
 
     const isLastChunk = chunk.index == chunk.total - 1;
     if (isLastChunk) {
       await fs.rename(
-        `${SHARE_DIRECTORY}/${safeShareId}/${file.id}.tmp-chunk`,
-        `${SHARE_DIRECTORY}/${safeShareId}/${file.id}`,
+        `${SHARE_DIRECTORY}/${safeShareId}/${safeFileId}.tmp-chunk`,
+        `${SHARE_DIRECTORY}/${safeShareId}/${safeFileId}`,
       );
       const fileSize = (
-        await fs.stat(`${SHARE_DIRECTORY}/${safeShareId}/${file.id}`)
+        await fs.stat(`${SHARE_DIRECTORY}/${safeShareId}/${safeFileId}`)
       ).size;
       await this.prisma.file.create({
         data: {
-          id: file.id,
+          id: safeFileId,
           name: file.name,
           size: fileSize.toString(),
           share: { connect: { id: safeShareId } },
