@@ -82,9 +82,7 @@ export class LocalFileService {
 
     let diskFileSize: number;
     try {
-      diskFileSize = (
-        await fs.stat(`${SHARE_DIRECTORY}/${safeShareId}/${file.id}.tmp-chunk`)
-      ).size;
+      diskFileSize = (await fs.stat(tempChunkPath)).size;
     } catch {
       diskFileSize = 0;
     }
