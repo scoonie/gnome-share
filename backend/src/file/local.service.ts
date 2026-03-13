@@ -36,12 +36,14 @@ export class LocalFileService {
       throw new BadRequestException("Invalid file ID format");
     }
 
-    // Prevent overwriting already-completed files
-    const existingFile = await this.prisma.file.findUnique({
-      where: { id: file.id },
-    });
-    if (existingFile) {
-      throw new BadRequestException("File ID already exists");
+    // Prevent overwriting already-completed files (only check on first chunk)
+    if (chunk.index === 0) {
+      const existingFile = await this.prisma.file.findUnique({
+        where: { id: file.id },
+      });
+      if (existingFile) {
+        throw new BadRequestException("File ID already exists");
+      }
     }
 
     // Sanitize file name to prevent path traversal (Zip Slip)
@@ -97,23 +99,26 @@ export class LocalFileService {
     );
 
     // Also account for in-progress uploads (.tmp-chunk files)
+    // Only scan on first chunk to avoid O(n) I/O on every chunk request
     let inProgressSize = 0;
-    try {
-      const dirEntries = await fs.readdir(`${SHARE_DIRECTORY}/${shareId}`);
-      for (const entry of dirEntries) {
-        if (entry.endsWith(".tmp-chunk") && entry !== `${file.id}.tmp-chunk`) {
-          try {
-            const stat = await fs.stat(
-              `${SHARE_DIRECTORY}/${shareId}/${entry}`,
-            );
-            inProgressSize += stat.size;
-          } catch {
-            // File may have been removed between readdir and stat
+    if (chunk.index === 0) {
+      try {
+        const dirEntries = await fs.readdir(`${SHARE_DIRECTORY}/${shareId}`);
+        for (const entry of dirEntries) {
+          if (entry.endsWith(".tmp-chunk") && entry !== `${file.id}.tmp-chunk`) {
+            try {
+              const stat = await fs.stat(
+                `${SHARE_DIRECTORY}/${shareId}/${entry}`,
+              );
+              inProgressSize += stat.size;
+            } catch {
+              // File may have been removed between readdir and stat
+            }
           }
         }
+      } catch {
+        // Directory may not exist yet
       }
-    } catch {
-      // Directory may not exist yet
     }
 
     const shareSizeSum = fileSizeSum + inProgressSize + diskFileSize + buffer.byteLength;
