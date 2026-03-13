@@ -38,7 +38,7 @@ export class LocalFileService {
     }
 
     const safeFileId = file.id as string;
-    if (safeFileId.includes("/") || safeFileId.includes("\")) {
+    if (safeFileId.includes("/") || safeFileId.includes("\\")) {
       // Defensive check to ensure the file ID cannot be used for path traversal
       throw new BadRequestException("Invalid file ID format");
     }
