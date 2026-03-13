@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
-import * as moment from "moment";
+import dayjs, { ManipulateType } from "dayjs";
 import { ConfigService } from "src/config/config.service";
 import { FileService } from "src/file/file.service";
 import { PrismaService } from "src/prisma/prisma.service";
@@ -16,12 +16,10 @@ export class ReverseShareService {
 
   async create(data: CreateReverseShareDTO, creatorId: string) {
     // Parse date string to date
-    const expirationDate = moment()
+    const expirationDate = dayjs()
       .add(
-        data.shareExpiration.split("-")[0],
-        data.shareExpiration.split(
-          "-",
-        )[1] as moment.unitOfTime.DurationConstructor,
+        parseInt(data.shareExpiration.split("-")[0]),
+        data.shareExpiration.split("-")[1] as ManipulateType,
       )
       .toDate();
 
@@ -30,7 +28,7 @@ export class ReverseShareService {
     if (
       maxExpiration.value !== 0 &&
       parsedExpiration >
-        moment().add(maxExpiration.value, maxExpiration.unit).toDate()
+        dayjs().add(maxExpiration.value, maxExpiration.unit as ManipulateType).toDate()
     ) {
       throw new BadRequestException(
         "Expiration date exceeds maximum expiration date",

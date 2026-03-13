@@ -20,6 +20,7 @@
     "@mantine/notifications": "^6.0.21",
     "axios": "^1.13.6",
     "cookies-next": "^4.2.1",
+    "dayjs": "^1.11.20",
     "file-saver": "^2.0.5",
     "jose": "^5.9.2",
     "jwt-decode": "^4.0.0",

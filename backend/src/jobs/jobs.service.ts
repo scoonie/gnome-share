@@ -1,7 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Cron } from "@nestjs/schedule";
 import * as fs from "fs";
-import * as moment from "moment";
+import dayjs from "dayjs";
 import { FileService } from "src/file/file.service";
 import { PrismaService } from "src/prisma/prisma.service";
 import { ReverseShareService } from "src/reverseShare/reverseShare.service";
@@ -24,7 +24,7 @@ export class JobsService {
         // We want to remove only shares that have an expiration date less than the current date, but not 0
         AND: [
           { expiration: { lt: new Date() } },
-          { expiration: { not: moment(0).toDate() } },
+          { expiration: { not: dayjs(0).toDate() } },
         ],
       },
     });
@@ -65,7 +65,7 @@ export class JobsService {
   async deleteUnfinishedShares() {
     const unfinishedShares = await this.prisma.share.findMany({
       where: {
-        createdAt: { lt: moment().subtract(1, "day").toDate() },
+        createdAt: { lt: dayjs().subtract(1, "day").toDate() },
         uploadLocked: false,
       },
     });
@@ -101,9 +101,9 @@ export class JobsService {
         const stats = fs.statSync(
           `${SHARE_DIRECTORY}/${shareDirectory}/${file}`,
         );
-        const isOlderThanOneDay = moment(stats.mtime)
+        const isOlderThanOneDay = dayjs(stats.mtime)
           .add(1, "day")
-          .isBefore(moment());
+          .isBefore(dayjs());
 
         if (isOlderThanOneDay) {
           fs.rmSync(`${SHARE_DIRECTORY}/${shareDirectory}/${file}`);

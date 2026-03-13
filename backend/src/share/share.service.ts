@@ -9,7 +9,7 @@ import { Share, User } from "@prisma/client";
 import * as archiver from "archiver";
 import * as argon from "argon2";
 import * as fs from "fs";
-import * as moment from "moment";
+import dayjs, { ManipulateType } from "dayjs";
 import { ClamScanService } from "src/clamscan/clamscan.service";
 import { ConfigService } from "src/config/config.service";
 import { EmailService } from "src/email/email.service";
@@ -54,14 +54,14 @@ export class ShareService {
     } else {
       const parsedExpiration = parseRelativeDateToAbsolute(share.expiration);
 
-      const expiresNever = moment(0).toDate() == parsedExpiration;
+      const expiresNever = dayjs(0).toDate() == parsedExpiration;
 
       const maxExpiration = this.config.get("share.maxExpiration");
       if (
         maxExpiration.value !== 0 &&
         (expiresNever ||
           parsedExpiration >
-            moment().add(maxExpiration.value, maxExpiration.unit).toDate())
+            dayjs().add(maxExpiration.value, maxExpiration.unit as ManipulateType).toDate())
       ) {
         throw new BadRequestException(
           "Expiration date exceeds maximum expiration date",
@@ -226,7 +226,7 @@ export class ShareService {
         // We want to grab any shares that are not expired or have their expiration date set to "never" (unix 0)
         OR: [
           { expiration: { gt: new Date() } },
-          { expiration: { equals: moment(0).toDate() } },
+          { expiration: { equals: dayjs(0).toDate() } },
         ],
       },
       orderBy: {
@@ -358,16 +358,16 @@ export class ShareService {
 
     const tokenPayload = {
       shareId,
-      shareCreatedAt: moment(createdAt).unix(),
-      iat: moment().unix(),
+      shareCreatedAt: dayjs(createdAt).unix(),
+      iat: dayjs().unix(),
     };
 
     const tokenOptions: JwtSignOptions = {
       secret: this.config.get("internal.jwtSecret"),
     };
 
-    if (!moment(expiration).isSame(0)) {
-      tokenOptions.expiresIn = moment(expiration).diff(new Date(), "seconds");
+    if (dayjs(expiration).valueOf() !== 0) {
+      tokenOptions.expiresIn = dayjs(expiration).diff(new Date(), "seconds");
     }
 
     return this.jwtService.sign(tokenPayload, tokenOptions);
@@ -382,12 +382,12 @@ export class ShareService {
       const claims = this.jwtService.verify(token, {
         secret: this.config.get("internal.jwtSecret"),
         // Ignore expiration if expiration is 0
-        ignoreExpiration: moment(expiration).isSame(0),
+        ignoreExpiration: dayjs(expiration).valueOf() === 0,
       });
 
       return (
         claims.shareId == shareId &&
-        claims.shareCreatedAt == moment(createdAt).unix()
+        claims.shareCreatedAt == dayjs(createdAt).unix()
       );
     } catch {
       return false;
