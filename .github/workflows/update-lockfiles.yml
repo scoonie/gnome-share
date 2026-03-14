@@ -1,0 +1,46 @@
+name: Update Package Locks
+
+# This workflow triggers whenever you push a change to a package.json file
+on:
+  push:
+    paths:
+      - 'backend/package.json'
+      - 'frontend/package.json'
+  workflow_dispatch: # Allows you to run it manually if you ever need to
+
+jobs:
+  update-lockfiles:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Grants the bot permission to push commits to your repo
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          # Using a specific token ensures the bot's commit will trigger your Docker build
+          # If you don't have a PAT, standard GITHUB_TOKEN works but might skip the next CI step
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Matches a modern Node environment
+
+      - name: Generate Backend Lockfile
+        working-directory: ./backend
+        # --package-lock-only calculates the math and writes the file without downloading the actual code
+        # --ignore-scripts prevents any weird post-install hooks from breaking the runner
+        run: npm install --package-lock-only --ignore-scripts
+
+      - name: Generate Frontend Lockfile
+        working-directory: ./frontend
+        run: npm install --package-lock-only --ignore-scripts
+
+      - name: Commit and Push Changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: auto-update package-lock.json"
+          file_pattern: '**/package-lock.json'
+          commit_user_name: "github-actions[bot]"
+          commit_user_email: "github-actions[bot]@users.noreply.github.com"
