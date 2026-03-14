@@ -25,7 +25,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Matches a modern Node environment
+          node-version: '22' # Matches the Node version used in CI
 
       - name: Generate Backend Lockfile
         working-directory: ./backend
