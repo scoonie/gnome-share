@@ -1,18 +1,18 @@
 name: Update Package Locks
 
-# This workflow triggers whenever you push a change to a package.json file
 on:
   push:
     paths:
       - 'backend/package.json'
       - 'frontend/package.json'
-  workflow_dispatch: # Allows you to run it manually if you ever need to
+  workflow_dispatch: 
 
 jobs:
   update-lockfiles:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Grants the bot permission to push commits to your repo
+      contents: write 
+      pull-requests: write # <-- Added permission to create PRs
 
     steps:
       - name: Checkout Code
@@ -23,7 +23,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22' # Matches your CI and Docker environments
+          node-version: '22'
 
       - name: Generate Backend Lockfile
         working-directory: ./backend
@@ -33,10 +33,13 @@ jobs:
         working-directory: ./frontend
         run: npm install --package-lock-only --ignore-scripts
 
-      - name: Commit and Push Changes
-        uses: stefanzweifel/git-auto-commit-action@v5
+      # --- CHANGED STEP ---
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
         with:
-          commit_message: "chore: auto-update package-lock.json"
-          file_pattern: '**/package-lock.json'
-          commit_user_name: "github-actions[bot]"
-          commit_user_email: "github-actions[bot]@users.noreply.github.com"
+          commit-message: "chore: auto-update package-lock.json"
+          title: "chore: update package-lock.json dependencies"
+          body: "This PR automatically updates the `package-lock.json` files to match changes in your `package.json`."
+          branch: "bot/update-locks" # The branch it will temporarily create
+          delete-branch: true # Deletes the branch after you merge it
+          author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
