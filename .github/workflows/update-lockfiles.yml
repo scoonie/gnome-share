@@ -18,36 +18,20 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          # Uses the default GITHUB_TOKEN; no additional token is configured in this workflow
-          # fetch-depth: 0 ensures full git history is available (e.g., for accurate commits)
           fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22' # Matches the Node version used in CI
+          node-version: '22' # Matches your CI and Docker environments
 
       - name: Generate Backend Lockfile
         working-directory: ./backend
-        # --package-lock-only calculates the math and writes the file without downloading the actual code
-        # --ignore-scripts prevents any weird post-install hooks from breaking the runner
-        run: |
-          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q '^backend/package.json$'; then
-            echo "backend/package.json changed; updating backend/package-lock.json..."
-            npm install --package-lock-only --ignore-scripts
-          else
-            echo "backend/package.json did not change in this push; skipping backend/package-lock.json update."
-          fi
+        run: npm install --package-lock-only --ignore-scripts
 
       - name: Generate Frontend Lockfile
         working-directory: ./frontend
-        run: |
-          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q '^frontend/package.json$'; then
-            echo "frontend/package.json changed; updating frontend/package-lock.json..."
-            npm install --package-lock-only --ignore-scripts
-          else
-            echo "frontend/package.json did not change in this push; skipping frontend/package-lock.json update."
-          fi
+        run: npm install --package-lock-only --ignore-scripts
 
       - name: Commit and Push Changes
         uses: stefanzweifel/git-auto-commit-action@v5
