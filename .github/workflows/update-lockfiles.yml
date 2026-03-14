@@ -18,8 +18,8 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          # Using a specific token ensures the bot's commit will trigger your Docker build
-          # If you don't have a PAT, standard GITHUB_TOKEN works but might skip the next CI step
+          # Uses the default GITHUB_TOKEN; no additional token is configured in this workflow
+          # fetch-depth: 0 ensures full git history is available (e.g., for accurate commits)
           fetch-depth: 0
 
       - name: Setup Node.js
