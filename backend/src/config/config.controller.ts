@@ -3,11 +3,13 @@ import {
   Controller,
   Get,
   Param,
+  ParseFilePipe,
   Patch,
   Post,
   UploadedFile,
   UseGuards,
   UseInterceptors,
+  FileTypeValidator,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { SkipThrottle } from "@nestjs/throttler";
@@ -61,7 +63,17 @@ export class ConfigController {
   @UseInterceptors(FileInterceptor("file"))
   @UseGuards(JwtGuard, AdministratorGuard)
   async uploadLogo(
-    @UploadedFile() file: Express.Multer.File, // Removed the problematic ParseFilePipe
+    @UploadedFile(
+      new ParseFilePipe({
+        fileIsRequired: true,
+        validators: [
+          new FileTypeValidator({
+            fileType: /image\/(png|jpeg|webp)/,
+          }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
   ) {
     // sharp handles resizing and format validation safely in the service
     return await this.logoService.create(file.buffer);
