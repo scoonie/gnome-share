@@ -33,10 +33,9 @@ const Footer = () => {
         borderTop: "1px solid var(--mantine-color-default-border)",
       }}
     >
-      <SimpleGrid cols={isMobile ? 2 : 3} m={0}>
+      <SimpleGrid cols={isMobile ? 1 : 3} m={0}>
         {!isMobile && <div></div>}
         {/* Removed the Powered by section here */}
-        <div></div> 
         <div>
           {config.get("legal.enabled") && (
             <Text size="xs" c="dimmed" ta="right">
@@ -56,6 +55,7 @@ const Footer = () => {
         </div>
       </SimpleGrid>
     </Box>
+  );
   );
 };
 
