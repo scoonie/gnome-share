@@ -1,15 +1,14 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
   Param,
-  ParseFilePipe,
   Patch,
   Post,
   UploadedFile,
   UseGuards,
   UseInterceptors,
-  FileTypeValidator,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { SkipThrottle } from "@nestjs/throttler";
@@ -63,19 +62,14 @@ export class ConfigController {
   @UseInterceptors(FileInterceptor("file"))
   @UseGuards(JwtGuard, AdministratorGuard)
   async uploadLogo(
-    @UploadedFile(
-      new ParseFilePipe({
-        fileIsRequired: true,
-        validators: [
-          new FileTypeValidator({
-            fileType: /image\/(png|jpeg|webp)/,
-          }),
-        ],
-      }),
-    )
-    file: Express.Multer.File,
+    @UploadedFile() file: Express.Multer.File,
   ) {
-    // sharp handles resizing and format validation safely in the service
+    if (!file) {
+      throw new BadRequestException("File is required");
+    }
+    // Delegate image format validation to sharp in the service layer,
+    // which checks actual file contents (magic bytes) rather than
+    // relying on the MIME type header that can be unreliable.
     return await this.logoService.create(file.buffer);
   }
 }
