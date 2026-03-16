@@ -21,7 +21,8 @@ const Footer = () => {
       config.get("legal.privacyPolicyUrl")) ||
     "/privacy";
 
-  const isMobile = useMediaQuery("(max-width: 700px)");
+  const isMobile = useMediaQuery("(max-width: 700px)"
+  );
 
   return (
     <Box
@@ -33,18 +34,8 @@ const Footer = () => {
         borderTop: "1px solid var(--mantine-color-default-border)",
       }}
     >
-      <SimpleGrid cols={isMobile ? 2 : 3} m={0}>
+      <SimpleGrid cols={isMobile ? 1 : 2} m={0}>
         {!isMobile && <div></div>}
-        <Text size="xs" c="dimmed" ta={isMobile ? "left" : "center"}>
-          Powered by{" "}
-          <Anchor
-            size="xs"
-            href="https://github.com/stonith404/pingvin-share"
-            target="_blank"
-          >
-            Pingvin Share
-          </Anchor>
-        </Text>
         <div>
           {config.get("legal.enabled") && (
             <Text size="xs" c="dimmed" ta="right">
@@ -53,7 +44,7 @@ const Footer = () => {
                   {t("imprint.title")}
                 </Anchor>
               )}
-              {hasImprint && hasPrivacy && " • "}
+              {hasImprint && hasPrivacy && " • " }
               {hasPrivacy && (
                 <Anchor size="xs" href={privacyUrl}>
                   {t("privacy.title")}
