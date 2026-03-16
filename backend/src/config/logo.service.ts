@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import * as fs from "fs";
 import sharp from "sharp";
 
@@ -7,6 +7,19 @@ const IMAGES_PATH = "../frontend/public/img";
 @Injectable()
 export class LogoService {
   async create(file: Buffer) {
+    // Validate that the file is actually a supported image
+    try {
+      const metadata = await sharp(file).metadata();
+      if (!metadata.format || !["png", "jpeg", "webp"].includes(metadata.format)) {
+        throw new BadRequestException(
+          "Invalid image format. Supported formats: png, jpeg, webp",
+        );
+      }
+    } catch (e) {
+      if (e instanceof BadRequestException) throw e;
+      throw new BadRequestException("File is not a valid image");
+    }
+
     const resized = await sharp(file).resize(900).toBuffer();
     fs.writeFileSync(`${IMAGES_PATH}/logo.png`, resized, "binary");
     this.createFavicon(file);
