@@ -38,6 +38,9 @@ const SignInForm = ({ redirectPath }: { redirectPath: string }) => {
   const [isRedirectingToOauthProvider, setIsRedirectingToOauthProvider] =
     useState(false);
 
+  // Check if the secret "?admin=true" flag is in the URL
+  const isAdminLogin = router.query.admin === "true";
+
   const validationSchema = yup.object().shape({
     emailOrUsername: yup.string().required(t("common.error.field-required")),
     password: yup.string().required(t("common.error.field-required")),
@@ -56,7 +59,6 @@ const SignInForm = ({ redirectPath }: { redirectPath: string }) => {
       .signIn(email.trim(), password.trim())
       .then(async (response) => {
         if (response.data["loginToken"]) {
-          // Prompt the user to enter their totp code
           showNotification({
             icon: <TbInfoCircle />,
             color: "blue",
@@ -82,16 +84,19 @@ const SignInForm = ({ redirectPath }: { redirectPath: string }) => {
       .getAvailableOAuth()
       .then((providers) => {
         setOauthProviders(providers.data);
+        
+        // Auto-redirect normal users to Google if it's the only provider.
+        // If the admin flag is present, stop the redirect so the form can load!
         if (
           providers.data.length === 1 &&
-          config.get("oauth.disablePassword")
+          (config.get("oauth.disablePassword") || !isAdminLogin)
         ) {
           setIsRedirectingToOauthProvider(true);
           router.push(getOAuthUrl(window.location.origin, providers.data[0]));
         }
       })
       .catch(toast.axiosError);
-  }, []);
+  }, [isAdminLogin]); // Re-run if the URL query changes
 
   if (!oauthProviders) return null;
 
@@ -105,12 +110,17 @@ const SignInForm = ({ redirectPath }: { redirectPath: string }) => {
       </Group>
     );
 
+  // Determine whether to render the local password form
+  const showPasswordForm = 
+    !config.get("oauth.disablePassword") && 
+    (isAdminLogin || oauthProviders.length === 0);
+
   return (
     <Container size={420} my={40}>
       <Title order={2} ta="center" fw={900}>
         <FormattedMessage id="signin.title" />
       </Title>
-      {config.get("share.allowRegistration") && (
+      {config.get("share.allowRegistration") && showPasswordForm && (
         <Text c="dimmed" size="sm" ta="center" mt={5}>
           <FormattedMessage id="signin.description" />{" "}
           <Anchor component={Link} href={"signUp"} size="sm">
@@ -119,7 +129,9 @@ const SignInForm = ({ redirectPath }: { redirectPath: string }) => {
         </Text>
       )}
       <Paper withBorder shadow="md" p={30} mt={30} radius="md">
-        {config.get("oauth.disablePassword") || (
+        
+        {/* Render the local form only if the admin flag is present */}
+        {showPasswordForm && (
           <form
             onSubmit={form.onSubmit((values) => {
               signIn(values.emailOrUsername, values.password);
@@ -148,9 +160,11 @@ const SignInForm = ({ redirectPath }: { redirectPath: string }) => {
             </Button>
           </form>
         )}
+
+        {/* OAuth Buttons logic */}
         {oauthProviders.length > 0 && (
-          <Stack mt={config.get("oauth.disablePassword") ? undefined : "xl"}>
-            {config.get("oauth.disablePassword") ? (
+          <Stack mt={!showPasswordForm ? undefined : "xl"}>
+            {!showPasswordForm ? (
               <Group align="center" className={classes.signInWith}>
                 <Text>{t("signIn.oauth.signInWith")}</Text>
               </Group>
