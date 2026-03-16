@@ -13,6 +13,7 @@ const clamscanConfig = {
   },
   preference: "clamdscan",
 };
+
 @Injectable()
 export class ClamScanService {
   private readonly logger = new Logger(ClamScanService.name);
@@ -22,19 +23,28 @@ export class ClamScanService {
     private prisma: PrismaService,
   ) {}
 
-  private ClamScan: Promise<NodeClam | null> = new NodeClam()
-    .init(clamscanConfig)
-    .then((res) => {
-      this.logger.log("ClamAV is active");
-      return res;
-    })
-    .catch(() => {
-      this.logger.log("ClamAV is not active");
-      return null;
-    });
+  // ==========================================
+  // --- CHANGED: Lazy-load Scanner Methods ---
+  // ==========================================
+  private clamScanner: NodeClam | null = null;
+
+  private async getScanner(): Promise<NodeClam | null> {
+    if (this.clamScanner) return this.clamScanner; // Return cached instance if already connected
+
+    try {
+      this.clamScanner = await new NodeClam().init(clamscanConfig);
+      this.logger.log("ClamAV connection established successfully");
+      return this.clamScanner;
+    } catch (error) {
+      this.logger.warn("ClamAV is not active or not ready yet.");
+      return null; // Will try again next time a file is scanned
+    }
+  }
+  // ==========================================
 
   async check(shareId: string) {
-    const clamScan = await this.ClamScan;
+    // CHANGED: Use the new getter function here instead of this.ClamScan
+    const clamScan = await this.getScanner();
 
     if (!clamScan) return [];
 
