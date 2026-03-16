@@ -38,8 +38,10 @@ const SignInForm = ({ redirectPath }: { redirectPath: string }) => {
   const [isRedirectingToOauthProvider, setIsRedirectingToOauthProvider] =
     useState(false);
 
-  // Check if the secret "?admin=true" flag is in the URL
-  const isAdminLogin = router.query.admin === "true";
+  // Check if the optional "?usePassword=true" flag is in the URL.
+  // This is a purely client-side toggle to control whether we auto-redirect to OAuth;
+  // it is NOT used for any kind of authorization or privilege enforcement.
+  const shouldUsePasswordLogin = router.query.usePassword === "true";
 
   const validationSchema = yup.object().shape({
     emailOrUsername: yup.string().required(t("common.error.field-required")),
@@ -85,18 +87,18 @@ const SignInForm = ({ redirectPath }: { redirectPath: string }) => {
       .then((providers) => {
         setOauthProviders(providers.data);
         
-        // Auto-redirect normal users to Google if it's the only provider.
-        // If the admin flag is present, stop the redirect so the form can load!
+        // Auto-redirect users to OAuth if it's the only provider.
+        // If the "usePassword" flag is present, stop the redirect so the form can load instead.
         if (
           providers.data.length === 1 &&
-          (config.get("oauth.disablePassword") || !isAdminLogin)
+          (config.get("oauth.disablePassword") || !shouldUsePasswordLogin)
         ) {
           setIsRedirectingToOauthProvider(true);
           router.push(getOAuthUrl(window.location.origin, providers.data[0]));
         }
       })
       .catch(toast.axiosError);
-  }, [isAdminLogin]); // Re-run if the URL query changes
+  }, [shouldUsePasswordLogin]); // Re-run if the URL query changes
 
   if (!oauthProviders) return null;
 
