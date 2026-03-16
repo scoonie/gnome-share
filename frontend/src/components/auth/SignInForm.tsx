@@ -89,9 +89,10 @@ const SignInForm = ({ redirectPath }: { redirectPath: string }) => {
 
   // Determine whether to render the local password form cosmetically
   // (We always show it as a fallback if no OAuth providers are configured yet!)
-  const showPasswordForm = 
-    !config.get("oauth.disablePassword") && 
-    (isAdminLogin || oauthProviders.length === 0);
+  const noOAuthProviders = oauthProviders.length === 0;
+  const showPasswordForm =
+    noOAuthProviders ||
+    (!config.get("oauth.disablePassword") && isAdminLogin);
 
   return (
     <Container size={420} my={40}>
