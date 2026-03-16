@@ -21,7 +21,8 @@ const Footer = () => {
       config.get("legal.privacyPolicyUrl")) ||
     "/privacy";
 
-  const isMobile = useMediaQuery("(max-width: 700px)");
+  const isMobile = useMediaQuery("(max-width: 700px)"
+  );
 
   return (
     <Box
@@ -33,9 +34,8 @@ const Footer = () => {
         borderTop: "1px solid var(--mantine-color-default-border)",
       }}
     >
-      <SimpleGrid cols={isMobile ? 1 : 3} m={0}>
+      <SimpleGrid cols={isMobile ? 1 : 2} m={0}>
         {!isMobile && <div></div>}
-        {/* Removed the Powered by section here */}
         <div>
           {config.get("legal.enabled") && (
             <Text size="xs" c="dimmed" ta="right">
@@ -44,7 +44,7 @@ const Footer = () => {
                   {t("imprint.title")}
                 </Anchor>
               )}
-              {hasImprint && hasPrivacy && " • "}
+              {hasImprint && hasPrivacy && " • " }
               {hasPrivacy && (
                 <Anchor size="xs" href={privacyUrl}>
                   {t("privacy.title")}
@@ -55,7 +55,6 @@ const Footer = () => {
         </div>
       </SimpleGrid>
     </Box>
-  );
   );
 };
 
