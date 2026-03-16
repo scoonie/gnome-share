@@ -38,10 +38,8 @@ const SignInForm = ({ redirectPath }: { redirectPath: string }) => {
   const [isRedirectingToOauthProvider, setIsRedirectingToOauthProvider] =
     useState(false);
 
-  // Check if the optional "?usePassword=true" flag is in the URL.
-  // This is a purely client-side toggle to control whether we auto-redirect to OAuth;
-  // it is NOT used for any kind of authorization or privilege enforcement.
-  const shouldUsePasswordLogin = router.query.usePassword === "true";
+  // Safely check if the secret "?admin=true" flag is in the URL (incorporating Copilot's advice)
+  const isAdminLogin = router.query?.admin === "true" || router.query?.admin?.includes("true");
 
   const validationSchema = yup.object().shape({
     emailOrUsername: yup.string().required(t("common.error.field-required")),
@@ -87,18 +85,19 @@ const SignInForm = ({ redirectPath }: { redirectPath: string }) => {
       .then((providers) => {
         setOauthProviders(providers.data);
         
-        // Auto-redirect users to OAuth if it's the only provider.
-        // If the "usePassword" flag is present, stop the redirect so the form can load instead.
+        // Auto-redirect normal users to Google if it's the only provider.
+        // If the admin flag is present, stop the redirect so the form can load!
         if (
           providers.data.length === 1 &&
-          (config.get("oauth.disablePassword") || !shouldUsePasswordLogin)
+          (config.get("oauth.disablePassword") || !isAdminLogin)
         ) {
           setIsRedirectingToOauthProvider(true);
           router.push(getOAuthUrl(window.location.origin, providers.data[0]));
         }
       })
       .catch(toast.axiosError);
-  }, [shouldUsePasswordLogin]); // Re-run if the URL query changes
+  // Add dependencies requested by the linter/Copilot
+  }, [isAdminLogin, config, router]); 
 
   if (!oauthProviders) return null;
 
@@ -112,16 +111,18 @@ const SignInForm = ({ redirectPath }: { redirectPath: string }) => {
       </Group>
     );
 
-  // Determine whether to render the local password form
+  // Determine whether to render the local password form (incorporating Copilot's optional chaining)
   const showPasswordForm = 
     !config.get("oauth.disablePassword") && 
-    (isAdminLogin || oauthProviders.length === 0);
+    (isAdminLogin || oauthProviders?.length === 0);
 
   return (
     <Container size={420} my={40}>
       <Title order={2} ta="center" fw={900}>
         <FormattedMessage id="signin.title" />
       </Title>
+      
+      {/* Hide the registration text if the password form is hidden */}
       {config.get("share.allowRegistration") && showPasswordForm && (
         <Text c="dimmed" size="sm" ta="center" mt={5}>
           <FormattedMessage id="signin.description" />{" "}
@@ -130,9 +131,10 @@ const SignInForm = ({ redirectPath }: { redirectPath: string }) => {
           </Anchor>
         </Text>
       )}
+      
       <Paper withBorder shadow="md" p={30} mt={30} radius="md">
         
-        {/* Render the local form only if the admin flag is present */}
+        {/* Render the local form only if showPasswordForm evaluates to true */}
         {showPasswordForm && (
           <form
             onSubmit={form.onSubmit((values) => {
