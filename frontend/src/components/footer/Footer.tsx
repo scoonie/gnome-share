@@ -35,16 +35,8 @@ const Footer = () => {
     >
       <SimpleGrid cols={isMobile ? 2 : 3} m={0}>
         {!isMobile && <div></div>}
-        <Text size="xs" c="dimmed" ta={isMobile ? "left" : "center"}>
-          Powered by{" "}
-          <Anchor
-            size="xs"
-            href="https://github.com/stonith404/pingvin-share"
-            target="_blank"
-          >
-            Pingvin Share
-          </Anchor>
-        </Text>
+        {/* Removed the Powered by section here */}
+        <div></div> 
         <div>
           {config.get("legal.enabled") && (
             <Text size="xs" c="dimmed" ta="right">
