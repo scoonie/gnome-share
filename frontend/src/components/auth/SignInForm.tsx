@@ -3,7 +3,6 @@ import {
   Button,
   Container,
   Group,
-  Loader,
   Paper,
   PasswordInput,
   Stack,
@@ -35,10 +34,8 @@ const SignInForm = ({ redirectPath }: { redirectPath: string }) => {
   const { refreshUser } = useUser();
 
   const [oauthProviders, setOauthProviders] = useState<string[] | null>(null);
-  const [isRedirectingToOauthProvider, setIsRedirectingToOauthProvider] =
-    useState(false);
 
-  // Safely check if the secret "?admin=true" flag is in the URL (incorporating Copilot's advice)
+  // Safely check if the secret "?admin=true" flag is in the URL
   const isAdminLogin = router.query?.admin === "true" || router.query?.admin?.includes("true");
 
   const validationSchema = yup.object().shape({
@@ -84,37 +81,17 @@ const SignInForm = ({ redirectPath }: { redirectPath: string }) => {
       .getAvailableOAuth()
       .then((providers) => {
         setOauthProviders(providers.data);
-        
-        // Auto-redirect normal users to Google if it's the only provider.
-        // If the admin flag is present, stop the redirect so the form can load!
-        if (
-          providers.data.length === 1 &&
-          (config.get("oauth.disablePassword") || !isAdminLogin)
-        ) {
-          setIsRedirectingToOauthProvider(true);
-          router.push(getOAuthUrl(window.location.origin, providers.data[0]));
-        }
       })
       .catch(toast.axiosError);
-  // Add dependencies requested by the linter/Copilot
-  }, [isAdminLogin, config, router]); 
+  }, []);
 
   if (!oauthProviders) return null;
 
-  if (isRedirectingToOauthProvider)
-    return (
-      <Group align="center" justify="center">
-        <Loader size="sm" />
-        <Text ta="center">
-          <FormattedMessage id="common.text.redirecting" />
-        </Text>
-      </Group>
-    );
-
-  // Determine whether to render the local password form (incorporating Copilot's optional chaining)
+  // Determine whether to render the local password form cosmetically
+  // (We always show it as a fallback if no OAuth providers are configured yet!)
   const showPasswordForm = 
     !config.get("oauth.disablePassword") && 
-    (isAdminLogin || oauthProviders?.length === 0);
+    (isAdminLogin || oauthProviders.length === 0);
 
   return (
     <Container size={420} my={40}>
