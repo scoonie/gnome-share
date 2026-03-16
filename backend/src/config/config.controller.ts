@@ -59,23 +59,11 @@ export class ConfigController {
     await this.emailService.sendTestMail(email);
   }
 
-  @Post("admin/logo")
+@Post("admin/logo")
   @UseInterceptors(FileInterceptor("file"))
   @UseGuards(JwtGuard, AdministratorGuard)
   async uploadLogo(
-    @UploadedFile(
-      new ParseFilePipe({
-        fileIsRequired: true,
-        validators: [
-          new FileTypeValidator({
-            fileType: /image\/(png|jpeg|webp)/,
-          }),
-        ],
-      }),
-    )
-    file: Express.Multer.File,
+    @UploadedFile() file: Express.Multer.File, 
   ) {
-    // sharp handles resizing and format validation safely in the service
     return await this.logoService.create(file.buffer);
   }
-}
