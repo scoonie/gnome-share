@@ -1,10 +1,8 @@
 import {
   Body,
   Controller,
-  FileTypeValidator,
   Get,
   Param,
-  ParseFilePipe,
   Patch,
   Post,
   UploadedFile,
@@ -63,13 +61,9 @@ export class ConfigController {
   @UseInterceptors(FileInterceptor("file"))
   @UseGuards(JwtGuard, AdministratorGuard)
   async uploadLogo(
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [new FileTypeValidator({ fileType: 'image/png' })],
-      }),
-    )
-    file: Express.Multer.File,
+    @UploadedFile() file: Express.Multer.File, // Removed the problematic ParseFilePipe
   ) {
+    // sharp handles resizing and format validation safely in the service
     return await this.logoService.create(file.buffer);
   }
 }
