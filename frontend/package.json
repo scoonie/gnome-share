@@ -18,7 +18,7 @@
     "axios": "^1.13.6",
     "cookies-next": "^4.2.1",
     "dayjs": "^1.11.20",
-    "jose": "^5.9.2",
+    "jose": "^6.2.1",
     "jwt-decode": "^4.0.0",
     "markdown-to-jsx": "^9.7.9",
     "mime-types": "^2.1.35",
