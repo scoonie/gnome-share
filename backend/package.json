@@ -5,9 +5,8 @@
     "build": "nest build",
     "dev": "cross-env NODE_ENV=development nest start --watch",
     "prod": "prisma migrate deploy && prisma db seed && node dist/src/main",
-    "lint": "eslint 'src/**/*.ts'",
     "format": "prettier --end-of-line=auto --write 'src/**/*.ts'",
-    "test:system": "prisma migrate reset -f && nest start & wait-on http://localhost:8080/api/configs && newman run ./test/newman-system-tests.json"
+    "test:system": "prisma migrate reset -f && prisma db seed && nest start & wait-on http://localhost:8080/api/configs && newman run ./test/newman-system-tests.json"
   },
   "prisma": {
     "seed": "ts-node prisma/seed/config.seed.ts"
@@ -24,7 +23,8 @@
     "@nestjs/schedule": "^6.1.1",
     "@nestjs/swagger": "^11.2.6",
     "@nestjs/throttler": "^6.5.0",
-    "@prisma/client": "^6.6.0",
+    "@prisma/adapter-libsql": "^7.5.0",
+    "@prisma/client": "^7.5.0",
     "archiver": "^7.0.1",
     "argon2": "^0.41.1",
     "body-parser": "^2.2.0",
@@ -44,6 +44,7 @@
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
+    "prisma": "^7.5.0",
     "qrcode-svg": "^1.1.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
@@ -62,21 +63,15 @@
     "@types/jmespath": "^0.15.2",
     "@types/mime-types": "^3.0.1",
     "@types/multer": "^2.1.0",
-    "@types/node": "^22.14.1",
+    "@types/node": "^24.12.0",
     "@types/nodemailer": "^6.4.17",
     "@types/passport-jwt": "^4.0.1",
     "@types/qrcode-svg": "^1.1.5",
     "@types/uuid": "^10.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.57.1",
-    "@typescript-eslint/parser": "^8.29.1",
     "cross-env": "^10.1.0",
-    "eslint": "^9.24.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.2.6",
     "newman": "^6.2.2",
     "prettier": "^3.8.1",
-    "prisma": "^6.6.0",
-    "tsconfig-paths": "4.2.0",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.3",
     "wait-on": "^8.0.3"
   }

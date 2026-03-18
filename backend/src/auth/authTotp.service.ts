@@ -4,7 +4,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from "@nestjs/common";
-import { User } from "@prisma/client";
+import type { User } from "../generated/prisma/client";
 import { authenticator, totp } from "otplib";
 import qrcode from "qrcode-svg";
 import { ConfigService } from "src/config/config.service";

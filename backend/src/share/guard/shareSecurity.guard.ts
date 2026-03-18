@@ -10,7 +10,7 @@ import { PrismaService } from "src/prisma/prisma.service";
 import { ShareService } from "src/share/share.service";
 import { ConfigService } from "src/config/config.service";
 import { JwtGuard } from "src/auth/guard/jwt.guard";
-import { User } from "@prisma/client";
+import type { User } from "../../generated/prisma/client";
 
 @Injectable()
 export class ShareSecurityGuard extends JwtGuard {

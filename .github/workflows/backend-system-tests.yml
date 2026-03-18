@@ -12,12 +12,17 @@ jobs:
   system-tests:
     timeout-minutes: 15
     runs-on: ubuntu-latest
-    container: node:22
+    container: node:24
     steps:
       - uses: actions/checkout@v6
       - name: Install Dependencies
         working-directory: ./backend
         run: npm install
+      - name: Generate Prisma Client
+        working-directory: ./backend
+        run: npx prisma generate
       - name: Run Server and Test with Newman
         working-directory: ./backend
+        env:
+          DATABASE_URL: file:./data/pingvin-share.db?connection_limit=1
         run: npm run test:system

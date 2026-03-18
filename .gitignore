@@ -41,10 +41,8 @@ yarn-error.log*
 # project specific
 /backend/data/
 /data/
-/docs/build/
-/docs/.docusaurus
-/docs/.cache-loader
 /config.yaml
+/backend/src/generated/
 
 # Jetbrains specific (webstorm)
 .idea/**/**

@@ -5,7 +5,7 @@ import {
   Logger,
   NotFoundException,
 } from "@nestjs/common";
-import { Config } from "@prisma/client";
+import type { Config } from "../generated/prisma/client";
 import * as argon from "argon2";
 import { EventEmitter } from "events";
 import * as fs from "fs";

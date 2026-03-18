@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
-import { User } from "@prisma/client";
+import type { User } from "../../generated/prisma/client";
 import { Request } from "express";
 import { Strategy } from "passport-jwt";
 import { ConfigService } from "src/config/config.service";

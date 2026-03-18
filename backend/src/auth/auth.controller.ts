@@ -12,7 +12,7 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import { Throttle } from "@nestjs/throttler";
-import { User } from "@prisma/client";
+import type { User } from "../generated/prisma/client";
 import { Request, Response } from "express";
 import { ConfigService } from "src/config/config.service";
 import { AuthService } from "./auth.service";

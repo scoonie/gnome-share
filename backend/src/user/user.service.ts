@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { Prisma } from "../generated/prisma/client";
 import * as argon from "argon2";
 import * as crypto from "crypto";
 import { EmailService } from "src/email/email.service";
@@ -44,7 +44,7 @@ export class UserSevice {
         },
       });
     } catch (e) {
-      if (e instanceof PrismaClientKnownRequestError) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
         if (e.code == "P2002") {
           const duplicatedField: string = e.meta.target[0];
           throw new BadRequestException(
@@ -64,7 +64,7 @@ export class UserSevice {
         data: { ...user, password: hash },
       });
     } catch (e) {
-      if (e instanceof PrismaClientKnownRequestError) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
         if (e.code == "P2002") {
           const duplicatedField: string = e.meta.target[0];
           throw new BadRequestException(
