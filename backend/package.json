@@ -15,7 +15,7 @@
     "@keyv/redis": "^4.4.0",
     "@nestjs/cache-manager": "^3.0.1",
     "@nestjs/common": "^11.0.17",
-    "@nestjs/config": "^4.0.2",
+    "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.0.17",
     "@nestjs/jwt": "^11.0.2",
     "@nestjs/passport": "^11.0.5",
