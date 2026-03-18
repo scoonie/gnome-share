@@ -39,7 +39,7 @@
     "jmespath": "^0.16.0",
     "mime-types": "^3.0.2",
     "nanoid": "^3.3.7",
-    "nodemailer": "^7.0.11",
+    "nodemailer": "^8.0.3",
     "otplib": "^12.0.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
