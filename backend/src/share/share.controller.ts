@@ -12,7 +12,7 @@ import {
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Throttle } from "@nestjs/throttler";
-import { User } from "@prisma/client";
+import type { User } from "../generated/prisma/client";
 import { Request, Response } from "express";
 import dayjs from "dayjs";
 import { GetUser } from "src/auth/decorator/getUser.decorator";

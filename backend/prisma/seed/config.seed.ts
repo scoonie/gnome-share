@@ -1,4 +1,5 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "../../src/generated/prisma/client";
+import { PrismaLibSql } from "@prisma/adapter-libsql";
 import * as crypto from "crypto";
 
 export const configVariables = {
@@ -344,7 +345,9 @@ type ConfigVariables = {
   };
 };
 
-const prisma = new PrismaClient();
+const rawUrl = process.env.DATABASE_URL || "file:./data/pingvin-share.db";
+const url = rawUrl.split("?")[0];
+const prisma = new PrismaClient({ adapter: new PrismaLibSql({ url }) });
 
 async function seedConfigVariables() {
   for (const [category, configVariablesOfCategory] of Object.entries(
