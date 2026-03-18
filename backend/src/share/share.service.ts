@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { JwtService, JwtSignOptions } from "@nestjs/jwt";
-import { Share, User } from "@prisma/client";
+import type { Share, User } from "../generated/prisma/client";
 import archiver from "archiver";
 import * as argon from "argon2";
 import * as fs from "fs";

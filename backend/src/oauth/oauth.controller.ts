@@ -10,7 +10,7 @@ import {
   UseFilters,
   UseGuards,
 } from "@nestjs/common";
-import { User } from "@prisma/client";
+import type { User } from "../generated/prisma/client";
 import { Request, Response } from "express";
 import { nanoid } from "nanoid";
 import { AuthService } from "../auth/auth.service";

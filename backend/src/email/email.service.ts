@@ -1,5 +1,5 @@
 import { Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
-import { User } from "@prisma/client";
+import type { User } from "../generated/prisma/client";
 import relativeTime from "dayjs/plugin/relativeTime";
 import dayjs from "dayjs";
 import * as nodemailer from "nodemailer";

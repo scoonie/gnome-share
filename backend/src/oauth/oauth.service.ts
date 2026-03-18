@@ -1,5 +1,5 @@
 import { forwardRef, Inject, Injectable, Logger } from "@nestjs/common";
-import { User } from "@prisma/client";
+import type { User } from "../generated/prisma/client";
 import { nanoid } from "nanoid";
 import { AuthService } from "../auth/auth.service";
 import { ConfigService } from "../config/config.service";
