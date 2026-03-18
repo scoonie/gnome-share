@@ -46,35 +46,63 @@ export class ClamScanService {
     // CHANGED: Use the new getter function here instead of this.ClamScan
     const clamScan = await this.getScanner();
 
-    if (!clamScan) return [];
-
-    const infectedFiles = [];
-
-    const files = fs
-      .readdirSync(`${SHARE_DIRECTORY}/${shareId}`)
-      .filter((file) => file != "archive.zip");
-
-    for (const fileId of files) {
-      const { isInfected } = await clamScan
-        .isInfected(`${SHARE_DIRECTORY}/${shareId}/${fileId}`)
-        .catch(() => {
-          this.logger.log("ClamAV is not active");
-          return { isInfected: false };
-        });
-
-      const fileName = (
-        await this.prisma.file.findUnique({ where: { id: fileId } })
-      ).name;
-
-      if (isInfected) {
-        infectedFiles.push({ id: fileId, name: fileName });
-      }
+    if (!clamScan) {
+      this.logger.warn(
+        `ClamAV scanner not available, skipping scan for share ${shareId}`,
+      );
+      return [];
     }
 
-    return infectedFiles;
+    try {
+      const infectedFiles = [];
+
+      const files = fs
+        .readdirSync(`${SHARE_DIRECTORY}/${shareId}`)
+        .filter((file) => file != "archive.zip");
+
+      this.logger.log(
+        `Starting ClamAV scan for share ${shareId} (${files.length} file(s))`,
+      );
+
+      for (const fileId of files) {
+        const { isInfected } = await clamScan
+          .isInfected(`${SHARE_DIRECTORY}/${shareId}/${fileId}`)
+          .catch((err) => {
+            this.logger.warn(
+              `ClamAV scan error for file ${fileId} in share ${shareId}: ${err instanceof Error ? err.message : err}`,
+            );
+            return { isInfected: false };
+          });
+
+        const fileRecord = await this.prisma.file.findUnique({
+          where: { id: fileId },
+        });
+        const fileName = fileRecord?.name ?? fileId;
+
+        if (isInfected) {
+          infectedFiles.push({ id: fileId, name: fileName });
+          this.logger.warn(
+            `Malicious file detected: ${fileName} (${fileId}) in share ${shareId}`,
+          );
+        }
+      }
+
+      this.logger.log(
+        `ClamAV scan complete for share ${shareId}: ${infectedFiles.length} infected file(s) out of ${files.length}`,
+      );
+
+      return infectedFiles;
+    } catch (err) {
+      this.logger.error(
+        `Unexpected error during ClamAV scan for share ${shareId}: ${err instanceof Error ? err.message : err}`,
+        err instanceof Error ? err.stack : undefined,
+      );
+      return [];
+    }
   }
 
   async checkAndRemove(shareId: string) {
+    this.logger.log(`Running ClamAV check and remove for share ${shareId}`);
     const infectedFiles = await this.check(shareId);
 
     if (infectedFiles.length > 0) {
