@@ -28,7 +28,7 @@
     "archiver": "^7.0.1",
     "argon2": "^0.44.0",
     "body-parser": "^2.2.0",
-    "cache-manager": "^6.4.2",
+    "cache-manager": "^7.2.8",
     "cacheable": "^2.3.4",
     "clamscan": "^2.4.0",
     "class-transformer": "^0.5.1",
