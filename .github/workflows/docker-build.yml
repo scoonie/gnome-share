@@ -42,7 +42,58 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=raw,value=latest
 
-      - name: Build and push Docker image
+      - name: Build Docker image (local)
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          # Only building for standard x64 architecture to drastically speed up build times
+          platforms: linux/amd64
+          load: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # Speeds up future builds by caching previous layers
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke test Docker image
+        run: |
+          IMAGE_TAG="${{ fromJson(steps.meta.outputs.json).tags[0] }}"
+          mkdir -p data
+
+          # Ensure container is removed on exit (success or failure)
+          trap 'docker rm -f smoke-test 2>/dev/null || true' EXIT
+
+          docker run -d --name smoke-test \
+            -p 3000:3000 \
+            -v "$(pwd)/data:/opt/app/backend/data" \
+            "$IMAGE_TAG"
+
+          echo "Waiting for container to become healthy..."
+          TIMEOUT=90
+          INTERVAL=5
+          ELAPSED=0
+          SUCCESS=false
+
+          while [ "$ELAPSED" -lt "$TIMEOUT" ]; do
+            if curl -fs http://localhost:3000/api/health > /dev/null 2>&1; then
+              SUCCESS=true
+              break
+            fi
+            sleep "$INTERVAL"
+            ELAPSED=$((ELAPSED + INTERVAL))
+            echo "Still waiting... ${ELAPSED}s elapsed"
+          done
+
+          if [ "$SUCCESS" != "true" ]; then
+            echo "Smoke test failed: health check did not pass within ${TIMEOUT}s"
+            echo "Container logs:"
+            docker logs smoke-test
+            exit 1
+          fi
+
+          echo "Smoke test passed!"
+
+      - name: Push Docker image
         uses: docker/build-push-action@v7
         with:
           context: .
