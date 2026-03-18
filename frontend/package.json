@@ -15,7 +15,7 @@
     "@mantine/modals": "^7.17.8",
     "@mantine/notifications": "^7.17.8",
     "axios": "^1.13.6",
-    "cookies-next": "^4.2.1",
+    "cookies-next": "^6.1.1",
     "dayjs": "^1.11.20",
     "jose": "^6.2.1",
     "jwt-decode": "^4.0.0",
