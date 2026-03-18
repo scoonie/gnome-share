@@ -344,15 +344,7 @@ type ConfigVariables = {
   };
 };
 
-const prisma = new PrismaClient({
-  datasources: {
-    db: {
-      url:
-        process.env.DATABASE_URL ||
-        "file:../data/pingvin-share.db?connection_limit=1",
-    },
-  },
-});
+const prisma = new PrismaClient();
 
 async function seedConfigVariables() {
   for (const [category, configVariablesOfCategory] of Object.entries(
