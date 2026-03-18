@@ -1,4 +1,6 @@
 import { Prisma, PrismaClient } from "@prisma/client";
+import Database from "better-sqlite3";
+import { PrismaBetterSQLite3 } from "@prisma/adapter-better-sqlite3";
 import * as crypto from "crypto";
 
 export const configVariables = {
@@ -344,15 +346,27 @@ type ConfigVariables = {
   };
 };
 
-const prisma = new PrismaClient({
-  datasources: {
-    db: {
-      url:
-        process.env.DATABASE_URL ||
-        "file:../data/pingvin-share.db?connection_limit=1",
-    },
-  },
-});
+// Extract the file path from the SQLite URL
+function getSQLitePath(url: string): string {
+  let path = url;
+  if (path.startsWith("file:")) {
+    path = path.slice(5);
+  }
+  const queryIndex = path.indexOf("?");
+  if (queryIndex !== -1) {
+    path = path.slice(0, queryIndex);
+  }
+  return path;
+}
+
+const databaseUrl =
+  process.env.DATABASE_URL ||
+  "file:../data/pingvin-share.db?connection_limit=1";
+const dbPath = getSQLitePath(databaseUrl);
+const db = new Database(dbPath);
+const adapter = new PrismaBetterSQLite3(db);
+
+const prisma = new PrismaClient({ adapter });
 
 async function seedConfigVariables() {
   for (const [category, configVariablesOfCategory] of Object.entries(
