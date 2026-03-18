@@ -7,13 +7,11 @@ export class PrismaService extends PrismaClient {
   private readonly logger = new Logger(PrismaService.name);
 
   constructor() {
-    super({
-      datasources: {
-        db: {
-          url: DATABASE_URL,
-        },
-      },
-    });
+    // Prisma 7 reads DATABASE_URL from env automatically
+    if (!process.env.DATABASE_URL) {
+      process.env.DATABASE_URL = DATABASE_URL;
+    }
+    super();
     super.$connect().then(() => this.logger.log("Connected to the database"));
   }
 }

@@ -43,6 +43,7 @@
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
+    "prisma": "^7.5.0",
     "qrcode-svg": "^1.1.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
@@ -69,7 +70,6 @@
     "cross-env": "^10.1.0",
     "newman": "^6.2.2",
     "prettier": "^3.8.1",
-    "prisma": "^7.5.0",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.3",
     "wait-on": "^8.0.3"
