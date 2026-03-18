@@ -12,7 +12,7 @@
     "seed": "ts-node prisma/seed/config.seed.ts"
   },
   "dependencies": {
-    "@keyv/redis": "^4.4.0",
+    "@keyv/redis": "^5.1.6",
     "@nestjs/cache-manager": "^3.1.0",
     "@nestjs/common": "^11.1.17",
     "@nestjs/config": "^4.0.3",
