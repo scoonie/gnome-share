@@ -20,4 +20,6 @@ jobs:
         run: npm install
       - name: Run Server and Test with Newman
         working-directory: ./backend
+        env:
+          DATABASE_URL: file:./data/pingvin-share.db?connection_limit=1
         run: npm run test:system

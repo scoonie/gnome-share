@@ -344,12 +344,15 @@ type ConfigVariables = {
   };
 };
 
-// Prisma 7 no longer supports the datasources constructor option;
-// DATABASE_URL must be set as an environment variable before instantiation
-if (!process.env.DATABASE_URL) {
-  process.env.DATABASE_URL = "file:../data/pingvin-share.db?connection_limit=1";
-}
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url:
+        process.env.DATABASE_URL ||
+        "file:../data/pingvin-share.db?connection_limit=1",
+    },
+  },
+});
 
 async function seedConfigVariables() {
   for (const [category, configVariablesOfCategory] of Object.entries(
