@@ -51,7 +51,7 @@ const MyShares = () => {
 
   if (!reverseShares) return <CenterLoader />;
   return (
-    <>
+    <>  
       <Meta title={t("account.reverseShares.title")} />
       <Group justify="space-between" align="baseline" mb={20}>
         <Group align="center" gap={3} mb={30}>
@@ -190,7 +190,7 @@ const MyShares = () => {
                                 </Text>
                                 {share.files && share.files.length > 0 && (
                                   <Stack gap={2} mt={4}>
-                                    {share.files.map((file) => (
+                                    {share.files.map((file: { id: string; name: string; size: string }) => (
                                       <Text key={file.id} size="xs" c="dimmed" pl={8}>
                                         • {file.name}
                                       </Text>
