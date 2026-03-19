@@ -139,18 +139,27 @@ const Upload = ({
     Promise.all(fileUploadPromises);
   };
 
-  const handleReverseShareUpload = (files: FileUpload[]) => {
+  const handleReverseShareUpload = async (files: FileUpload[]) => {
     const chars =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    const length = Math.max(
-      3,
-      parseInt(config.get("share.shareIdLength")) || 16,
-    );
-    const randomArray = new Uint8Array(length);
-    crypto.getRandomValues(randomArray);
-    const shareId = Array.from(randomArray)
-      .map((n) => chars[n % chars.length])
-      .join("");
+    const configuredLength = parseInt(config.get("share.shareIdLength")) || 16;
+    // Backend CreateShareDTO enforces @Length(3, 50) on share ID
+    const length = Math.min(Math.max(3, configuredLength), 50);
+
+    const generateId = () => {
+      const randomArray = new Uint8Array(length);
+      crypto.getRandomValues(randomArray);
+      return Array.from(randomArray)
+        .map((n) => chars[n % chars.length])
+        .join("");
+    };
+
+    let shareId = generateId();
+    for (let attempt = 0; attempt < 10; attempt++) {
+      if (await shareService.isShareIdAvailable(shareId)) break;
+      shareId = generateId();
+    }
+
     const share: CreateShare = {
       id: shareId,
       recipients: [],

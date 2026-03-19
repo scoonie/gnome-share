@@ -1,11 +1,22 @@
-import { IsBoolean, IsOptional, IsString, Max, Min } from "class-validator";
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+} from "class-validator";
 
 export class CreateReverseShareDTO {
   @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
   name: string;
 
   @IsOptional()
   @IsString()
+  @MaxLength(512)
   description?: string;
 
   @IsBoolean()
