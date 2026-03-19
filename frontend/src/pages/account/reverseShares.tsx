@@ -6,6 +6,7 @@ import {
   Button,
   Center,
   Group,
+  List,
   Stack,
   Table,
   Text,
@@ -26,7 +27,7 @@ import showCreateReverseShareModal from "../../components/share/modals/showCreat
 import useConfig from "../../hooks/config.hook";
 import useTranslate from "../../hooks/useTranslate.hook";
 import shareService from "../../services/share.service";
-import { MyReverseShare } from "../../types/share.type";
+import { MyReverseShare, ShareFile } from "../../types/share.type";
 import { byteToHumanSizeString } from "../../utils/fileSize.util";
 import toast from "../../utils/toast.util";
 
@@ -188,6 +189,15 @@ const MyShares = () => {
                                     count: share.files?.length ?? 0,
                                   })}
                                 </Text>
+                                {share.files && share.files.length > 0 && (
+                                  <List size="xs" mt={4} listStyleType="disc" c="dimmed" pl={8}>
+                                    {share.files.map((file: ShareFile) => (
+                                      <List.Item key={file.id}>
+                                        {file.name}
+                                      </List.Item>
+                                    ))}
+                                  </List>
+                                )}
                               </Stack>
                             ))}
                           </Accordion.Panel>
