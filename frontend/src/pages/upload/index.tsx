@@ -260,6 +260,7 @@ const Upload = ({
       )}
       <Group justify="flex-end" mb={20}>
         <Button
+          color="maroon"
           loading={isUploading}
           disabled={files.length <= 0}
           onClick={() => {

@@ -188,6 +188,15 @@ const MyShares = () => {
                                     count: share.files?.length ?? 0,
                                   })}
                                 </Text>
+                                {share.files && share.files.length > 0 && (
+                                  <Stack gap={2} mt={4}>
+                                    {share.files.map((file) => (
+                                      <Text key={file.id} size="xs" c="dimmed" pl={8}>
+                                        • {file.name}
+                                      </Text>
+                                    ))}
+                                  </Stack>
+                                )}
                               </Stack>
                             ))}
                           </Accordion.Panel>
