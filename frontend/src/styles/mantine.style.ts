@@ -1,6 +1,8 @@
 import { createTheme } from "@mantine/core";
 
 export default createTheme({
+  autoContrast: true,
+  primaryShade: { light: 5, dark: 5 },
   colors: {
     maroon: [
       "#F4E2E4", // [0] Lightest (subtle backgrounds)
