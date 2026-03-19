@@ -181,7 +181,7 @@ const MyShares = () => {
                                   </ActionIcon>
                                 </Group>
                                 <Text size="xs" c="dimmed">
-                                  {dayjs(share.createdAt).format("LLL")}
+                                  {t("account.reverseShares.table.uploaded-at")}: {dayjs(share.createdAt).format("LLL")}
                                 </Text>
                                 <Text size="xs" c="dimmed">
                                   {t("account.reverseShares.table.file-count", {

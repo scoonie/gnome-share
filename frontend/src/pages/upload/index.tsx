@@ -140,11 +140,21 @@ const Upload = ({
   };
 
   const handleReverseShareUpload = (files: FileUpload[]) => {
-    const shareId = Math.random().toString(36).substring(2, 10);
+    const chars =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const length = Math.max(
+      3,
+      parseInt(config.get("share.shareIdLength")) || 16,
+    );
+    const randomArray = new Uint8Array(length);
+    crypto.getRandomValues(randomArray);
+    const shareId = Array.from(randomArray)
+      .map((n) => chars[n % chars.length])
+      .join("");
     const share: CreateShare = {
       id: shareId,
       recipients: [],
-      expiration: "1-never",
+      expiration: "never",
       security: {},
     };
     uploadFiles(share, files);

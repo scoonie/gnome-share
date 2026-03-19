@@ -8,7 +8,7 @@ export class ReverseShareDTO {
   name: string;
 
   @Expose()
-  description: string;
+  description?: string | null;
 
   @Expose()
   maxShareSize: string;

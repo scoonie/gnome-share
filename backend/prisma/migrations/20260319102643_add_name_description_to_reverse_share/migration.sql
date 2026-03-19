@@ -22,7 +22,7 @@ CREATE TABLE "new_ReverseShare" (
     "creatorId" TEXT NOT NULL,
     CONSTRAINT "ReverseShare_creatorId_fkey" FOREIGN KEY ("creatorId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
-INSERT INTO "new_ReverseShare" ("createdAt", "creatorId", "id", "maxShareSize", "publicAccess", "remainingUses", "sendEmailNotification", "shareExpiration", "simplified", "token") SELECT "createdAt", "creatorId", "id", "maxShareSize", "publicAccess", "remainingUses", "sendEmailNotification", "shareExpiration", "simplified", "token" FROM "ReverseShare";
+INSERT INTO "new_ReverseShare" ("createdAt", "creatorId", "id", "maxShareSize", "name", "publicAccess", "remainingUses", "sendEmailNotification", "shareExpiration", "simplified", "token") SELECT "createdAt", "creatorId", "id", "maxShareSize", '' AS "name", "publicAccess", "remainingUses", "sendEmailNotification", "shareExpiration", "simplified", "token" FROM "ReverseShare";
 DROP TABLE "ReverseShare";
 ALTER TABLE "new_ReverseShare" RENAME TO "ReverseShare";
 CREATE UNIQUE INDEX "ReverseShare_token_key" ON "ReverseShare"("token");
