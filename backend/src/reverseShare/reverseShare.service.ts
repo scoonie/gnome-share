@@ -44,6 +44,8 @@ export class ReverseShareService {
 
     const reverseShare = await this.prisma.reverseShare.create({
       data: {
+        name: data.name,
+        description: data.description,
         shareExpiration: expirationDate,
         remainingUses: data.maxUseCount,
         maxShareSize: data.maxShareSize,
@@ -76,7 +78,7 @@ export class ReverseShareService {
       orderBy: {
         shareExpiration: "desc",
       },
-      include: { shares: { include: { creator: true } } },
+      include: { shares: { include: { creator: true, files: true } } },
     });
 
     return reverseShares;

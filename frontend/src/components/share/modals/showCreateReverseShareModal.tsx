@@ -7,11 +7,12 @@ import {
   Stack,
   Switch,
   Text,
+  Textarea,
+  TextInput,
 } from "@mantine/core";
 import { useForm, yupResolver } from "@mantine/form";
 import { useModals } from "@mantine/modals";
 import { ModalsContextProps } from "@mantine/modals/lib/context";
-import { getCookie, setCookie } from "cookies-next";
 import dayjs, { ManipulateType } from "dayjs";
 import { FormattedMessage } from "react-intl";
 import * as yup from "yup";
@@ -58,16 +59,17 @@ const Body = ({
 
   const form = useForm({
     initialValues: {
-      maxShareSize: 104857600,
-      maxUseCount: 1,
+      name: "",
+      description: "",
+      maxShareSize: 1073741824,
+      maxUseCount: 10,
       sendEmailNotification: false,
-      expiration_num: 1,
+      expiration_num: 14,
       expiration_unit: "-days",
-      simplified: !!(getCookie("reverse-share.simplified") ?? false),
-      publicAccess: !!(getCookie("reverse-share.public-access") ?? true),
     },
     validate: yupResolver(
       yup.object().shape({
+        name: yup.string().required(t("common.error.field-required")),
         maxUseCount: yup
           .number()
           .typeError(t("common.error.invalid-number"))
@@ -79,10 +81,6 @@ const Body = ({
   });
 
   const onSubmit = form.onSubmit(async (values) => {
-    // remember simplified and publicAccess in cookies
-    setCookie("reverse-share.simplified", values.simplified);
-    setCookie("reverse-share.public-access", values.publicAccess);
-
     const expirationDate = dayjs().add(
       form.values.expiration_num,
       form.values.expiration_unit.replace(
@@ -113,8 +111,10 @@ const Body = ({
         values.maxShareSize,
         values.maxUseCount,
         values.sendEmailNotification,
-        values.simplified,
-        values.publicAccess,
+        true,
+        false,
+        values.name,
+        values.description || undefined,
       )
       .then(({ link }) => {
         modals.closeAll();
@@ -127,6 +127,23 @@ const Body = ({
     <Group>
       <form onSubmit={onSubmit}>
         <Stack align="stretch">
+          <TextInput
+            variant="filled"
+            label={t("account.reverseShares.modal.name.label")}
+            placeholder={t("account.reverseShares.modal.name.placeholder")}
+            {...form.getInputProps("name")}
+          />
+          <Textarea
+            variant="filled"
+            label={t("account.reverseShares.modal.description.label")}
+            placeholder={t(
+              "account.reverseShares.modal.description.placeholder",
+            )}
+            autosize
+            minRows={2}
+            maxRows={4}
+            {...form.getInputProps("description")}
+          />
           <div>
             <Grid align={form.errors.expiration_num ? "center" : "flex-end"}>
               <Grid.Col span={6}>
@@ -232,28 +249,6 @@ const Body = ({
               })}
             />
           )}
-          <Switch
-            mt="xs"
-            labelPosition="left"
-            label={t("account.reverseShares.modal.simplified")}
-            description={t(
-              "account.reverseShares.modal.simplified.description",
-            )}
-            {...form.getInputProps("simplified", {
-              type: "checkbox",
-            })}
-          />
-          <Switch
-            mt="xs"
-            labelPosition="left"
-            label={t("account.reverseShares.modal.public-access")}
-            description={t(
-              "account.reverseShares.modal.public-access.description",
-            )}
-            {...form.getInputProps("publicAccess", {
-              type: "checkbox",
-            })}
-          />
           <Button mt="md" type="submit">
             <FormattedMessage id="common.button.create" />
           </Button>

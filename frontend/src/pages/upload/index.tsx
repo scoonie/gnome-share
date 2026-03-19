@@ -1,7 +1,8 @@
-import { Button, Group } from "@mantine/core";
+import { Button, Group, Stack, Text, Title } from "@mantine/core";
 import { useModals } from "@mantine/modals";
 import { cleanNotifications } from "@mantine/notifications";
 import { AxiosError } from "axios";
+import dayjs from "dayjs";
 import pLimit from "p-limit";
 import { useEffect, useRef, useState } from "react";
 import { FormattedMessage } from "react-intl";
@@ -28,10 +29,16 @@ const Upload = ({
   maxShareSize,
   isReverseShare = false,
   simplified,
+  reverseShareName,
+  reverseShareDescription,
+  reverseShareExpiration,
 }: {
   maxShareSize?: number;
   isReverseShare: boolean;
   simplified: boolean;
+  reverseShareName?: string;
+  reverseShareDescription?: string;
+  reverseShareExpiration?: Date;
 }) => {
   const modals = useModals();
   const router = useRouter();
@@ -132,6 +139,36 @@ const Upload = ({
     Promise.all(fileUploadPromises);
   };
 
+  const handleReverseShareUpload = async (files: FileUpload[]) => {
+    const chars =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const configuredLength = parseInt(config.get("share.shareIdLength")) || 16;
+    // Backend CreateShareDTO enforces @Length(3, 50) on share ID
+    const length = Math.min(Math.max(3, configuredLength), 50);
+
+    const generateId = () => {
+      const randomArray = new Uint8Array(length);
+      crypto.getRandomValues(randomArray);
+      return Array.from(randomArray)
+        .map((n) => chars[n % chars.length])
+        .join("");
+    };
+
+    let shareId = generateId();
+    for (let attempt = 0; attempt < 10; attempt++) {
+      if (await shareService.isShareIdAvailable(shareId)) break;
+      shareId = generateId();
+    }
+
+    const share: CreateShare = {
+      id: shareId,
+      recipients: [],
+      expiration: "never",
+      security: {},
+    };
+    uploadFiles(share, files);
+  };
+
   const showCreateUploadModalCallback = (files: FileUpload[]) => {
     showCreateUploadModal(
       modals,
@@ -152,7 +189,9 @@ const Upload = ({
   };
 
   const handleDropzoneFilesChanged = (files: FileUpload[]) => {
-    if (autoOpenCreateUploadModal) {
+    if (isReverseShare) {
+      setFiles((oldArr) => [...oldArr, ...files]);
+    } else if (autoOpenCreateUploadModal) {
       setFiles(files);
       showCreateUploadModalCallback(files);
     } else {
@@ -192,7 +231,7 @@ const Upload = ({
         .completeShare(createdShare.id)
         .then((share) => {
           setisUploading(false);
-          showCompletedUploadModal(modals, share);
+          showCompletedUploadModal(modals, share, isReverseShare);
           setFiles([]);
         })
         .catch(() => toast.error(t("upload.notify.generic-error")));
@@ -202,13 +241,40 @@ const Upload = ({
   return (
     <>
       <Meta title={t("upload.title")} />
+      {isReverseShare && (
+        <Stack mb={20} gap={4}>
+          {reverseShareName && (
+            <Title order={3}>{reverseShareName}</Title>
+          )}
+          {reverseShareDescription && (
+            <Text c="dimmed">{reverseShareDescription}</Text>
+          )}
+          {reverseShareExpiration && (
+            <Text size="sm" c="dimmed">
+              {t("upload.reverse-share.expires-on", {
+                date: dayjs(reverseShareExpiration).format("LLL"),
+              })}
+            </Text>
+          )}
+        </Stack>
+      )}
       <Group justify="flex-end" mb={20}>
         <Button
           loading={isUploading}
           disabled={files.length <= 0}
-          onClick={() => showCreateUploadModalCallback(files)}
+          onClick={() => {
+            if (isReverseShare) {
+              handleReverseShareUpload(files);
+            } else {
+              showCreateUploadModalCallback(files);
+            }
+          }}
         >
-          <FormattedMessage id="common.button.share" />
+          {isReverseShare ? (
+            <FormattedMessage id="common.button.upload" />
+          ) : (
+            <FormattedMessage id="common.button.share" />
+          )}
         </Button>
       </Group>
       <Dropzone

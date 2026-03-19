@@ -1,5 +1,6 @@
 import { OmitType } from "@nestjs/swagger";
 import { Expose, plainToClass, Type } from "class-transformer";
+import { FileDTO } from "src/file/dto/file.dto";
 import { MyShareDTO } from "src/share/dto/myShare.dto";
 import { ReverseShareDTO } from "./reverseShare.dto";
 
@@ -11,10 +12,10 @@ export class ReverseShareTokenWithShares extends OmitType(ReverseShareDTO, [
 
   @Expose()
   @Type(() => OmitType(MyShareDTO, ["recipients", "hasPassword"] as const))
-  shares: Omit<
+  shares: (Omit<
     MyShareDTO,
-    "recipients" | "files" | "from" | "fromList" | "hasPassword" | "size"
-  >[];
+    "recipients" | "from" | "fromList" | "hasPassword" | "size"
+  > & { files: Omit<FileDTO, "share" | "from">[] })[];
 
   @Expose()
   remainingUses: number;

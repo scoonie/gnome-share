@@ -101,6 +101,9 @@ const MyShares = () => {
             <thead>
               <tr>
                 <th>
+                  <FormattedMessage id="account.reverseShares.table.name" />
+                </th>
+                <th>
                   <FormattedMessage id="account.reverseShares.table.shares" />
                 </th>
                 <th>
@@ -118,6 +121,11 @@ const MyShares = () => {
             <tbody>
               {reverseShares.map((reverseShare) => (
                 <tr key={reverseShare.id}>
+                  <td style={{ maxWidth: 200 }}>
+                    <Text size="sm" truncate>
+                      {reverseShare.name}
+                    </Text>
+                  </td>
                   <td style={{ width: 220 }}>
                     {reverseShare.shares.length == 0 ? (
                       <Text c="dimmed" size="sm">
@@ -142,35 +150,45 @@ const MyShares = () => {
                           </Accordion.Control>
                           <Accordion.Panel>
                             {reverseShare.shares.map((share) => (
-                              <Group key={share.id} mb={4}>
-                                <Anchor
-                                  href={`${window.location.origin}/share/${share.id}`}
-                                  target="_blank"
-                                >
-                                  <Text maw={120} truncate>
-                                    {share.id}
-                                  </Text>
-                                </Anchor>
-                                <ActionIcon
-                                  color="maroon"
-                                  variant="light"
-                                  size={25}
-                                  onClick={() => {
-                                    if (window.isSecureContext) {
-                                      clipboard.copy(
-                                        `${window.location.origin}/s/${share.id}`,
-                                      );
-                                      toast.success(
-                                        t("common.notify.copied-link"),
-                                      );
-                                    } else {
-                                      showShareLinkModal(modals, share.id);
-                                    }
-                                  }}
-                                >
-                                  <TbLink />
-                                </ActionIcon>
-                              </Group>
+                              <Stack key={share.id} mb={8} gap={2}>
+                                <Group gap={4}>
+                                  <Anchor
+                                    href={`${window.location.origin}/share/${share.id}`}
+                                    target="_blank"
+                                  >
+                                    <Text maw={120} truncate>
+                                      {share.id}
+                                    </Text>
+                                  </Anchor>
+                                  <ActionIcon
+                                    color="maroon"
+                                    variant="light"
+                                    size={25}
+                                    onClick={() => {
+                                      if (window.isSecureContext) {
+                                        clipboard.copy(
+                                          `${window.location.origin}/s/${share.id}`,
+                                        );
+                                        toast.success(
+                                          t("common.notify.copied-link"),
+                                        );
+                                      } else {
+                                        showShareLinkModal(modals, share.id);
+                                      }
+                                    }}
+                                  >
+                                    <TbLink />
+                                  </ActionIcon>
+                                </Group>
+                                <Text size="xs" c="dimmed">
+                                  {t("account.reverseShares.table.uploaded-at")}: {dayjs(share.createdAt).format("LLL")}
+                                </Text>
+                                <Text size="xs" c="dimmed">
+                                  {t("account.reverseShares.table.file-count", {
+                                    count: share.files?.length ?? 0,
+                                  })}
+                                </Text>
+                              </Stack>
                             ))}
                           </Accordion.Panel>
                         </Accordion.Item>

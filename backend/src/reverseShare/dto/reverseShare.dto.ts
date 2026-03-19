@@ -5,6 +5,12 @@ export class ReverseShareDTO {
   id: string;
 
   @Expose()
+  name: string;
+
+  @Expose()
+  description?: string | null;
+
+  @Expose()
   maxShareSize: string;
 
   @Expose()

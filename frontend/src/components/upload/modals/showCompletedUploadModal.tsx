@@ -13,25 +13,51 @@ import CopyTextField from "../CopyTextField";
 const showCompletedUploadModal = (
   modals: ModalsContextProps,
   share: CompletedShare,
+  isReverseShare?: boolean,
 ) => {
   const t = translateOutsideContext();
+  const title = isReverseShare
+    ? t("upload.reverse-share.complete.title")
+    : t("upload.modal.completed.share-ready");
   return modals.openModal({
     closeOnClickOutside: false,
     withCloseButton: false,
     closeOnEscape: false,
-    title: t("upload.modal.completed.share-ready"),
-    children: <Body share={share} />,
+    title,
+    children: <Body share={share} isReverseShare={!!isReverseShare} />,
   });
 };
 
-const Body = ({ share }: { share: CompletedShare }) => {
+const Body = ({
+  share,
+  isReverseShare,
+}: {
+  share: CompletedShare;
+  isReverseShare: boolean;
+}) => {
   const modals = useModals();
   const router = useRouter();
   const t = useTranslate();
 
-  const isReverseShare = !!router.query["reverseShareToken"];
-
   const link = `${window.location.origin}/s/${share.id}`;
+
+  if (isReverseShare) {
+    return (
+      <Stack align="stretch">
+        <Text size="sm">
+          {t("upload.reverse-share.complete.description")}
+        </Text>
+        <Button
+          onClick={() => {
+            modals.closeAll();
+            router.reload();
+          }}
+        >
+          <FormattedMessage id="common.button.done" />
+        </Button>
+      </Stack>
+    );
+  }
 
   return (
     <Stack align="stretch">
@@ -59,11 +85,7 @@ const Body = ({ share }: { share: CompletedShare }) => {
       <Button
         onClick={() => {
           modals.closeAll();
-          if (isReverseShare) {
-            router.reload();
-          } else {
-            router.push("/upload");
-          }
+          router.push("/upload");
         }}
       >
         <FormattedMessage id="common.button.done" />
