@@ -17,7 +17,6 @@ import useUser from "../../hooks/user.hook";
 import useTranslate from "../../hooks/useTranslate.hook";
 import Logo from "../Logo";
 import ActionAvatar from "./ActionAvatar";
-import NavbarShareMenu from "./NavbarShareMenu";
 import classes from "./Header.module.css";
 
 const HEADER_HEIGHT = 60;
@@ -49,7 +48,12 @@ const Header = () => {
       label: t("navbar.upload"),
     },
     {
-      component: <NavbarShareMenu />,
+      link: "/account/shares",
+      label: t("navbar.links.shares"),
+    },
+    {
+      link: "/account/reverseShares",
+      label: t("navbar.links.reverse"),
     },
     {
       component: <ActionAvatar />,
