@@ -19,7 +19,6 @@ import { FormattedMessage } from "react-intl";
 import * as yup from "yup";
 import Meta from "../../components/Meta";
 import LanguagePicker from "../../components/account/LanguagePicker";
-import ThemeSwitcher from "../../components/account/ThemeSwitcher";
 import showEnableTotpModal from "../../components/account/showEnableTotpModal";
 import useConfig from "../../hooks/config.hook";
 import useTranslate from "../../hooks/useTranslate.hook";
@@ -374,12 +373,6 @@ const Account = () => {
             <FormattedMessage id="account.card.language.title" />
           </Title>
           <LanguagePicker />
-        </Paper>
-        <Paper withBorder p="xl" mt="lg">
-          <Title order={5} mb="xs">
-            <FormattedMessage id="account.card.color.title" />
-          </Title>
-          <ThemeSwitcher />
         </Paper>
         <Center mt={80} mb="lg">
           <Stack>

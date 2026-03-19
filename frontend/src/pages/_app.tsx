@@ -4,8 +4,6 @@ import "@mantine/dropzone/styles.css";
 import "../styles/global.css";
 import {
   MantineProvider,
-  MantineColorScheme,
-  localStorageColorSchemeManager,
   Container,
   Stack,
 } from "@mantine/core";
@@ -101,10 +99,6 @@ const DAYJS_LOCALE_MAP: Record<string, string> = {
 
 const excludeDefaultLayoutRoutes = ["/admin/config/[category]"];
 
-const colorSchemeManager = localStorageColorSchemeManager({
-  key: "mantine-color-scheme",
-});
-
 function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
 
@@ -155,8 +149,7 @@ function App({ Component, pageProps }: AppProps) {
       >
         <MantineProvider
           theme={mantineTheme}
-          defaultColorScheme={pageProps.colorScheme ?? "light"}
-          colorSchemeManager={colorSchemeManager}
+          defaultColorScheme="dark"
         >
           <Notifications />
           <ModalsProvider>
@@ -212,12 +205,9 @@ App.getInitialProps = async ({ ctx }: { ctx: GetServerSidePropsContext }) => {
     user?: CurrentUser;
     configVariables?: Config[];
     route?: string;
-    colorScheme: MantineColorScheme;
     language?: string;
   } = {
     route: ctx.resolvedUrl,
-    colorScheme:
-      (getCookie("mantine-color-scheme", ctx) as MantineColorScheme) ?? "light",
   };
 
   if (ctx.req) {
