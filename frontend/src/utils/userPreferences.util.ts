@@ -1,9 +1,5 @@
 const defaultPreferences = [
   {
-    key: "colorScheme",
-    value: "system",
-  },
-  {
     key: "locale",
     value: "system",
   },
