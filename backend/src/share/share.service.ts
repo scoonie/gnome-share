@@ -182,7 +182,12 @@ export class ShareService {
     }
 
     // Check if any file is malicious with ClamAV
-    void this.clamScanService.checkAndRemove(share.id);
+    this.clamScanService.checkAndRemove(share.id).catch((err) => {
+      this.logger.error(
+        `ClamAV scan failed for share ${share.id}: ${err instanceof Error ? err.message : err}`,
+        err instanceof Error ? err.stack : undefined,
+      );
+    });
 
     if (share.reverseShare) {
       await this.prisma.reverseShare.update({
