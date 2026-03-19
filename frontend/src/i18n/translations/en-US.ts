@@ -196,6 +196,12 @@ export default {
   "account.reverseShares.modal.expiration.year-singular": "Year",
   "account.reverseShares.modal.expiration.year-plural": "Years",
 
+  "account.reverseShares.modal.name.label": "Name",
+  "account.reverseShares.modal.name.placeholder": "e.g. Q1 Reports from Acme Corp",
+  "account.reverseShares.modal.description.label": "Description",
+  "account.reverseShares.modal.description.placeholder":
+    "e.g. Please upload the quarterly finance documents",
+
   "account.reverseShares.modal.max-size.label": "Max share size",
 
   "account.reverseShares.modal.send-email": "Send email notifications",
@@ -217,6 +223,7 @@ export default {
   "account.reverseShare.expires-on":
     "This reverse share will expire on {expiration}.",
 
+  "account.reverseShares.table.name": "Name",
   "account.reverseShares.table.no-shares": "No shares created yet",
   "account.reverseShares.table.count.singular": "share",
   "account.reverseShares.table.count.plural": "shares",
@@ -230,6 +237,9 @@ export default {
   "account.reverseShares.modal.delete.title": "Delete reverse share",
   "account.reverseShares.modal.delete.description":
     "Do you really want to delete this reverse share? If you do, the associated shares will be deleted as well.",
+
+  "account.reverseShares.table.file-count": "{count, plural, =1 {# file} other {# files}}",
+  "account.reverseShares.table.uploaded-at": "Uploaded",
 
   // END /account/reverseShares
 
@@ -297,6 +307,12 @@ export default {
   "upload.reverse-share.error.invalid.title": "Invalid reverse share link",
   "upload.reverse-share.error.invalid.description":
     "This reverse share has expired or is invalid.",
+
+  "upload.reverse-share.expires-on":
+    "This upload link expires on {date}",
+  "upload.reverse-share.complete.title": "Upload complete",
+  "upload.reverse-share.complete.description":
+    "Your files have been uploaded successfully.",
 
   // Dropzone.tsx
   "upload.dropzone.title": "Upload files",
@@ -738,6 +754,7 @@ export default {
   "common.button.disable": "Disable",
   "common.button.share": "Share",
   "common.button.generate": "Generate",
+  "common.button.upload": "Upload",
   "common.button.done": "Done",
   "common.text.link": "Link",
   "common.text.navigate-to-link": "Visit link",

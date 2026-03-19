@@ -114,9 +114,13 @@ const createReverseShare = async (
   sendEmailNotification: boolean,
   simplified: boolean,
   publicAccess: boolean,
+  name: string,
+  description?: string,
 ) => {
   return (
     await api.post("reverseShares", {
+      name,
+      description,
       shareExpiration,
       maxShareSize: maxShareSize.toString(),
       maxUseCount,

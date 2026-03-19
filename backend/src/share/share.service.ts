@@ -81,6 +81,7 @@ export class ShareService {
     const shareTuple = await this.prisma.share.create({
       data: {
         ...share,
+        description: reverseShare ? reverseShare.description : share.description,
         expiration: expirationDate,
         creator: { connect: user ? { id: user.id } : undefined },
         security: { create: share.security },

@@ -42,11 +42,13 @@ export type MyShare = Omit<Share, "hasPassword"> & {
 
 export type MyReverseShare = {
   id: string;
+  name: string;
+  description?: string;
   maxShareSize: string;
   shareExpiration: Date;
   remainingUses: number;
   token: string;
-  shares: MyShare[];
+  shares: (Omit<MyShare, "size"> & { files: { id: string; name: string; size: string }[] })[];
 };
 
 export type ShareSecurity = {
