@@ -67,7 +67,7 @@
     "@types/nodemailer": "^6.4.17",
     "@types/passport-jwt": "^4.0.1",
     "@types/qrcode-svg": "^1.1.5",
-    "@types/uuid": "^10.0.0",
+    "@types/uuid": "^11.0.0",
     "cross-env": "^10.1.0",
     "newman": "^6.2.2",
     "prettier": "^3.8.1",
