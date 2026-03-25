@@ -51,7 +51,7 @@
     "sharp": "^0.34.1",
     "ts-node": "^10.9.2",
     "uuid": "^13.0.0",
-    "yaml": "^2.8.2"
+    "yaml": "^2.8.3"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.16",
