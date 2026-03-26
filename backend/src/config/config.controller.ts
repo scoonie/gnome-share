@@ -11,6 +11,8 @@ import {
   UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
+// Ensure multer global type augmentation (Express.Multer.File) is loaded
+import "multer";
 import { SkipThrottle } from "@nestjs/throttler";
 import { AdministratorGuard } from "src/auth/guard/isAdmin.guard";
 import { JwtGuard } from "src/auth/guard/jwt.guard";
