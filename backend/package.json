@@ -53,6 +53,20 @@
     "uuid": "^13.0.0",
     "yaml": "^2.8.3"
   },
+  "overrides": {
+    "picomatch": ">=4.0.4",
+    "handlebars": ">=4.7.9",
+    "node-forge": ">=1.4.0",
+    "flatted": ">=3.4.2",
+    "qs": ">=6.14.1",
+    "hono": ">=4.12.7",
+    "@hono/node-server": ">=1.19.10",
+    "ajv": ">=8.18.0",
+    "effect": ">=3.20.0",
+    "jose": "^4.15.9",
+    "underscore": ">=1.13.8",
+    "lodash": ">=4.17.23"
+  },
   "devDependencies": {
     "@nestjs/cli": "^11.0.16",
     "@nestjs/schematics": "^11.0.9",
