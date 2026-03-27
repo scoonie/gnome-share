@@ -53,7 +53,7 @@ const refreshAccessToken = async () => {
 };
 
 const requestResetPassword = async (email: string) => {
-  await api.post(`/auth/resetPassword/${email}`);
+  await api.post(`/auth/resetPassword/${encodeURIComponent(email)}`);
 };
 
 const resetPassword = async (token: string, password: string) => {

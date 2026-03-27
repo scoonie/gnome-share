@@ -32,7 +32,7 @@ const OpenIDIcon = ({ width = "1em", height = "1em", fill = "currentColor", ...p
 );
 
 const getOAuthUrl = (appUrl: string, provider: string) => {
-  return `${appUrl}/api/oauth/auth/${provider}`;
+  return `${appUrl}/api/oauth/auth/${encodeURIComponent(provider)}`;
 };
 
 const getOAuthIcon = (provider: string) => {
@@ -46,7 +46,7 @@ const getOAuthIcon = (provider: string) => {
 };
 
 const unlinkOAuth = (provider: string) => {
-  return api.post(`/oauth/unlink/${provider}`);
+  return api.post(`/oauth/unlink/${encodeURIComponent(provider)}`);
 };
 
 export { getOAuthUrl, getOAuthIcon, unlinkOAuth };

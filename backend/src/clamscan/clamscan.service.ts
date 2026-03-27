@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import NodeClam from "clamscan";
 import * as fs from "fs";
+import * as path from "path";
 import { FileService } from "src/file/file.service";
 import { PrismaService } from "src/prisma/prisma.service";
 import { CLAMAV_HOST, CLAMAV_PORT, SHARE_DIRECTORY } from "../constants";
@@ -56,8 +57,18 @@ export class ClamScanService {
     try {
       const infectedFiles = [];
 
+      const safeShareId = path.basename(shareId);
+      const rootDir = path.resolve(SHARE_DIRECTORY);
+      const shareDir = path.resolve(rootDir, safeShareId);
+      if (!shareDir.startsWith(rootDir + path.sep)) {
+        this.logger.warn(
+          `Invalid share path for share ${shareId}, skipping scan`,
+        );
+        return [];
+      }
+
       const files = fs
-        .readdirSync(`${SHARE_DIRECTORY}/${shareId}`)
+        .readdirSync(shareDir)
         .filter((file) => file != "archive.zip");
 
       this.logger.log(
@@ -65,8 +76,14 @@ export class ClamScanService {
       );
 
       for (const fileId of files) {
+        const safeFileId = path.basename(fileId);
+        const filePath = path.resolve(shareDir, safeFileId);
+        if (!filePath.startsWith(shareDir + path.sep)) {
+          continue;
+        }
+
         const { isInfected } = await clamScan
-          .isInfected(`${SHARE_DIRECTORY}/${shareId}/${fileId}`)
+          .isInfected(filePath)
           .catch((err) => {
             this.logger.warn(
               `ClamAV scan error for file ${fileId} in share ${shareId}: ${err instanceof Error ? err.message : err}`,
