@@ -1,4 +1,4 @@
-import { ModalsContextProps } from "@mantine/modals/lib/context";
+import { ModalsContextProps } from "../../../types/modals.type";
 import mime from "mime-types";
 import { FileMetaData } from "../../../types/File.type";
 import FilePreview from "../FilePreview";

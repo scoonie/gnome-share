@@ -12,7 +12,7 @@ import {
 } from "@mantine/core";
 import { useForm, yupResolver } from "@mantine/form";
 import { useModals } from "@mantine/modals";
-import { ModalsContextProps } from "@mantine/modals/lib/context";
+import { ModalsContextProps } from "../../../types/modals.type";
 import dayjs, { ManipulateType } from "dayjs";
 import { FormattedMessage } from "react-intl";
 import * as yup from "yup";

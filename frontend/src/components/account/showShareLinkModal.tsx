@@ -1,5 +1,5 @@
 import { Stack, TextInput } from "@mantine/core";
-import { ModalsContextProps } from "@mantine/modals/lib/context";
+import { ModalsContextProps } from "../../types/modals.type";
 import { translateOutsideContext } from "../../hooks/useTranslate.hook";
 
 const showShareLinkModal = (modals: ModalsContextProps, shareId: string) => {

@@ -1,5 +1,5 @@
 import { Divider, Flex, Progress, Stack, Text } from "@mantine/core";
-import { ModalsContextProps } from "@mantine/modals/lib/context";
+import { ModalsContextProps } from "../../types/modals.type";
 import dayjs from "dayjs";
 import { FormattedMessage } from "react-intl";
 import { translateOutsideContext } from "../../hooks/useTranslate.hook";

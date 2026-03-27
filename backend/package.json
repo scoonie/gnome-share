@@ -72,7 +72,7 @@
     "newman": "^6.2.2",
     "prettier": "^3.8.1",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.2",
     "wait-on": "^9.0.4"
   }
 }

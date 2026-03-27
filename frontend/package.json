@@ -38,6 +38,6 @@
     "@types/react-dom": "^19.0.0",
     "postcss-preset-mantine": "^1.18.0",
     "prettier": "^3.8.1",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.2"
   }
 }

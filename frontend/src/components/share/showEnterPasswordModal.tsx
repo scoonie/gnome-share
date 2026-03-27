@@ -1,5 +1,5 @@
 import { Button, PasswordInput, Stack, Text } from "@mantine/core";
-import { ModalsContextProps } from "@mantine/modals/lib/context";
+import { ModalsContextProps } from "../../types/modals.type";
 import { useState } from "react";
 import { FormattedMessage } from "react-intl";
 import useTranslate, {
