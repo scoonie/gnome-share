@@ -1,3 +1,1 @@
-import type { useModals } from "@mantine/modals";
-
-export type ModalsContextProps = ReturnType<typeof useModals>;
+export type ModalsContextProps = ReturnType<typeof import("@mantine/modals").useModals>;
