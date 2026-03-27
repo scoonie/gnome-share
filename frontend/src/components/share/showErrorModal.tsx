@@ -1,6 +1,6 @@
 import { Button, Stack, Text } from "@mantine/core";
 import { useModals } from "@mantine/modals";
-import { ModalsContextProps } from "@mantine/modals/lib/context";
+import { ModalsContextProps } from "../../types/modals.type";
 import { useRouter } from "next/router";
 import { FormattedMessage } from "react-intl";
 
