@@ -10,6 +10,7 @@ import type { Share, User } from "../generated/prisma/client";
 import archiver from "archiver";
 import * as argon from "argon2";
 import * as fs from "fs";
+import * as path from "path";
 import dayjs, { ManipulateType } from "dayjs";
 import { ClamScanService } from "src/clamscan/clamscan.service";
 import { ConfigService } from "src/config/config.service";
@@ -109,16 +110,28 @@ export class ShareService {
   }
 
   async createZip(shareId: string) {
-    const path = `${SHARE_DIRECTORY}/${shareId}`;
+    const safeShareId = path.basename(shareId);
+    const rootDir = path.resolve(SHARE_DIRECTORY);
+    const sharePath = path.resolve(rootDir, safeShareId);
+    if (!sharePath.startsWith(rootDir + path.sep)) {
+      throw new BadRequestException("Invalid share path");
+    }
 
     const files = await this.prisma.file.findMany({ where: { shareId } });
     const archive = archiver("zip", {
       zlib: { level: this.config.get("share.zipCompressionLevel") },
     });
-    const writeStream = fs.createWriteStream(`${path}/archive.zip`);
+    const writeStream = fs.createWriteStream(
+      path.join(sharePath, "archive.zip"),
+    );
 
     for (const file of files) {
-      archive.append(fs.createReadStream(`${path}/${file.id}`), {
+      const safeFileId = path.basename(file.id);
+      const filePath = path.resolve(sharePath, safeFileId);
+      if (!filePath.startsWith(sharePath + path.sep)) {
+        continue;
+      }
+      archive.append(fs.createReadStream(filePath), {
         name: file.name,
       });
     }

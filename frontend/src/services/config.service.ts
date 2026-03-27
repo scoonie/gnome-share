@@ -8,7 +8,7 @@ const list = async (): Promise<Config[]> => {
 };
 
 const getByCategory = async (category: string): Promise<AdminConfig[]> => {
-  return (await api.get(`/configs/admin/${category}`)).data;
+  return (await api.get(`/configs/admin/${encodeURIComponent(category)}`)).data;
 };
 
 const updateMany = async (data: UpdateConfig[]): Promise<AdminConfig[]> => {

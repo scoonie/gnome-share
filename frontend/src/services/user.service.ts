@@ -16,11 +16,11 @@ const create = async (user: CreateUser) => {
 };
 
 const update = async (id: string, user: UpdateUser) => {
-  return (await api.patch(`/users/${id}`, user)).data;
+  return (await api.patch(`/users/${encodeURIComponent(id)}`, user)).data;
 };
 
 const remove = async (id: string) => {
-  await api.delete(`/users/${id}`);
+  await api.delete(`/users/${encodeURIComponent(id)}`);
 };
 
 const updateCurrentUser = async (user: UpdateCurrentUser) => {

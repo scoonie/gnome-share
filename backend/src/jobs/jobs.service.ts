@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Cron } from "@nestjs/schedule";
 import * as fs from "fs";
+import * as path from "path";
 import dayjs from "dayjs";
 import { FileService } from "src/file/file.service";
 import { PrismaService } from "src/prisma/prisma.service";
@@ -87,26 +88,37 @@ export class JobsService {
   deleteTemporaryFiles() {
     let filesDeleted = 0;
 
+    const rootDir = path.resolve(SHARE_DIRECTORY);
     const shareDirectories = fs
       .readdirSync(SHARE_DIRECTORY, { withFileTypes: true })
       .filter((dirent) => dirent.isDirectory())
       .map((dirent) => dirent.name);
 
     for (const shareDirectory of shareDirectories) {
+      const safeDirName = path.basename(shareDirectory);
+      const dirPath = path.resolve(rootDir, safeDirName);
+      if (!dirPath.startsWith(rootDir + path.sep)) {
+        continue;
+      }
+
       const temporaryFiles = fs
-        .readdirSync(`${SHARE_DIRECTORY}/${shareDirectory}`)
+        .readdirSync(dirPath)
         .filter((file) => file.endsWith(".tmp-chunk"));
 
       for (const file of temporaryFiles) {
-        const stats = fs.statSync(
-          `${SHARE_DIRECTORY}/${shareDirectory}/${file}`,
-        );
+        const safeFileName = path.basename(file);
+        const filePath = path.resolve(dirPath, safeFileName);
+        if (!filePath.startsWith(dirPath + path.sep)) {
+          continue;
+        }
+
+        const stats = fs.statSync(filePath);
         const isOlderThanOneDay = dayjs(stats.mtime)
           .add(1, "day")
           .isBefore(dayjs());
 
         if (isOlderThanOneDay) {
-          fs.rmSync(`${SHARE_DIRECTORY}/${shareDirectory}/${file}`);
+          fs.rmSync(filePath);
           filesDeleted++;
         }
       }

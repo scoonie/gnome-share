@@ -110,13 +110,15 @@ export class LocalFileService {
 
     let inProgressSize = 0;
     try {
-      const dirEntries = await fs.readdir(`${SHARE_DIRECTORY}/${safeShareId}`);
+      const dirEntries = await fs.readdir(path.resolve(SHARE_DIRECTORY, safeShareId));
       for (const entry of dirEntries) {
         if (entry.endsWith(".tmp-chunk") && entry !== `${safeFileId}.tmp-chunk`) {
           try {
-            const stat = await fs.stat(
-              `${SHARE_DIRECTORY}/${safeShareId}/${entry}`,
-            );
+            const entryPath = path.resolve(SHARE_DIRECTORY, safeShareId, path.basename(entry));
+            if (!entryPath.startsWith(resolvedShareRoot + path.sep)) {
+              continue;
+            }
+            const stat = await fs.stat(entryPath);
             inProgressSize += stat.size;
           } catch {
             // File may have been removed between readdir and stat

@@ -23,29 +23,29 @@ const create = async (share: CreateShare, isReverseShare = false) => {
 };
 
 const completeShare = async (id: string) => {
-  const response = (await api.post(`shares/${id}/complete`)).data;
+  const response = (await api.post(`shares/${encodeURIComponent(id)}/complete`)).data;
   deleteCookie("reverse_share_token");
   return response;
 };
 
 const revertComplete = async (id: string) => {
-  return (await api.delete(`shares/${id}/complete`)).data;
+  return (await api.delete(`shares/${encodeURIComponent(id)}/complete`)).data;
 };
 
 const get = async (id: string): Promise<Share> => {
-  return (await api.get(`shares/${id}`)).data;
+  return (await api.get(`shares/${encodeURIComponent(id)}`)).data;
 };
 
 const getFromOwner = async (id: string): Promise<Share> => {
-  return (await api.get(`shares/${id}/from-owner`)).data;
+  return (await api.get(`shares/${encodeURIComponent(id)}/from-owner`)).data;
 };
 
 const getMetaData = async (id: string): Promise<ShareMetaData> => {
-  return (await api.get(`shares/${id}/metaData`)).data;
+  return (await api.get(`shares/${encodeURIComponent(id)}/metaData`)).data;
 };
 
 const remove = async (id: string) => {
-  await api.delete(`shares/${id}`);
+  await api.delete(`shares/${encodeURIComponent(id)}`);
 };
 
 const getMyShares = async (): Promise<MyShare[]> => {
@@ -53,11 +53,11 @@ const getMyShares = async (): Promise<MyShare[]> => {
 };
 
 const getShareToken = async (id: string, password?: string) => {
-  await api.post(`/shares/${id}/token`, { password });
+  await api.post(`/shares/${encodeURIComponent(id)}/token`, { password });
 };
 
 const isShareIdAvailable = async (id: string): Promise<boolean> => {
-  return (await api.get(`/shares/isShareIdAvailable/${id}`)).data.isAvailable;
+  return (await api.get(`/shares/isShareIdAvailable/${encodeURIComponent(id)}`)).data.isAvailable;
 };
 
 const doesFileSupportPreview = (fileName: string) => {
@@ -77,11 +77,11 @@ const doesFileSupportPreview = (fileName: string) => {
 };
 
 const downloadFile = async (shareId: string, fileId: string) => {
-  window.location.href = `${window.location.origin}/api/shares/${shareId}/files/${fileId}`;
+  window.location.href = `${window.location.origin}/api/shares/${encodeURIComponent(shareId)}/files/${encodeURIComponent(fileId)}`;
 };
 
 const removeFile = async (shareId: string, fileId: string) => {
-  await api.delete(`shares/${shareId}/files/${fileId}`);
+  await api.delete(`shares/${encodeURIComponent(shareId)}/files/${encodeURIComponent(fileId)}`);
 };
 
 const uploadFile = async (
@@ -95,7 +95,7 @@ const uploadFile = async (
   totalChunks: number,
 ): Promise<FileUploadResponse> => {
   return (
-    await api.post(`shares/${shareId}/files`, chunk, {
+    await api.post(`shares/${encodeURIComponent(shareId)}/files`, chunk, {
       headers: { "Content-Type": "application/octet-stream" },
       params: {
         id: file.id,
@@ -136,13 +136,13 @@ const getMyReverseShares = async (): Promise<MyReverseShare[]> => {
 };
 
 const setReverseShare = async (reverseShareToken: string) => {
-  const { data } = await api.get(`/reverseShares/${reverseShareToken}`);
+  const { data } = await api.get(`/reverseShares/${encodeURIComponent(reverseShareToken)}`);
   setCookie("reverse_share_token", reverseShareToken);
   return data;
 };
 
 const removeReverseShare = async (id: string) => {
-  await api.delete(`/reverseShares/${id}`);
+  await api.delete(`/reverseShares/${encodeURIComponent(id)}`);
 };
 
 export default {
