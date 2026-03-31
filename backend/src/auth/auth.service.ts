@@ -4,6 +4,7 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  InternalServerErrorException,
   Logger,
   UnauthorizedException,
 } from "@nestjs/common";
@@ -296,9 +297,22 @@ export class AuthService {
   private getCookieEncryptionKey(): Buffer {
     const key = this.config.get("internal.cookieEncryptionKey");
     if (!key || typeof key !== "string") {
-      throw new Error("Cookie encryption key is not configured");
+      throw new InternalServerErrorException("Cookie encryption key is not configured");
     }
-    // Derive a 32-byte key for AES-256 from the configured value
+    // Prefer a base64-encoded 32-byte key if provided, otherwise derive one from the passphrase
+    try {
+      const decoded = Buffer.from(key, "base64");
+      // Check for an exact 32-byte key and ensure it's a clean base64 encoding
+      if (
+        decoded.length === 32 &&
+        Buffer.from(decoded.toString("base64"), "base64").equals(decoded)
+      ) {
+        return decoded;
+      }
+    } catch {
+      // Ignore and fall back to SHA-256 derivation below
+    }
+    // Derive a 32-byte key for AES-256 from the configured value (passphrase-style)
     return crypto.createHash("sha256").update(key, "utf8").digest();
   }
 
