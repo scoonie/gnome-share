@@ -1,0 +1,47 @@
+name: CodeQL Analysis
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    # Run every Monday at 06:00 UTC
+    - cron: '0 6 * * 1'
+  # Allow manual triggering from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+
+    # Least-privilege permissions scoped to this job
+    # (ci.yml sets contents: read at workflow level; this job needs additional permissions)
+    permissions:
+      actions: read           # Required for CodeQL in private repos
+      contents: read          # Required to check out the repository
+      security-events: write  # Required to upload SARIF results to code scanning
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Add more languages here if the project grows (e.g. python, go)
+        language: [ 'javascript-typescript' ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
