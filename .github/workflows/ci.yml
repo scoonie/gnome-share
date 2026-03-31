@@ -23,7 +23,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '24' # Pingvin Share uses Node 24
+          node-version: '24' # Gnome Share uses Node 24
           cache: 'npm'
           cache-dependency-path: ./backend/package-lock.json
 
@@ -35,7 +35,7 @@ jobs:
 
       - name: Generate Prisma Client (Database)
         env:
-          DATABASE_URL: file:./data/pingvin-share.db?connection_limit=1
+          DATABASE_URL: file:./data/gnome-share.db?connection_limit=1
         run: npx prisma generate
 
       - name: Build Backend

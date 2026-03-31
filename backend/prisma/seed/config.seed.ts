@@ -13,7 +13,7 @@ export const configVariables = {
   general: {
     appName: {
       type: "string",
-      defaultValue: "Pingvin Share",
+      defaultValue: "Gnome Share",
       secret: false,
     },
     appUrl: {
@@ -84,7 +84,7 @@ export const configVariables = {
     },
     "redis-url": {
       type: "string",
-      defaultValue: "redis://pingvin-redis:6379",
+      defaultValue: "redis://gnome-redis:6379",
       secret: true,
     },
     ttl: {
@@ -109,7 +109,7 @@ export const configVariables = {
     shareRecipientsMessage: {
       type: "text",
       defaultValue:
-        "Hey!\n\n{creator} ({creatorEmail}) shared some files with you. You can view or download the files with this link: {shareUrl}\n\nThe share will expire {expires}.\n\nNote: {desc}\n\nShared securely with Pingvin Share 🐧",
+        "Hey!\n\n{creator} ({creatorEmail}) shared some files with you. You can view or download the files with this link: {shareUrl}\n\nThe share will expire {expires}.\n\nNote: {desc}\n\nShared securely with Gnome Share",
     },
     reverseShareSubject: {
       type: "string",
@@ -118,25 +118,25 @@ export const configVariables = {
     reverseShareMessage: {
       type: "text",
       defaultValue:
-        "Hey!\n\nA share was just created with your reverse share link: {shareUrl}\n\nShared securely with Pingvin Share 🐧",
+        "Hey!\n\nA share was just created with your reverse share link: {shareUrl}\n\nShared securely with Gnome Share",
     },
     resetPasswordSubject: {
       type: "string",
-      defaultValue: "Pingvin Share password reset",
+      defaultValue: "Gnome Share password reset",
     },
     resetPasswordMessage: {
       type: "text",
       defaultValue:
-        "Hey!\n\nYou requested a password reset. Click this link to reset your password: {url}\nThe link expires in an hour.\n\nPingvin Share 🐧",
+        "Hey!\n\nYou requested a password reset. Click this link to reset your password: {url}\nThe link expires in an hour.\n\nGnome Share",
     },
     inviteSubject: {
       type: "string",
-      defaultValue: "Pingvin Share invite",
+      defaultValue: "Gnome Share invite",
     },
     inviteMessage: {
       type: "text",
       defaultValue:
-        'Hey!\n\nYou were invited to Pingvin Share. Click this link to accept the invite: {url}\n\nYou can use the email "{email}" and the password "{password}" to sign in.\n\nPingvin Share 🐧',
+        'Hey!\n\nYou were invited to Gnome Share. Click this link to accept the invite: {url}\n\nYou can use the email "{email}" and the password "{password}" to sign in.\n\nGnome Share',
     },
   },
   smtp: {
@@ -345,7 +345,7 @@ type ConfigVariables = {
   };
 };
 
-const rawUrl = process.env.DATABASE_URL || "file:./data/pingvin-share.db";
+const rawUrl = process.env.DATABASE_URL || "file:./data/gnome-share.db";
 const url = rawUrl.split("?")[0];
 const prisma = new PrismaClient({ adapter: new PrismaLibSql({ url }) });
 
