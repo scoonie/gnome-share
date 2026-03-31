@@ -21,6 +21,7 @@ import { GenericOidcProvider } from "../oauth/provider/genericOidc.provider";
 import { UserSevice } from "../user/user.service";
 import { AuthRegisterDTO } from "./dto/authRegister.dto";
 import { AuthSignInDTO } from "./dto/authSignIn.dto";
+import * as crypto from "crypto";
 
 @Injectable()
 export class AuthService {
@@ -292,6 +293,40 @@ export class AuthService {
     return { refreshTokenId: id, refreshToken: token };
   }
 
+  private getCookieEncryptionKey(): Buffer {
+    const key = this.config.get("internal.cookieEncryptionKey");
+    if (!key || typeof key !== "string") {
+      throw new Error("Cookie encryption key is not configured");
+    }
+    // Derive a 32-byte key for AES-256 from the configured value
+    return crypto.createHash("sha256").update(key, "utf8").digest();
+  }
+
+  private encryptRefreshToken(plainText: string): string {
+    const iv = crypto.randomBytes(12); // 96-bit nonce for AES-GCM
+    const key = this.getCookieEncryptionKey();
+    const cipher = crypto.createCipheriv("aes-256-gcm", key, iv);
+    const encrypted = Buffer.concat([
+      cipher.update(plainText, "utf8"),
+      cipher.final(),
+    ]);
+    const authTag = cipher.getAuthTag();
+    // Concatenate iv + authTag + ciphertext and encode as base64
+    return Buffer.concat([iv, authTag, encrypted]).toString("base64");
+  }
+
+  decryptRefreshToken(cipherText: string): string {
+    const data = Buffer.from(cipherText, "base64");
+    const iv = data.subarray(0, 12);
+    const authTag = data.subarray(12, 28);
+    const encrypted = data.subarray(28);
+    const key = this.getCookieEncryptionKey();
+    const decipher = crypto.createDecipheriv("aes-256-gcm", key, iv);
+    decipher.setAuthTag(authTag);
+    const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
+    return decrypted.toString("utf8");
+  }
+
   async createLoginToken(userId: string) {
     const loginToken = (
       await this.prisma.loginToken.create({
@@ -320,7 +355,8 @@ export class AuthService {
       const maxAge = now
         .add(sessionDuration.value, sessionDuration.unit as ManipulateType)
         .diff(now);
-      response.cookie("refresh_token", refreshToken, {
+      const encryptedRefreshToken = this.encryptRefreshToken(refreshToken);
+      response.cookie("refresh_token", encryptedRefreshToken, {
         path: "/api/auth/token",
         httpOnly: true,
         sameSite: "strict",
