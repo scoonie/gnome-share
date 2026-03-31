@@ -9,6 +9,11 @@ export const configVariables = {
       value: crypto.randomBytes(256).toString("base64"),
       locked: true,
     },
+    cookieEncryptionKey: {
+      type: "string",
+      value: crypto.randomBytes(32).toString("base64"),
+      locked: true,
+    },
   },
   general: {
     appName: {
