@@ -31,8 +31,28 @@ const signUp = async (email: string, username: string, password: string) => {
 const signOut = async () => {
   const response = await api.post("/auth/signOut");
 
-  if (URL.canParse(response.data?.redirectURI))
-    window.location.href = response.data.redirectURI;
+  // Intentional: OAuth/OIDC sign-out flows require redirecting to an IdP-provided
+  // post-logout URI. We validate it is a well-formed URL before use. Since
+  // URL.canParse() is not available in all environments, guard its use and
+  // fall back to constructing a new URL() where needed.
+  const redirectURI = response.data?.redirectURI;
+
+  let isValidRedirect = false;
+  if (redirectURI) {
+    if (typeof URL.canParse === "function") {
+      isValidRedirect = URL.canParse(redirectURI);
+    } else {
+      try {
+        // Will throw if redirectURI is not a valid URL
+        new URL(redirectURI);
+        isValidRedirect = true;
+      } catch {
+        isValidRedirect = false;
+      }
+    }
+  }
+
+  if (isValidRedirect) window.location.href = redirectURI;
   else window.location.reload();
 };
 
