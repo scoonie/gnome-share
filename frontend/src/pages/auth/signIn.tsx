@@ -6,6 +6,7 @@ import SignInForm from "../../components/auth/SignInForm";
 import Meta from "../../components/Meta";
 import useUser from "../../hooks/user.hook";
 import useTranslate from "../../hooks/useTranslate.hook";
+import { safeRedirectPath } from "../../utils/router.util";
 
 export function getServerSideProps(context: GetServerSidePropsContext) {
   return {
@@ -18,6 +19,7 @@ const SignIn = ({ redirectPath }: { redirectPath?: string }) => {
   const router = useRouter();
   const t = useTranslate();
 
+  const safeRedirect = safeRedirectPath(redirectPath, "/upload");
   const [isLoading, setIsLoading] = useState(redirectPath ? true : false);
 
   // If the access token is expired, the middleware redirects to this page.
@@ -25,7 +27,7 @@ const SignIn = ({ redirectPath }: { redirectPath?: string }) => {
   useEffect(() => {
     refreshUser().then((user) => {
       if (user) {
-        router.replace(redirectPath ?? "/upload");
+        router.replace(safeRedirect);
       } else {
         setIsLoading(false);
       }
@@ -37,7 +39,7 @@ const SignIn = ({ redirectPath }: { redirectPath?: string }) => {
   return (
     <>
       <Meta title={t("signin.title")} />
-      <SignInForm redirectPath={redirectPath ?? "/upload"} />
+      <SignInForm redirectPath={safeRedirect} />
     </>
   );
 };
