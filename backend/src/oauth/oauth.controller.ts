@@ -57,7 +57,7 @@ export class OAuthController {
     const url = await this.providers[provider].getAuthEndpoint(state);
     response.cookie(`oauth_${provider}_state`, state, {
       sameSite: "lax",
-      secure: true,
+      secure: this.config.get("general.secureCookies"),
       httpOnly: true,
     });
     response.redirect(url);
