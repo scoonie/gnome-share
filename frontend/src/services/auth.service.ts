@@ -31,6 +31,8 @@ const signUp = async (email: string, username: string, password: string) => {
 const signOut = async () => {
   const response = await api.post("/auth/signOut");
 
+  // Intentional: OAuth/OIDC sign-out flows require redirecting to an IdP-provided
+  // post-logout URI. URL.canParse() validates it is a well-formed URL before use.
   if (URL.canParse(response.data?.redirectURI))
     window.location.href = response.data.redirectURI;
   else window.location.reload();

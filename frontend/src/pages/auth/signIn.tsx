@@ -6,26 +6,29 @@ import SignInForm from "../../components/auth/SignInForm";
 import Meta from "../../components/Meta";
 import useUser from "../../hooks/user.hook";
 import useTranslate from "../../hooks/useTranslate.hook";
+import { safeRedirectPath } from "../../utils/router.util";
 
 export function getServerSideProps(context: GetServerSidePropsContext) {
+  // Sanitize server-side so tainted user input never reaches the client component
+  const redirectPath = safeRedirectPath(context.query.redirect as string | undefined, "/upload");
   return {
-    props: { redirectPath: context.query.redirect ?? null },
+    props: { redirectPath },
   };
 }
 
-const SignIn = ({ redirectPath }: { redirectPath?: string }) => {
+const SignIn = ({ redirectPath }: { redirectPath: string }) => {
   const { refreshUser } = useUser();
   const router = useRouter();
   const t = useTranslate();
 
-  const [isLoading, setIsLoading] = useState(redirectPath ? true : false);
+  const [isLoading, setIsLoading] = useState(redirectPath !== "/upload");
 
   // If the access token is expired, the middleware redirects to this page.
   // If the refresh token is still valid, the user will be redirected to the last page.
   useEffect(() => {
     refreshUser().then((user) => {
       if (user) {
-        router.replace(redirectPath ?? "/upload");
+        router.replace(redirectPath);
       } else {
         setIsLoading(false);
       }
@@ -37,7 +40,7 @@ const SignIn = ({ redirectPath }: { redirectPath?: string }) => {
   return (
     <>
       <Meta title={t("signin.title")} />
-      <SignInForm redirectPath={redirectPath ?? "/upload"} />
+      <SignInForm redirectPath={redirectPath} />
     </>
   );
 };
