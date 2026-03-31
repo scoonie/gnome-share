@@ -75,7 +75,13 @@ export class ShareService {
       expirationDate = parsedExpiration;
     }
 
-    fs.mkdirSync(`${SHARE_DIRECTORY}/${share.id}`, {
+    const safeShareId = path.basename(share.id);
+    const rootDir = path.resolve(SHARE_DIRECTORY);
+    const shareDirectoryPath = path.resolve(rootDir, safeShareId);
+    if (!shareDirectoryPath.startsWith(rootDir + path.sep)) {
+      throw new BadRequestException("Invalid share id");
+    }
+    fs.mkdirSync(shareDirectoryPath, {
       recursive: true,
     });
 
