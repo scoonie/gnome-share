@@ -300,17 +300,17 @@ export class AuthService {
       throw new InternalServerErrorException("Cookie encryption key is not configured");
     }
     // Prefer a base64-encoded 32-byte key if provided, otherwise derive one from the passphrase
-    try {
-      const decoded = Buffer.from(key, "base64");
-      // Check for an exact 32-byte key and ensure it's a clean base64 encoding
+    const trimmedKey = key.trim();
+    // For a 32-byte key, the canonical base64 length is 44 characters (including padding)
+    if (trimmedKey.length === 44) {
+      const decoded = Buffer.from(trimmedKey, "base64");
+      // Check for an exact 32-byte key and ensure the original value is canonical base64
       if (
         decoded.length === 32 &&
-        Buffer.from(decoded.toString("base64"), "base64").equals(decoded)
+        trimmedKey === decoded.toString("base64")
       ) {
         return decoded;
       }
-    } catch {
-      // Ignore and fall back to SHA-256 derivation below
     }
     // Derive a 32-byte key for AES-256 from the configured value (passphrase-style)
     return crypto.createHash("sha256").update(key, "utf8").digest();
