@@ -1,5 +1,4 @@
 import {
-  Anchor,
   Button,
   Center,
   Container,
@@ -24,14 +23,7 @@ const Intro = () => {
             <Title order={2}>Welcome to Gnome Share</Title>
           </Center>
           <Text>
-            Gnome Share is based on{" "}
-            <Anchor
-              target="_blank"
-              href="https://github.com/stonith404/pingvin-share"
-            >
-              Pingvin Share
-            </Anchor>{" "}
-            by stonith404.
+            Gnome Share is based on stonith404's original open-source project.
           </Text>
           <Text>Enough talked, have fun with Gnome Share!</Text>
           <Text mt="lg">How to you want to continue?</Text>
