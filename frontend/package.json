@@ -1,5 +1,5 @@
 {
-  "name": "pingvin-share-frontend",
+  "name": "gnome-share-frontend",
   "version": "1.13.0",
   "scripts": {
     "dev": "next dev",

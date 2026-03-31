@@ -8,7 +8,7 @@ export class PrismaService extends PrismaClient {
 
   constructor() {
     const rawUrl =
-      process.env.DATABASE_URL || "file:./data/pingvin-share.db";
+      process.env.DATABASE_URL || "file:./data/gnome-share.db";
     // libsql does not support query parameters in file: URLs, strip them
     const url = rawUrl.split("?")[0];
     const adapter = new PrismaLibSql({ url });

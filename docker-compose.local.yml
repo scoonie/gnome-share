@@ -1,5 +1,5 @@
 services:
-  pingvin-share:
+  gnome-share:
     build: .
     restart: unless-stopped
     ports:
