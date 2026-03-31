@@ -56,6 +56,7 @@ export class ConfigService extends EventEmitter {
         for (const configVariable of this.configVariables) {
           const category = this.yamlConfig[configVariable.category];
           if (!category) continue;
+          if (configVariable.locked) continue;  // never overwrite locked secrets from YAML
           configVariable.value = category[configVariable.name];
           this.emit("update", configVariable.name, configVariable.value);
         }
