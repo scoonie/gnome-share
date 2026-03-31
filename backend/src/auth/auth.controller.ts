@@ -160,8 +160,19 @@ export class AuthController {
   ) {
     if (!request.cookies.refresh_token) throw new UnauthorizedException();
 
+    let refreshToken: string;
+    try {
+      // Try to decrypt assuming the new encrypted refresh token format.
+      refreshToken = this.authService.decryptRefreshToken(
+        request.cookies.refresh_token,
+      );
+    } catch {
+      // Backward compatibility: treat the cookie as a plaintext refresh token.
+      refreshToken = request.cookies.refresh_token;
+    }
+
     const accessToken = await this.authService.refreshAccessToken(
-      request.cookies.refresh_token,
+      refreshToken,
     );
     this.authService.addTokensToResponse(response, undefined, accessToken);
     return new TokenDTO().from({ accessToken });
