@@ -1,7 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 import { PrismaClient } from "../generated/prisma/client";
-import * as fs from "fs";
 
 @Injectable()
 export class PrismaService extends PrismaClient {
@@ -18,16 +17,9 @@ export class PrismaService extends PrismaClient {
   }
 
   /**
-   * If no DATABASE_URL is set, prefer gnome-share.db but fall back to the
-   * legacy pingvin-share.db when upgrading from an older installation.
+   * If no DATABASE_URL is set, use the default gnome-share.db path.
    */
   private static resolveDefaultDbUrl(): string {
-    const newDb = "./data/gnome-share.db";
-    const legacyDb = "./data/pingvin-share.db";
-
-    if (!fs.existsSync(newDb) && fs.existsSync(legacyDb)) {
-      return `file:${legacyDb}`;
-    }
-    return `file:${newDb}`;
+    return "file:./data/gnome-share.db";
   }
 }
