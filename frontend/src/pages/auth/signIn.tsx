@@ -28,7 +28,7 @@ const SignIn = ({ redirectPath }: { redirectPath: string }) => {
   useEffect(() => {
     refreshUser().then((user) => {
       if (user) {
-        router.replace(redirectPath);
+        router.replace(safeRedirectPath(redirectPath, "/upload"));
       } else {
         setIsLoading(false);
       }
