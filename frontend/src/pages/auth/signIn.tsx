@@ -13,19 +13,33 @@ export function getServerSideProps(context: GetServerSidePropsContext) {
   };
 }
 
+const sanitizeRedirectPath = (redirectPath: unknown, defaultPath: string): string => {
+  if (typeof redirectPath !== "string") {
+    return defaultPath;
+  }
+
+  // Only allow same-origin relative paths like "/foo" and disallow protocol-relative URLs ("//evil.com")
+  if (!redirectPath.startsWith("/") || redirectPath.startsWith("//")) {
+    return defaultPath;
+  }
+
+  return redirectPath;
+};
+
 const SignIn = ({ redirectPath }: { redirectPath?: string }) => {
   const { refreshUser } = useUser();
   const router = useRouter();
   const t = useTranslate();
 
-  const [isLoading, setIsLoading] = useState(redirectPath ? true : false);
+  const safeRedirectPath = sanitizeRedirectPath(redirectPath, "/upload");
+  const [isLoading, setIsLoading] = useState(safeRedirectPath ? true : false);
 
   // If the access token is expired, the middleware redirects to this page.
   // If the refresh token is still valid, the user will be redirected to the last page.
   useEffect(() => {
     refreshUser().then((user) => {
       if (user) {
-        router.replace(redirectPath ?? "/upload");
+        router.replace(safeRedirectPath);
       } else {
         setIsLoading(false);
       }
@@ -37,7 +51,7 @@ const SignIn = ({ redirectPath }: { redirectPath?: string }) => {
   return (
     <>
       <Meta title={t("signin.title")} />
-      <SignInForm redirectPath={redirectPath ?? "/upload"} />
+      <SignInForm redirectPath={safeRedirectPath} />
     </>
   );
 };
