@@ -6,5 +6,13 @@ export function safeRedirectPath(path: string | undefined, fallback: string = "/
   // Block protocol-relative URLs (e.g. "//evil.com")
   if (path.startsWith("//")) return fallback;
 
-  return path;
+  // Allowlist of safe redirect destinations. Extend this as needed.
+  const allowedRedirects = ["/", "/upload"];
+
+  if (allowedRedirects.includes(path)) {
+    return path;
+  }
+
+  // If the requested path is not explicitly allowed, fall back.
+  return fallback;
 }
