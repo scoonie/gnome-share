@@ -8,7 +8,7 @@
     "format": "prettier --end-of-line=auto --write \"src/**/*.ts*\""
   },
   "dependencies": {
-    "@mantine/core": "^7.17.8",
+    "@mantine/core": "^9.0.0",
     "@mantine/dropzone": "^7.17.8",
     "@mantine/form": "^8.3.18",
     "@mantine/hooks": "^7.17.8",
