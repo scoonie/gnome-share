@@ -13,7 +13,7 @@
     "@mantine/form": "^8.3.18",
     "@mantine/hooks": "^7.17.8",
     "@mantine/modals": "^7.17.8",
-    "@mantine/notifications": "^7.17.8",
+    "@mantine/notifications": "^9.0.0",
     "axios": "^1.14.0",
     "cookies-next": "^6.1.1",
     "dayjs": "^1.11.20",
