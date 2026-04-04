@@ -8,7 +8,8 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
-import { useForm, yupResolver } from "@mantine/form";
+import { useForm } from "@mantine/form";
+import { yupResolver } from "../../utils/yupResolver";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FormattedMessage } from "react-intl";

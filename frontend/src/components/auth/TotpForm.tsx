@@ -6,7 +6,8 @@ import {
   PinInput,
   Title,
 } from "@mantine/core";
-import { useForm, yupResolver } from "@mantine/form";
+import { useForm } from "@mantine/form";
+import { yupResolver } from "../../utils/yupResolver";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { FormattedMessage } from "react-intl";

@@ -6,7 +6,8 @@ import {
   Switch,
   TextInput,
 } from "@mantine/core";
-import { useForm, yupResolver } from "@mantine/form";
+import { useForm } from "@mantine/form";
+import { yupResolver } from "../../../utils/yupResolver";
 import { ModalsContextProps } from "../../../types/modals.type";
 import { FormattedMessage } from "react-intl";
 import * as yup from "yup";

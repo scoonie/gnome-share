@@ -10,7 +10,8 @@ import {
   Textarea,
   TextInput,
 } from "@mantine/core";
-import { useForm, yupResolver } from "@mantine/form";
+import { useForm } from "@mantine/form";
+import { yupResolver } from "../../../utils/yupResolver";
 import { useModals } from "@mantine/modals";
 import { ModalsContextProps } from "../../../types/modals.type";
 import dayjs, { ManipulateType } from "dayjs";
