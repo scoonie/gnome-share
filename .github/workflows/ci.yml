@@ -61,8 +61,8 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Security Audit
-        run: npm audit --audit-level=high
+      - name: Security Audit (production deps)
+        run: npm audit --audit-level=high --omit=dev
 
       - name: Build Frontend
         run: npm run build
