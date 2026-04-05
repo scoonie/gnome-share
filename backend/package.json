@@ -66,7 +66,8 @@
     "effect": ">=3.20.0",
     "jose": "^4.15.9",
     "underscore": ">=1.13.8",
-    "lodash": ">=4.17.23"
+    "lodash": ">=4.17.24",
+    "defu": ">=6.1.5"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.17",
