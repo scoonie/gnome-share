@@ -11,7 +11,8 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
-import { useForm, yupResolver } from "@mantine/form";
+import { useForm } from "@mantine/form";
+import { yupResolver } from "../../utils/yupResolver";
 import { useModals } from "@mantine/modals";
 import { useEffect, useState } from "react";
 import { TbAuth2Fa } from "react-icons/tb";
