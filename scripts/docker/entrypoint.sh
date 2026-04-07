@@ -11,7 +11,11 @@ LEGACY_DB="$DB_DIR/pingvin-share.db"
 if [ -z "$DATABASE_URL" ] && [ ! -f "$NEW_DB" ] && [ -f "$LEGACY_DB" ]; then
   echo "[entrypoint] Renaming pingvin-share.db -> gnome-share.db"
   for suffix in "" "-wal" "-shm" "-journal"; do
-    [ -f "${LEGACY_DB}${suffix}" ] && mv "${LEGACY_DB}${suffix}" "${NEW_DB}${suffix}" || true
+    if [ -f "${LEGACY_DB}${suffix}" ]; then
+      if ! mv "${LEGACY_DB}${suffix}" "${NEW_DB}${suffix}"; then
+        echo "[entrypoint] Warning: failed to rename ${LEGACY_DB}${suffix} -> ${NEW_DB}${suffix}" >&2
+      fi
+    fi
   done
 fi
 

@@ -1,8 +1,8 @@
 import { Prisma, PrismaClient } from "../../src/generated/prisma/client";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 import * as crypto from "crypto";
-import * as fs from "fs";
 import * as path from "path";
+import { renameLegacyDb } from "../../src/utils/rename-legacy-db";
 
 export const configVariables = {
   internal: {
@@ -353,24 +353,7 @@ type ConfigVariables = {
 };
 
 // Rename legacy database if needed (safety net for seed-only runs)
-if (!process.env.DATABASE_URL) {
-  const newDb = path.resolve("./data/gnome-share.db");
-  const legacyDb = path.resolve("./data/pingvin-share.db");
-
-  if (!fs.existsSync(newDb) && fs.existsSync(legacyDb)) {
-    try {
-      for (const suffix of ["", "-wal", "-shm", "-journal"]) {
-        const src = legacyDb + suffix;
-        const dst = newDb + suffix;
-        if (fs.existsSync(src)) {
-          fs.renameSync(src, dst);
-        }
-      }
-    } catch {
-      // Rename failed – user can rename manually per README instructions
-    }
-  }
-}
+renameLegacyDb(path.join(process.cwd(), "data"));
 
 const rawUrl = process.env.DATABASE_URL || "file:./data/gnome-share.db";
 const url = rawUrl.split("?")[0];
