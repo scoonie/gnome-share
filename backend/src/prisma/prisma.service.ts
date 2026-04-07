@@ -32,12 +32,17 @@ export class PrismaService extends PrismaClient {
     const legacyDb = path.resolve("./data/pingvin-share.db");
 
     if (!fs.existsSync(newDb) && fs.existsSync(legacyDb)) {
-      for (const suffix of ["", "-wal", "-shm", "-journal"]) {
-        const src = legacyDb + suffix;
-        const dst = newDb + suffix;
-        if (fs.existsSync(src)) {
-          fs.renameSync(src, dst);
+      try {
+        for (const suffix of ["", "-wal", "-shm", "-journal"]) {
+          const src = legacyDb + suffix;
+          const dst = newDb + suffix;
+          if (fs.existsSync(src)) {
+            fs.renameSync(src, dst);
+          }
         }
+      } catch {
+        // Rename failed (permissions, cross-device, etc.) – the app will
+        // start with a fresh database; user can rename manually.
       }
     }
   }

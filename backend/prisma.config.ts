@@ -13,14 +13,18 @@ if (!process.env.DATABASE_URL) {
   const legacyDb = path.join(dataDir, 'pingvin-share.db');
 
   if (!fs.existsSync(newDb) && fs.existsSync(legacyDb)) {
-    for (const suffix of ['', '-wal', '-shm', '-journal']) {
-      const src = legacyDb + suffix;
-      const dst = newDb + suffix;
-      if (fs.existsSync(src)) {
-        fs.renameSync(src, dst);
+    try {
+      for (const suffix of ['', '-wal', '-shm', '-journal']) {
+        const src = legacyDb + suffix;
+        const dst = newDb + suffix;
+        if (fs.existsSync(src)) {
+          fs.renameSync(src, dst);
+        }
       }
+      console.log('[prisma.config] Renamed pingvin-share.db → gnome-share.db');
+    } catch (err) {
+      console.error('[prisma.config] Failed to rename pingvin-share.db → gnome-share.db:', err);
     }
-    console.log('[prisma.config] Renamed pingvin-share.db → gnome-share.db');
   }
 }
 
