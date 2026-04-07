@@ -6,10 +6,11 @@ RUN npm ci
 
 # Stage 2: Build frontend
 FROM node:24-alpine AS frontend-builder
+ARG BUILD_DATE
 WORKDIR /opt/app
 COPY ./frontend .
 COPY --from=frontend-dependencies /opt/app/node_modules ./node_modules
-RUN npm run build
+RUN BUILD_DATE=${BUILD_DATE:-$(date +%d/%m/%Y)} npm run build
 
 # Stage 3: Backend dependencies
 FROM node:24-alpine AS backend-dependencies
@@ -32,7 +33,7 @@ RUN npm run build && npm prune --production
 FROM node:24-alpine AS runner
 ENV NODE_ENV=docker
 
-# Delete default node user
+# Delete default node user
 RUN deluser --remove-home node
 
 RUN apk update --no-cache \
