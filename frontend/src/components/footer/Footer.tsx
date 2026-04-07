@@ -35,7 +35,13 @@ const Footer = () => {
       }}
     >
       <SimpleGrid cols={isMobile ? 1 : 2} m={0}>
-        {!isMobile && <div></div>}
+        <div>
+          {process.env.VERSION && (
+            <Text size="xs" c="dimmed">
+              Version: {process.env.VERSION}
+            </Text>
+          )}
+        </div>
         <div>
           {config.get("legal.enabled") && (
             <Text size="xs" c="dimmed" ta="right">

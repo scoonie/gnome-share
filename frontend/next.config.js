@@ -4,7 +4,7 @@ const { version } = require('./package.json');
 const nextConfig = {
   output: "standalone", 
   env: {
-    VERSION: version,
+    VERSION: process.env.BUILD_DATE || version,
   },
   
   // Your clean, anti-cache headers
