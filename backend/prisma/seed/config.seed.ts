@@ -1,6 +1,8 @@
 import { Prisma, PrismaClient } from "../../src/generated/prisma/client";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 import * as crypto from "crypto";
+import * as path from "path";
+import { renameLegacyDb } from "../../src/utils/rename-legacy-db";
 
 export const configVariables = {
   internal: {
@@ -349,6 +351,9 @@ type ConfigVariables = {
     >;
   };
 };
+
+// Rename legacy database if needed (safety net for seed-only runs)
+renameLegacyDb(path.join(process.cwd(), "data"));
 
 const rawUrl = process.env.DATABASE_URL || "file:./data/gnome-share.db";
 const url = rawUrl.split("?")[0];
