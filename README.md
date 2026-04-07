@@ -13,7 +13,8 @@ before starting the application:
 
 ```sh
 mv data/pingvin-share.db data/gnome-share.db
-# Also rename WAL/SHM files if they exist:
+# Also rename auxiliary database files if they exist:
 mv data/pingvin-share.db-wal data/gnome-share.db-wal 2>/dev/null || true
 mv data/pingvin-share.db-shm data/gnome-share.db-shm 2>/dev/null || true
+mv data/pingvin-share.db-journal data/gnome-share.db-journal 2>/dev/null || true
 ```

@@ -1,32 +1,13 @@
 import { defineConfig } from 'prisma/config';
-import * as fs from 'fs';
 import * as path from 'path';
+import { renameLegacyDb } from './src/utils/rename-legacy-db';
 
 /**
  * Auto-rename legacy Pingvin Share database on upgrade.
  * This must happen before Prisma migrate/seed to avoid creating a second,
  * empty database file.
  */
-if (!process.env.DATABASE_URL) {
-  const dataDir = path.join(__dirname, 'data');
-  const newDb = path.join(dataDir, 'gnome-share.db');
-  const legacyDb = path.join(dataDir, 'pingvin-share.db');
-
-  if (!fs.existsSync(newDb) && fs.existsSync(legacyDb)) {
-    try {
-      for (const suffix of ['', '-wal', '-shm', '-journal']) {
-        const src = legacyDb + suffix;
-        const dst = newDb + suffix;
-        if (fs.existsSync(src)) {
-          fs.renameSync(src, dst);
-        }
-      }
-      console.log('[prisma.config] Renamed pingvin-share.db → gnome-share.db');
-    } catch (err) {
-      console.error('[prisma.config] Failed to rename pingvin-share.db → gnome-share.db:', err);
-    }
-  }
-}
+renameLegacyDb(path.join(process.cwd(), 'data'));
 
 export default defineConfig({
   schema: './prisma/schema.prisma',
