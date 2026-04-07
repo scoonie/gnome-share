@@ -1,6 +1,8 @@
 import { Prisma, PrismaClient } from "../../src/generated/prisma/client";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 import * as crypto from "crypto";
+import * as fs from "fs";
+import * as path from "path";
 
 export const configVariables = {
   internal: {
@@ -349,6 +351,22 @@ type ConfigVariables = {
     >;
   };
 };
+
+// Rename legacy database if needed (safety net for seed-only runs)
+if (!process.env.DATABASE_URL) {
+  const newDb = path.resolve("./data/gnome-share.db");
+  const legacyDb = path.resolve("./data/pingvin-share.db");
+
+  if (!fs.existsSync(newDb) && fs.existsSync(legacyDb)) {
+    for (const suffix of ["", "-wal", "-shm", "-journal"]) {
+      const src = legacyDb + suffix;
+      const dst = newDb + suffix;
+      if (fs.existsSync(src)) {
+        fs.renameSync(src, dst);
+      }
+    }
+  }
+}
 
 const rawUrl = process.env.DATABASE_URL || "file:./data/gnome-share.db";
 const url = rawUrl.split("?")[0];

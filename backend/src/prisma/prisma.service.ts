@@ -2,14 +2,17 @@ import { Injectable, Logger } from "@nestjs/common";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 import { PrismaClient } from "../generated/prisma/client";
 import * as fs from "fs";
+import * as path from "path";
 
 @Injectable()
 export class PrismaService extends PrismaClient {
   private readonly logger = new Logger(PrismaService.name);
 
   constructor() {
+    PrismaService.renameLegacyDb();
+
     const rawUrl =
-      process.env.DATABASE_URL || PrismaService.resolveDefaultDbUrl();
+      process.env.DATABASE_URL || "file:./data/gnome-share.db";
     // libsql does not support query parameters in file: URLs, strip them
     const url = rawUrl.split("?")[0];
     const adapter = new PrismaLibSql({ url });
@@ -18,16 +21,24 @@ export class PrismaService extends PrismaClient {
   }
 
   /**
-   * If no DATABASE_URL is set, prefer gnome-share.db but fall back to the
-   * legacy pingvin-share.db when upgrading from an older installation.
+   * Rename the legacy pingvin-share.db to gnome-share.db if no custom
+   * DATABASE_URL is set. This is a safety net in case the rename didn't
+   * happen during prisma migrate (e.g. non-Docker usage without prisma.config).
    */
-  private static resolveDefaultDbUrl(): string {
-    const newDb = "./data/gnome-share.db";
-    const legacyDb = "./data/pingvin-share.db";
+  private static renameLegacyDb(): void {
+    if (process.env.DATABASE_URL) return;
+
+    const newDb = path.resolve("./data/gnome-share.db");
+    const legacyDb = path.resolve("./data/pingvin-share.db");
 
     if (!fs.existsSync(newDb) && fs.existsSync(legacyDb)) {
-      return `file:${legacyDb}`;
+      for (const suffix of ["", "-wal", "-shm", "-journal"]) {
+        const src = legacyDb + suffix;
+        const dst = newDb + suffix;
+        if (fs.existsSync(src)) {
+          fs.renameSync(src, dst);
+        }
+      }
     }
-    return `file:${newDb}`;
   }
 }
