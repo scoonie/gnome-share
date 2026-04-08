@@ -19,7 +19,7 @@
     "dayjs": "^1.11.20",
     "jose": "^6.2.2",
     "jwt-decode": "^4.0.0",
-    "markdown-to-jsx": "^9.7.13",
+    "markdown-to-jsx": "^9.7.15",
     "mime-types": "^3.0.2",
     "next": "^16.2.2",
     "next-http-proxy-middleware": "^1.2.8",
