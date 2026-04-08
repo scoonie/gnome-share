@@ -22,7 +22,7 @@
     "markdown-to-jsx": "^9.7.13",
     "mime-types": "^3.0.2",
     "next": "^16.2.2",
-    "next-http-proxy-middleware": "^1.2.7",
+    "next-http-proxy-middleware": "^1.2.8",
     "p-limit": "^7.3.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
