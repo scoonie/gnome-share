@@ -43,7 +43,11 @@ export class AuthTotpService {
       throw new BadRequestException("TOTP is not enabled");
     }
 
-    if (!verifySync({ token: dto.totp, secret: totpSecret }).valid) {
+    // Allow ±1 time step (±30s) of clock drift between server and authenticator
+    if (
+      !verifySync({ token: dto.totp, secret: totpSecret, epochTolerance: 30 })
+        .valid
+    ) {
       throw new BadRequestException("Invalid code");
     }
 

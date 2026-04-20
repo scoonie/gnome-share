@@ -1,6 +1,9 @@
 {
   "name": "gnome-share-frontend",
   "version": "1.13.0",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
