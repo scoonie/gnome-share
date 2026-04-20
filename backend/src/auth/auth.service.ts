@@ -2,12 +2,16 @@ import {
   BadRequestException,
   ForbiddenException,
   forwardRef,
+  HttpException,
+  HttpStatus,
   Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
   UnauthorizedException,
 } from "@nestjs/common";
+import { CACHE_MANAGER } from "@nestjs/cache-manager";
+import { Cache } from "cache-manager";
 import { JwtService } from "@nestjs/jwt";
 import type { User } from "../generated/prisma/client";
 import { Prisma } from "../generated/prisma/client";
@@ -33,6 +37,7 @@ export class AuthService {
     private emailService: EmailService,
     private userService: UserSevice,
     @Inject(forwardRef(() => OAuthService)) private oAuthService: OAuthService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
   private readonly logger = new Logger(AuthService.name);
 
@@ -116,6 +121,28 @@ export class AuthService {
   async requestResetPassword(email: string) {
     if (this.config.get("oauth.disablePassword"))
       throw new ForbiddenException("Password sign in is disabled");
+
+    // Per-email rate limit (in addition to the per-IP throttle on the
+    // controller). The per-IP limit alone lets an attacker spam the same
+    // address from many IPs; this caps a single email at 3 reset requests
+    // per 5 minutes regardless of source IP.
+    const RESET_LIMIT = 3;
+    const RESET_WINDOW_MS = 5 * 60 * 1000;
+    const normalizedEmail = email.trim().toLowerCase();
+    const key = `pwreset:${normalizedEmail}`;
+    // NOTE: This get()+set() counter is best-effort and not strictly atomic;
+    // under heavy concurrent load a small number of requests above RESET_LIMIT
+    // can slip through. The per-IP throttle on the controller bounds the
+    // worst case. If we later move to a dedicated Redis cache store we should
+    // switch this to an atomic INCR + EXPIRE.
+    const current = (await this.cacheManager.get<number>(key)) ?? 0;
+    if (current >= RESET_LIMIT) {
+      throw new HttpException(
+        "Too many password reset requests for this email. Please try again later.",
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+    await this.cacheManager.set(key, current + 1, RESET_WINDOW_MS);
 
     const user = await this.prisma.user.findFirst({
       where: { email },
@@ -248,10 +275,20 @@ export class AuthService {
           const configuration = await provider.getConfiguration();
           if (URL.canParse(configuration.end_session_endpoint)) {
             const redirectURI = new URL(configuration.end_session_endpoint);
-            redirectURI.searchParams.append(
-              "post_logout_redirect_uri",
-              this.config.get("general.appUrl"),
-            );
+            // Defense in depth: only forward post_logout_redirect_uri when
+            // the configured appUrl parses as a valid http(s) URL. The IdP
+            // is expected to additionally allowlist redirect URIs, but we
+            // avoid forwarding garbage / non-http schemes here.
+            const appUrlRaw = this.config.get("general.appUrl");
+            if (URL.canParse(appUrlRaw)) {
+              const appUrl = new URL(appUrlRaw);
+              if (appUrl.protocol === "http:" || appUrl.protocol === "https:") {
+                redirectURI.searchParams.append(
+                  "post_logout_redirect_uri",
+                  appUrl.toString(),
+                );
+              }
+            }
             redirectURI.searchParams.append("id_token_hint", idTokenHint);
             redirectURI.searchParams.append(
               "client_id",

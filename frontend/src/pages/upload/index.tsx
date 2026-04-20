@@ -271,11 +271,9 @@ const Upload = ({
             }
           }}
         >
-          {isReverseShare ? (
-            <FormattedMessage id="common.button.upload" />
-          ) : (
-            <FormattedMessage id="common.button.share" />
-          )}
+          <FormattedMessage
+            id={isReverseShare ? "common.button.upload" : "common.button.share"}
+          />
         </Button>
       </Group>
       <Dropzone

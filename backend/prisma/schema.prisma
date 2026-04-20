@@ -71,6 +71,8 @@ model OAuthUser {
   providerUsername String
   userId           String
   user             User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model Share {
@@ -94,6 +96,9 @@ model Share {
   security   ShareSecurity?
   recipients ShareRecipient[]
   files      File[]
+
+  @@index([creatorId])
+  @@index([reverseShareId])
 }
 
 model ReverseShare {
@@ -122,6 +127,8 @@ model ShareRecipient {
 
   shareId String
   share   Share  @relation(fields: [shareId], references: [id], onDelete: Cascade)
+
+  @@index([shareId])
 }
 
 model File {
@@ -133,6 +140,8 @@ model File {
 
   shareId String
   share   Share  @relation(fields: [shareId], references: [id], onDelete: Cascade)
+
+  @@index([shareId])
 }
 
 model ShareSecurity {
