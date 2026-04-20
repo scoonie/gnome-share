@@ -119,8 +119,8 @@ export class ShareController {
   @HttpCode(200)
   @Throttle({
     default: {
-      limit: 20,
-      ttl: 5 * 60,
+      limit: 5,
+      ttl: 60,
     },
   })
   @UseGuards(ShareTokenSecurity)

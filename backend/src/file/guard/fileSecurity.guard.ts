@@ -51,14 +51,12 @@ export class FileSecurityGuard extends ShareSecurityGuard {
       if (share.security?.password)
         throw new ForbiddenException("This share is password protected");
 
-      if (share.security?.maxViews && share.security.maxViews <= share.views) {
-        throw new ForbiddenException(
-          "Maximum views exceeded",
-          "share_max_views_exceeded",
-        );
-      }
-
-      await this._shareService.increaseViewCount(share);
+      // Atomically check + increment views to avoid a TOCTOU race when many
+      // requests hit a near-limit share concurrently.
+      await this._shareService.tryIncreaseViewCount(
+        share.id,
+        share.security?.maxViews ?? null,
+      );
       return true;
     } else {
       return super.canActivate(context);

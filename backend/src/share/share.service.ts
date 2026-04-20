@@ -339,11 +339,31 @@ export class ShareService {
     return { isAvailable: !share };
   }
 
-  async increaseViewCount(share: Share) {
-    await this.prisma.share.update({
-      where: { id: share.id },
-      data: { views: share.views + 1 },
+  /**
+   * Atomically increment the share view counter, enforcing `maxViews` if set.
+   * Returns true on success, throws ForbiddenException when the limit has been reached.
+   */
+  async tryIncreaseViewCount(shareId: string, maxViews: number | null) {
+    const where: { id: string; views?: { lt: number } } = { id: shareId };
+    if (typeof maxViews === "number") {
+      where.views = { lt: maxViews };
+    }
+
+    const result = await this.prisma.share.updateMany({
+      where,
+      data: { views: { increment: 1 } },
     });
+
+    if (result.count === 0) {
+      throw new ForbiddenException(
+        "Maximum views exceeded",
+        "share_max_views_exceeded",
+      );
+    }
+  }
+
+  async increaseViewCount(share: Share) {
+    await this.tryIncreaseViewCount(share.id, null);
   }
 
   async getShareToken(shareId: string, password: string) {
@@ -354,7 +374,7 @@ export class ShareService {
       },
     });
 
-    if (share?.security?.password) {
+    if (share.security?.password) {
       if (!password) {
         throw new ForbiddenException(
           "This share is password protected",
@@ -371,15 +391,11 @@ export class ShareService {
       }
     }
 
-    if (share.security?.maxViews && share.security.maxViews <= share.views) {
-      throw new ForbiddenException(
-        "Maximum views exceeded",
-        "share_max_views_exceeded",
-      );
-    }
+    // Atomically check + increment views to prevent races where two concurrent
+    // requests both pass `views < maxViews` before either persists the increment.
+    await this.tryIncreaseViewCount(shareId, share.security?.maxViews ?? null);
 
     const token = await this.generateShareToken(shareId);
-    await this.increaseViewCount(share);
     return token;
   }
 
