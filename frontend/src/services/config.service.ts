@@ -1,4 +1,3 @@
-import axios from "axios";
 import Config, { AdminConfig, UpdateConfig } from "../types/config.type";
 import api from "./api.service";
 import { stringToTimespan } from "../utils/date.util";
@@ -43,12 +42,7 @@ const sendTestEmail = async (email: string) => {
 };
 
 const isNewReleaseAvailable = async () => {
-  const response = (
-    await axios.get(
-      "https://api.github.com/repos/scoonie/gnome-share/releases/latest",
-    )
-  ).data;
-  return response.tag_name.replace("v", "") != process.env.VERSION;
+  return true;
 };
 
 const changeLogo = async (file: File) => {
