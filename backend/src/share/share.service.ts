@@ -341,7 +341,8 @@ export class ShareService {
 
   /**
    * Atomically increment the share view counter, enforcing `maxViews` if set.
-   * Returns true on success, throws ForbiddenException when the limit has been reached.
+   * Throws NotFoundException if the share no longer exists, or
+   * ForbiddenException when the `maxViews` limit has been reached.
    */
   async tryIncreaseViewCount(shareId: string, maxViews: number | null) {
     const where: { id: string; views?: { lt: number } } = { id: shareId };
@@ -355,6 +356,17 @@ export class ShareService {
     });
 
     if (result.count === 0) {
+      // updateMany().count === 0 can mean either the share has been deleted
+      // or the `maxViews` predicate excluded it. Disambiguate so callers
+      // get an accurate 404 vs. 403 instead of always seeing "max views
+      // exceeded".
+      const stillExists = await this.prisma.share.findUnique({
+        where: { id: shareId },
+        select: { id: true },
+      });
+      if (!stillExists) {
+        throw new NotFoundException("Share not found");
+      }
       throw new ForbiddenException(
         "Maximum views exceeded",
         "share_max_views_exceeded",
