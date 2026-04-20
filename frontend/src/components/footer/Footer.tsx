@@ -36,9 +36,9 @@ const Footer = () => {
     >
       <SimpleGrid cols={isMobile ? 1 : 2} m={0}>
         <div>
-          {process.env.VERSION && (
+          {process.env.BUILD_DATE && (
             <Text size="xs" c="dimmed">
-              Version: {process.env.VERSION}
+              Build date: {process.env.BUILD_DATE}
             </Text>
           )}
         </div>

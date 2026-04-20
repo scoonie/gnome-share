@@ -1,10 +1,12 @@
 /** @type {import('next').NextConfig} */
-const { version } = require('./package.json');
+const pad = (n) => String(n).padStart(2, "0");
+const today = new Date();
+const defaultBuildDate = `${pad(today.getDate())}/${pad(today.getMonth() + 1)}/${today.getFullYear()}`;
 
 const nextConfig = {
   output: "standalone", 
   env: {
-    VERSION: process.env.BUILD_DATE || version,
+    BUILD_DATE: process.env.BUILD_DATE || defaultBuildDate,
   },
   
   // Your clean, anti-cache headers
