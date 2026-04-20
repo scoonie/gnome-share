@@ -23,7 +23,7 @@ const SignIn = ({ redirectPath }: { redirectPath: string }) => {
 
   const [isLoading, setIsLoading] = useState(redirectPath !== "/upload");
 
-  // If the access token is expired, the middleware redirects to this page.
+  // If the access token is expired, the proxy redirects to this page.
   // If the refresh token is still valid, the user will be redirected to the last page.
   useEffect(() => {
     refreshUser().then((user) => {
