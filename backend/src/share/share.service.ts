@@ -386,6 +386,10 @@ export class ShareService {
       },
     });
 
+    if (!share || !share.uploadLocked || share.removedReason) {
+      throw new NotFoundException("Share not found");
+    }
+
     if (share.security?.password) {
       if (!password) {
         throw new ForbiddenException(
