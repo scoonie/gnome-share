@@ -2,7 +2,7 @@ import { jwtDecode } from "jwt-decode";
 import { NextRequest, NextResponse } from "next/server";
 import configService from "./services/config.service";
 
-// This middleware redirects based on different conditions:
+// This proxy redirects based on different conditions:
 // - Authentication state
 // - Setup status
 // - Admin privileges
@@ -11,7 +11,7 @@ export const config = {
   matcher: "/((?!api|static|.*\\..*|_next).*)",
 };
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const routes = {
     unauthenticated: new Routes(["/auth/*", "/"]),
     public: new Routes([
