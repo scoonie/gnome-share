@@ -128,7 +128,13 @@ export class AuthService {
     // per 5 minutes regardless of source IP.
     const RESET_LIMIT = 3;
     const RESET_WINDOW_MS = 5 * 60 * 1000;
-    const key = `pwreset:${email.toLowerCase()}`;
+    const normalizedEmail = email.trim().toLowerCase();
+    const key = `pwreset:${normalizedEmail}`;
+    // NOTE: This get()+set() counter is best-effort and not strictly atomic;
+    // under heavy concurrent load a small number of requests above RESET_LIMIT
+    // can slip through. The per-IP throttle on the controller bounds the
+    // worst case. If we later move to a dedicated Redis cache store we should
+    // switch this to an atomic INCR + EXPIRE.
     const current = (await this.cacheManager.get<number>(key)) ?? 0;
     if (current >= RESET_LIMIT) {
       throw new HttpException(
