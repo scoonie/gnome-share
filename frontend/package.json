@@ -13,7 +13,7 @@
   "dependencies": {
     "@mantine/core": "^9.0.2",
     "@mantine/dropzone": "^9.1.0",
-    "@mantine/form": "^9.0.1",
+    "@mantine/form": "^9.1.0",
     "@mantine/hooks": "^9.1.0",
     "@mantine/modals": "^9.0.2",
     "@mantine/notifications": "^9.1.0",
