@@ -54,6 +54,7 @@ COPY --from=backend-builder /opt/app/package.json ./
 COPY --from=backend-builder /opt/app/tsconfig.json ./
 COPY --from=backend-builder /opt/app/prisma.config.ts ./
 COPY --from=backend-builder /opt/app/src/generated ./src/generated
+COPY --from=backend-builder /opt/app/src/utils     ./src/utils
 
 WORKDIR /opt/app
 
