@@ -15,7 +15,7 @@
     "@mantine/dropzone": "^9.1.1",
     "@mantine/form": "^9.1.1",
     "@mantine/hooks": "^9.1.1",
-    "@mantine/modals": "^9.1.0",
+    "@mantine/modals": "^9.1.1",
     "@mantine/notifications": "^9.1.1",
     "axios": "^1.15.2",
     "cookies-next": "^6.1.1",
