@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v6
       - name: Install Dependencies
         working-directory: ./backend
-        run: npm install
+        run: npm ci
       - name: Generate Prisma Client
         working-directory: ./backend
         run: npx prisma generate
