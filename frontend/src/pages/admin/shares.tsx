@@ -48,8 +48,14 @@ const Shares = () => {
         shareService
           .remove(share.id)
           .then(() => {
-            setShares(shares.filter((v) => v.id != share.id));
-            setTotal((t) => t - 1);
+            const updatedShares = shares.filter((v) => v.id != share.id);
+            setShares(updatedShares);
+            const newTotal = total - 1;
+            setTotal(newTotal);
+            // If we just deleted the last item on this page, go to previous page
+            if (updatedShares.length === 0 && page > 1) {
+              setPage(page - 1);
+            }
           })
           .catch(toast.axiosError);
       },

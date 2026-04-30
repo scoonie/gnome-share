@@ -46,9 +46,11 @@ export class ShareController {
     @Query("page") page?: string,
     @Query("limit") limit?: string,
   ) {
+    const parsedPage = Math.max(1, parseInt(page ?? "1", 10) || 1);
+    const parsedLimit = Math.min(100, Math.max(1, parseInt(limit ?? "25", 10) || 25));
     const { shares, total } = await this.shareService.getShares(
-      page ? parseInt(page, 10) : 1,
-      limit ? parseInt(limit, 10) : 25,
+      parsedPage,
+      parsedLimit,
     );
     return { shares: new AdminShareDTO().fromList(shares), total };
   }
