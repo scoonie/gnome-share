@@ -41,7 +41,7 @@ export class FileService {
 export interface File {
   metaData: {
     id: string;
-    size: string;
+    size: number;
     createdAt: Date;
     mimeType: string | false;
     name: string;
