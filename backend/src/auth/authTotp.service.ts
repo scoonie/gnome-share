@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import type { User } from "../generated/prisma/client";
-import { generateSecret, generateSync, generateURI, verifySync } from "otplib";
+import { generateSecret, generateURI, verifySync } from "otplib";
 import qrcode from "qrcode-svg";
 import { ConfigService } from "src/config/config.service";
 import { PrismaService } from "src/prisma/prisma.service";
@@ -122,9 +122,13 @@ export class AuthTotpService {
       throw new BadRequestException("TOTP is not in progress");
     }
 
-    const expected = generateSync({ secret: totpSecret });
+    const expected = verifySync({
+      token: code,
+      secret: totpSecret,
+      epochTolerance: 30,
+    });
 
-    if (code !== expected) {
+    if (!expected.valid) {
       throw new BadRequestException("Invalid code");
     }
 
@@ -151,9 +155,13 @@ export class AuthTotpService {
       throw new BadRequestException("TOTP is not enabled");
     }
 
-    const expected = generateSync({ secret: totpSecret });
+    const verified = verifySync({
+      token: code,
+      secret: totpSecret,
+      epochTolerance: 30,
+    });
 
-    if (code !== expected) {
+    if (!verified.valid) {
       throw new BadRequestException("Invalid code");
     }
 

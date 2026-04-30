@@ -2,6 +2,13 @@ import { InternalServerErrorException, Logger } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Cache } from "cache-manager";
 import * as jmespath from "jmespath";
+import {
+  createRemoteJWKSet,
+  errors as joseErrors,
+  jwtVerify,
+  type JWTPayload,
+  type JWTVerifyGetKey,
+} from "jose";
 import { nanoid } from "nanoid";
 import { ConfigService } from "../../config/config.service";
 import { OAuthCallbackDto } from "../dto/oauthCallback.dto";
@@ -12,7 +19,7 @@ import { OAuthProvider, OAuthToken } from "./oauthProvider.interface";
 export abstract class GenericOidcProvider implements OAuthProvider<OidcToken> {
   protected discoveryUri: string;
   private configuration: OidcConfigurationCache;
-  private jwk: OidcJwkCache;
+  private jwks?: { uri: string; getKey: JWTVerifyGetKey };
   private logger: Logger = new Logger(
     Object.getPrototypeOf(this).constructor.name,
   );
@@ -46,11 +53,24 @@ export abstract class GenericOidcProvider implements OAuthProvider<OidcToken> {
     return this.configuration.data;
   }
 
-  async getJwk(): Promise<OidcJwk[]> {
-    if (!this.jwk || this.jwk.expires < Date.now()) {
-      await this.fetchJwk();
+  /**
+   * Returns a JWKS resolver that lazily fetches the provider's signing keys
+   * (with built-in rotation/caching from `jose`'s `createRemoteJWKSet`).
+   */
+  private async getJwks(): Promise<JWTVerifyGetKey> {
+    const configuration = await this.getConfiguration();
+    if (!configuration.jwks_uri) {
+      throw new InternalServerErrorException(
+        `OIDC provider "${this.name}" did not advertise a jwks_uri`,
+      );
     }
-    return this.jwk.data;
+    if (!this.jwks || this.jwks.uri !== configuration.jwks_uri) {
+      this.jwks = {
+        uri: configuration.jwks_uri,
+        getKey: createRemoteJWKSet(new URL(configuration.jwks_uri)),
+      };
+    }
+    return this.jwks.getKey;
   }
 
   async getAuthEndpoint(state: string) {
@@ -118,14 +138,14 @@ export abstract class GenericOidcProvider implements OAuthProvider<OidcToken> {
       adminAccess?: string;
     },
   ): Promise<OAuthSignInDto> {
-    const idTokenData = this.decodeIdToken(token.idToken);
-
-    if (!idTokenData) {
+    if (!token.idToken) {
       this.logger.error(
-        `Can not get ID Token from response ${JSON.stringify(token.rawToken, undefined, 2)}`,
+        `OIDC provider "${this.name}" did not return an id_token in ${JSON.stringify(token.rawToken, undefined, 2)}`,
       );
       throw new InternalServerErrorException();
     }
+
+    const idTokenData = await this.verifyIdToken(token.idToken);
 
     const key = `oauth-${this.name}-nonce-${query.state}`;
     const nonce = await this.cache.get(key);
@@ -215,26 +235,47 @@ export abstract class GenericOidcProvider implements OAuthProvider<OidcToken> {
     };
   }
 
-  private async fetchJwk(): Promise<void> {
-    const configuration = await this.getConfiguration();
-    const res = await fetch(configuration.jwks_uri);
-    const expires = res.headers.has("expires")
-      ? new Date(res.headers.get("expires")).getTime()
-      : Date.now() + 1000 * 60 * 60 * 24;
-    this.jwk = {
-      expires,
-      data: (await res.json())["keys"],
-    };
-  }
-
   private deinit() {
     this.discoveryUri = undefined;
     this.configuration = undefined;
-    this.jwk = undefined;
+    this.jwks = undefined;
   }
 
-  private decodeIdToken(idToken: string): OidcIdToken {
-    return this.jwtService.decode(idToken) as OidcIdToken;
+  /**
+   * Cryptographically verify the ID token using the provider's published JWKS
+   * and validate the standard OIDC claims (signature, `iss`, `aud`, `exp`,
+   * `iat`/`nbf`). The returned payload can then be trusted for things like
+   * `sub`, `email`, and the role-claim lookup.
+   */
+  private async verifyIdToken(idToken: string): Promise<OidcIdToken> {
+    const configuration = await this.getConfiguration();
+    const clientId = this.config.get(`oauth.${this.name}-clientId`) as string;
+    if (!clientId) {
+      throw new InternalServerErrorException(
+        `OIDC provider "${this.name}" is missing a configured clientId`,
+      );
+    }
+    const jwks = await this.getJwks();
+    try {
+      const { payload } = await jwtVerify(idToken, jwks, {
+        issuer: configuration.issuer,
+        audience: clientId,
+      });
+      return payload as JWTPayload & OidcIdToken;
+    } catch (err) {
+      // Treat any signature, claim, or expiry failure as an invalid token —
+      // never trust the unverified payload.
+      const message =
+        err instanceof joseErrors.JOSEError
+          ? `${err.code}: ${err.message}`
+          : err instanceof Error
+            ? err.message
+            : String(err);
+      this.logger.error(
+        `OIDC ID token verification failed for provider "${this.name}": ${message}`,
+      );
+      throw new ErrorPageException("invalid_token");
+    }
   }
 }
 
@@ -257,18 +298,7 @@ export interface OidcConfiguration {
   end_session_endpoint?: string;
 }
 
-export interface OidcJwk {
-  e: string;
-  alg: string;
-  kid: string;
-  use: string;
-  kty: string;
-  n: string;
-}
-
 export type OidcConfigurationCache = OidcCache<OidcConfiguration>;
-
-export type OidcJwkCache = OidcCache<OidcJwk[]>;
 
 export interface OidcToken {
   access_token: string;
