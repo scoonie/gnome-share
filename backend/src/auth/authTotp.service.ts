@@ -122,13 +122,13 @@ export class AuthTotpService {
       throw new BadRequestException("TOTP is not in progress");
     }
 
-    const expected = verifySync({
+    const verification = verifySync({
       token: code,
       secret: totpSecret,
       epochTolerance: 30,
     });
 
-    if (!expected.valid) {
+    if (!verification.valid) {
       throw new BadRequestException("Invalid code");
     }
 
@@ -155,13 +155,13 @@ export class AuthTotpService {
       throw new BadRequestException("TOTP is not enabled");
     }
 
-    const verified = verifySync({
+    const verification = verifySync({
       token: code,
       secret: totpSecret,
       epochTolerance: 30,
     });
 
-    if (!verified.valid) {
+    if (!verification.valid) {
       throw new BadRequestException("Invalid code");
     }
 
