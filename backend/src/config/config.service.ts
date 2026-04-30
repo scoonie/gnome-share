@@ -10,7 +10,7 @@ import * as argon from "argon2";
 import { EventEmitter } from "events";
 import * as fs from "fs";
 import { PrismaService } from "src/prisma/prisma.service";
-import { stringToTimespan } from "src/utils/date.util";
+import { stringToTimespan, isValidTimespan } from "src/utils/date.util";
 import { parse as yamlParse } from "yaml";
 import { YamlConfig } from "../../prisma/seed/config.seed";
 import { CONFIG_FILE } from "src/constants";
@@ -23,12 +23,32 @@ import { CONFIG_FILE } from "src/constants";
 export class ConfigService extends EventEmitter {
   yamlConfig?: YamlConfig;
   logger = new Logger(ConfigService.name);
+  private configVariablesByKey: Map<string, Config> = new Map();
 
   constructor(
-    @Inject("CONFIG_VARIABLES") private configVariables: Config[],
+    @Inject("CONFIG_VARIABLES") private _configVariables: Config[],
     private prisma: PrismaService,
   ) {
     super();
+    this.rebuildConfigIndex();
+  }
+
+  private get configVariables(): Config[] {
+    return this._configVariables;
+  }
+
+  private set configVariables(variables: Config[]) {
+    this._configVariables = variables;
+    this.rebuildConfigIndex();
+  }
+
+  private rebuildConfigIndex() {
+    this.configVariablesByKey = new Map(
+      this._configVariables.map((variable) => [
+        `${variable.category}.${variable.name}`,
+        variable,
+      ]),
+    );
   }
 
   // Initialize gets called by the ConfigModule
@@ -94,9 +114,7 @@ export class ConfigService extends EventEmitter {
   }
 
   get(key: `${string}.${string}`): any {
-    const configVariable = this.configVariables.filter(
-      (variable) => `${variable.category}.${variable.name}` == key,
-    )[0];
+    const configVariable = this.configVariablesByKey.get(key);
 
     if (!configVariable) throw new Error(`Config variable ${key} not found`);
 
@@ -203,6 +221,18 @@ export class ConfigService extends EventEmitter {
   }
 
   validateConfigVariable(key: string, value: string | number | boolean) {
+    const configVariable = this.configVariablesByKey.get(key);
+    if (
+      configVariable?.type === "timespan" &&
+      value !== null &&
+      value !== undefined &&
+      (typeof value !== "string" || !isValidTimespan(value))
+    ) {
+      throw new BadRequestException(
+        `Config variable ${key} must be a timespan in the form "<number> <unit>" where unit is one of minutes, hours, days, weeks, months, years`,
+      );
+    }
+
     const validations = [
       {
         key: "share.shareIdLength",
@@ -214,7 +244,6 @@ export class ConfigService extends EventEmitter {
         condition: (value: number) => value >= 0 && value <= 9,
         message: "Zip compression level must be between 0 and 9",
       },
-      // TODO add validation for timespan type
     ];
 
     const validation = validations.find((validation) => validation.key == key);

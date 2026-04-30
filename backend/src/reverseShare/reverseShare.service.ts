@@ -15,20 +15,17 @@ export class ReverseShareService {
   ) {}
 
   async create(data: CreateReverseShareDTO, creatorId: string) {
-    // Parse date string to date
-    const expirationDate = dayjs()
-      .add(
-        parseInt(data.shareExpiration.split("-")[0]),
-        data.shareExpiration.split("-")[1] as ManipulateType,
-      )
-      .toDate();
+    const expirationDate = parseRelativeDateToAbsolute(data.shareExpiration);
+    const expiresNever = dayjs(0).toDate().getTime() === expirationDate.getTime();
 
-    const parsedExpiration = parseRelativeDateToAbsolute(data.shareExpiration);
     const maxExpiration = this.config.get("share.maxExpiration");
     if (
       maxExpiration.value !== 0 &&
-      parsedExpiration >
-        dayjs().add(maxExpiration.value, maxExpiration.unit as ManipulateType).toDate()
+      (expiresNever ||
+        expirationDate >
+          dayjs()
+            .add(maxExpiration.value, maxExpiration.unit as ManipulateType)
+            .toDate())
     ) {
       throw new BadRequestException(
         "Expiration date exceeds maximum expiration date",
