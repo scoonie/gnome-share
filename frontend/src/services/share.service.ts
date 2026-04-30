@@ -11,8 +11,11 @@ import {
 } from "../types/share.type";
 import api from "./api.service";
 
-const list = async (): Promise<MyShare[]> => {
-  return (await api.get(`shares/all`)).data;
+const list = async (
+  page = 1,
+  limit = 25,
+): Promise<{ shares: MyShare[]; total: number }> => {
+  return (await api.get(`shares/all`, { params: { page, limit } })).data;
 };
 
 const create = async (share: CreateShare, isReverseShare = false) => {
@@ -122,7 +125,7 @@ const createReverseShare = async (
       name,
       description,
       shareExpiration,
-      maxShareSize: maxShareSize.toString(),
+      maxShareSize: maxShareSize,
       maxUseCount,
       sendEmailNotification,
       simplified,

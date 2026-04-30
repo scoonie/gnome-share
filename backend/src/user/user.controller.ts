@@ -20,12 +20,12 @@ import { CreateUserDTO } from "./dto/createUser.dto";
 import { UpdateOwnUserDTO } from "./dto/updateOwnUser.dto";
 import { UpdateUserDto } from "./dto/updateUser.dto";
 import { UserDTO } from "./dto/user.dto";
-import { UserSevice } from "./user.service";
+import { UserService } from "./user.service";
 
 @Controller("users")
 export class UserController {
   constructor(
-    private userService: UserSevice,
+    private userService: UserService,
     private config: ConfigService,
   ) {}
 

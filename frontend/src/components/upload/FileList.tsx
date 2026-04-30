@@ -32,7 +32,7 @@ const FileListRow = ({
         }}
       >
         <td>{file.name}</td>
-        <td>{byteToHumanSizeString(+file.size)}</td>
+        <td>{byteToHumanSizeString(file.size)}</td>
         <td>
           {removable && (
             <ActionIcon

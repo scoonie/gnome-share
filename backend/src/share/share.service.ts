@@ -28,10 +28,9 @@ export class ShareService {
 
   constructor(
     private prisma: PrismaService,
-    private configService: ConfigService,
+    private config: ConfigService,
     private fileService: FileService,
     private emailService: EmailService,
-    private config: ConfigService,
     private jwtService: JwtService,
     private reverseShareService: ReverseShareService,
     private clamScanService: ClamScanService,
@@ -234,20 +233,29 @@ export class ShareService {
     });
   }
 
-  async getShares() {
-    const shares = await this.prisma.share.findMany({
-      orderBy: {
-        expiration: "desc",
-      },
-      include: { files: true, creator: true },
-    });
+  async getShares(page = 1, limit = 25) {
+    const skip = (page - 1) * limit;
+    const [shares, total] = await Promise.all([
+      this.prisma.share.findMany({
+        skip,
+        take: limit,
+        orderBy: {
+          expiration: "desc",
+        },
+        include: { files: true, creator: true },
+      }),
+      this.prisma.share.count(),
+    ]);
 
-    return shares.map((share) => {
-      return {
-        ...share,
-        size: share.files.reduce((acc, file) => acc + parseInt(file.size), 0),
-      };
-    });
+    return {
+      shares: shares.map((share) => {
+        return {
+          ...share,
+          size: share.files.reduce((acc, file) => acc + file.size, 0),
+        };
+      }),
+      total,
+    };
   }
 
   async getSharesByUser(userId: string) {
@@ -270,7 +278,7 @@ export class ShareService {
     return shares.map((share) => {
       return {
         ...share,
-        size: share.files.reduce((acc, file) => acc + parseInt(file.size), 0),
+        size: share.files.reduce((acc, file) => acc + file.size, 0),
         recipients: share.recipients.map((recipients) => recipients.email),
         security: {
           maxViews: share.security?.maxViews,

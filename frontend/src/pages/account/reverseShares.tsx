@@ -207,7 +207,7 @@ const MyShares = () => {
                   </td>
                   <td>{reverseShare.remainingUses}</td>
                   <td>
-                    {byteToHumanSizeString(parseInt(reverseShare.maxShareSize))}
+                    {byteToHumanSizeString(reverseShare.maxShareSize)}
                   </td>
                   <td>
                     {dayjs(reverseShare.shareExpiration).unix() === 0

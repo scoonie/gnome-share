@@ -6,6 +6,7 @@ import {
   HttpCode,
   Param,
   Post,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -41,8 +42,17 @@ export class ShareController {
 
   @Get("all")
   @UseGuards(JwtGuard, AdministratorGuard)
-  async getAllShares() {
-    return new AdminShareDTO().fromList(await this.shareService.getShares());
+  async getAllShares(
+    @Query("page") page?: string,
+    @Query("limit") limit?: string,
+  ) {
+    const parsedPage = Math.max(1, parseInt(page ?? "1", 10) || 1);
+    const parsedLimit = Math.min(100, Math.max(1, parseInt(limit ?? "25", 10) || 25));
+    const { shares, total } = await this.shareService.getShares(
+      parsedPage,
+      parsedLimit,
+    );
+    return { shares: new AdminShareDTO().fromList(shares), total };
   }
 
   @Get()

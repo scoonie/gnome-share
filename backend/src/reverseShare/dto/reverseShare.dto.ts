@@ -11,7 +11,7 @@ export class ReverseShareDTO {
   description?: string | null;
 
   @Expose()
-  maxShareSize: string;
+  maxShareSize: number;
 
   @Expose()
   shareExpiration: Date;

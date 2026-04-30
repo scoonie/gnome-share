@@ -31,7 +31,7 @@ const Share = ({ reverseShareToken }: { reverseShareToken: string }) => {
     shareService
       .setReverseShare(reverseShareToken)
       .then((reverseShareTokenData) => {
-        setMaxShareSize(parseInt(reverseShareTokenData.maxShareSize));
+        setMaxShareSize(reverseShareTokenData.maxShareSize);
         setReverseShareName(reverseShareTokenData.name);
         setReverseShareDescription(reverseShareTokenData.description);
         setReverseShareExpiration(

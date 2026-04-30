@@ -85,14 +85,21 @@ export class JobsService {
   }
 
   @Cron("0 0 * * *")
-  deleteTemporaryFiles() {
+  async deleteTemporaryFiles() {
     let filesDeleted = 0;
 
     const rootDir = path.resolve(SHARE_DIRECTORY);
-    const shareDirectories = fs
-      .readdirSync(SHARE_DIRECTORY, { withFileTypes: true })
-      .filter((dirent) => dirent.isDirectory())
-      .map((dirent) => dirent.name);
+    let shareDirectories: string[];
+    try {
+      shareDirectories = (
+        await fs.promises.readdir(SHARE_DIRECTORY, { withFileTypes: true })
+      )
+        .filter((dirent) => dirent.isDirectory())
+        .map((dirent) => dirent.name);
+    } catch (e) {
+      this.logger.error(`Failed to read share directory: ${e}`);
+      return;
+    }
 
     for (const shareDirectory of shareDirectories) {
       const safeDirName = path.basename(shareDirectory);
@@ -101,9 +108,15 @@ export class JobsService {
         continue;
       }
 
-      const temporaryFiles = fs
-        .readdirSync(dirPath)
-        .filter((file) => file.endsWith(".tmp-chunk"));
+      let temporaryFiles: string[];
+      try {
+        temporaryFiles = (await fs.promises.readdir(dirPath)).filter((file) =>
+          file.endsWith(".tmp-chunk"),
+        );
+      } catch (e) {
+        this.logger.error(`Failed to read directory ${dirPath}: ${e}`);
+        continue;
+      }
 
       for (const file of temporaryFiles) {
         const safeFileName = path.basename(file);
@@ -112,14 +125,18 @@ export class JobsService {
           continue;
         }
 
-        const stats = fs.statSync(filePath);
-        const isOlderThanOneDay = dayjs(stats.mtime)
-          .add(1, "day")
-          .isBefore(dayjs());
+        try {
+          const stats = await fs.promises.stat(filePath);
+          const isOlderThanOneDay = dayjs(stats.mtime)
+            .add(1, "day")
+            .isBefore(dayjs());
 
-        if (isOlderThanOneDay) {
-          fs.rmSync(filePath);
-          filesDeleted++;
+          if (isOlderThanOneDay) {
+            await fs.promises.rm(filePath);
+            filesDeleted++;
+          }
+        } catch (e) {
+          this.logger.error(`Failed to process temporary file ${filePath}: ${e}`);
         }
       }
     }

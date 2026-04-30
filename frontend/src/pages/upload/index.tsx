@@ -22,8 +22,6 @@ import toast from "../../utils/toast.util";
 import { useRouter } from "next/router";
 
 const promiseLimit = pLimit(3);
-let errorToastShown = false;
-let createdShare: Share;
 
 const Upload = ({
   maxShareSize,
@@ -49,6 +47,14 @@ const Upload = ({
   const [files, setFiles] = useState<FileUpload[]>([]);
   const [isUploading, setisUploading] = useState(false);
 
+  const errorToastShown = useRef(false);
+  const createdShare = useRef<Share | undefined>(undefined);
+
+  useEffect(() => {
+    errorToastShown.current = false;
+    createdShare.current = undefined;
+  }, []);
+
   useConfirmLeave({
     message: t("upload.notify.confirm-leave"),
     enabled: isUploading,
@@ -64,7 +70,7 @@ const Upload = ({
 
     try {
       const isReverseShare = router.pathname != "/upload";
-      createdShare = await shareService.create(share, isReverseShare);
+      createdShare.current = await shareService.create(share, isReverseShare);
     } catch (e) {
       toast.axiosError(e);
       setisUploading(false);
@@ -101,7 +107,7 @@ const Upload = ({
           try {
             await shareService
               .uploadFile(
-                createdShare.id,
+                createdShare.current!.id,
                 blob,
                 {
                   id: fileId,
@@ -136,7 +142,7 @@ const Upload = ({
       }),
     );
 
-    Promise.all(fileUploadPromises);
+    await Promise.all(fileUploadPromises);
   };
 
   const handleReverseShareUpload = async (files: FileUpload[]) => {
@@ -206,7 +212,7 @@ const Upload = ({
     ).length;
 
     if (fileErrorCount > 0) {
-      if (!errorToastShown) {
+      if (!errorToastShown.current) {
         toast.error(
           t("upload.notify.count-failed", { count: fileErrorCount }),
           {
@@ -215,10 +221,10 @@ const Upload = ({
           },
         );
       }
-      errorToastShown = true;
+      errorToastShown.current = true;
     } else {
       cleanNotifications();
-      errorToastShown = false;
+      errorToastShown.current = false;
     }
 
     // Complete share
@@ -228,7 +234,7 @@ const Upload = ({
       fileErrorCount == 0
     ) {
       shareService
-        .completeShare(createdShare.id)
+        .completeShare(createdShare.current!.id)
         .then((share) => {
           setisUploading(false);
           showCompletedUploadModal(modals, share, isReverseShare);

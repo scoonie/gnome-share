@@ -23,7 +23,7 @@ import { EmailService } from "src/email/email.service";
 import { PrismaService } from "src/prisma/prisma.service";
 import { OAuthService } from "../oauth/oauth.service";
 import { GenericOidcProvider } from "../oauth/provider/genericOidc.provider";
-import { UserSevice } from "../user/user.service";
+import { UserService } from "../user/user.service";
 import { AuthRegisterDTO } from "./dto/authRegister.dto";
 import { AuthSignInDTO } from "./dto/authSignIn.dto";
 import * as crypto from "crypto";
@@ -35,7 +35,7 @@ export class AuthService {
     private jwtService: JwtService,
     private config: ConfigService,
     private emailService: EmailService,
-    private userService: UserSevice,
+    private userService: UserService,
     @Inject(forwardRef(() => OAuthService)) private oAuthService: OAuthService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
@@ -101,9 +101,12 @@ export class AuthService {
   }
 
   async generateToken(user: User, oauth?: { idToken?: string }) {
-    // TODO: Make all old loginTokens invalid when a new one is created
     // Check if the user has TOTP enabled
     if (user.totpVerified && !(oauth && this.config.get("oauth.ignoreTotp"))) {
+      // Invalidate any existing outstanding login tokens before issuing a new one
+      await this.prisma.loginToken.deleteMany({
+        where: { userId: user.id, used: false },
+      });
       const loginToken = await this.createLoginToken(user.id);
 
       return { loginToken };

@@ -1,5 +1,6 @@
 import {
   IsBoolean,
+  IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -7,6 +8,7 @@ import {
   MaxLength,
   Min,
 } from "class-validator";
+import { Type } from "class-transformer";
 
 export class CreateReverseShareDTO {
   @IsString()
@@ -22,8 +24,10 @@ export class CreateReverseShareDTO {
   @IsBoolean()
   sendEmailNotification: boolean;
 
-  @IsString()
-  maxShareSize: string;
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  maxShareSize: number;
 
   @IsString()
   shareExpiration: string;

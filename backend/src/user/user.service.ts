@@ -9,7 +9,7 @@ import { CreateUserDTO } from "./dto/createUser.dto";
 import { UpdateUserDto } from "./dto/updateUser.dto";
 
 @Injectable()
-export class UserSevice {
+export class UserService {
   constructor(
     private prisma: PrismaService,
     private emailService: EmailService,

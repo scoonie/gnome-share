@@ -109,7 +109,7 @@ model ReverseShare {
   name                  String
   description           String?
   shareExpiration       DateTime
-  maxShareSize          String
+  maxShareSize          Int
   sendEmailNotification Boolean
   remainingUses         Int
   simplified            Boolean  @default(false)
@@ -136,7 +136,7 @@ model File {
   createdAt DateTime @default(now())
 
   name String
-  size String
+  size Int
 
   shareId String
   share   Share  @relation(fields: [shareId], references: [id], onDelete: Cascade)
