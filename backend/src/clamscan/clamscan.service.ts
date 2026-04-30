@@ -82,24 +82,25 @@ export class ClamScanService {
           continue;
         }
 
-        const scanResult = await clamScan
-          .isInfected(filePath)
-          .catch((err) => {
-            this.logger.warn(
-              `ClamAV scan error for file ${fileId} in share ${shareId}: ${err instanceof Error ? err.message : err}`,
-            );
-            // The cached clamd connection may now be stale (for example if
-            // the ClamAV daemon was restarted). Drop it so the next scan
-            // re-initialises a fresh connection instead of silently
-            // returning "not infected" forever.
-            this.clamScanner = null;
-            return null;
-          });
+        const scanResult = await clamScan.isInfected(filePath).catch((err) => {
+          this.logger.warn(
+            `ClamAV scan error for file ${fileId} in share ${shareId}: ${err instanceof Error ? err.message : err}`,
+          );
+          // The cached clamd connection may now be stale (for example if
+          // the ClamAV daemon was restarted). Drop it so the next scan
+          // re-initialises a fresh connection instead of silently
+          // returning "not infected" forever.
+          this.clamScanner = null;
+          return null;
+        });
 
         if (scanResult === null) {
-          // Connection was reset; abort this scan and let the next call
-          // re-establish the scanner.
-          return [];
+          // Connection was reset; stop scanning further files so the
+          // infectedFiles already accumulated are not discarded.
+          this.logger.warn(
+            `ClamAV scan aborted early for share ${shareId}: connection reset after ${infectedFiles.length} infections found so far`,
+          );
+          break;
         }
 
         const fileRecord = await this.prisma.file.findUnique({

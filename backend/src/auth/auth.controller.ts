@@ -184,14 +184,14 @@ export class AuthController {
       const fallbackDisabled =
         process.env.DISABLE_PLAINTEXT_REFRESH_TOKEN_FALLBACK === "true";
       const sunsetReached =
-        Date.now() >=
-        AuthController.PLAINTEXT_REFRESH_TOKEN_SUNSET.getTime();
+        Date.now() >= AuthController.PLAINTEXT_REFRESH_TOKEN_SUNSET.getTime();
       if (fallbackDisabled || sunsetReached) {
         this.logger.warn(
           "Rejected plaintext refresh-token cookie: fallback is disabled" +
             (sunsetReached ? " (sunset date reached)" : "") +
             ". The client must re-authenticate.",
         );
+        this.clearRefreshTokenCookie(response);
         throw new UnauthorizedException();
       }
       if (!this.plaintextFallbackWarned) {
@@ -205,18 +205,24 @@ export class AuthController {
             `and need to re-authenticate to receive an encrypted cookie.`,
         );
       } else {
-        this.logger.debug(
-          "Accepted deprecated plaintext refresh-token cookie",
-        );
+        this.logger.debug("Accepted deprecated plaintext refresh-token cookie");
       }
       refreshToken = request.cookies.refresh_token;
     }
 
-    const accessToken = await this.authService.refreshAccessToken(
-      refreshToken,
-    );
+    const accessToken = await this.authService.refreshAccessToken(refreshToken);
     this.authService.addTokensToResponse(response, undefined, accessToken);
     return new TokenDTO().from({ accessToken });
+  }
+
+  private clearRefreshTokenCookie(response: Response) {
+    const isSecure = this.config.get("general.secureCookies");
+    response.cookie("refresh_token", "", {
+      path: "/api/auth/token",
+      httpOnly: true,
+      maxAge: -1,
+      secure: isSecure,
+    });
   }
 
   @Post("signOut")
@@ -233,12 +239,7 @@ export class AuthController {
       maxAge: -1,
       secure: isSecure,
     });
-    response.cookie("refresh_token", "", {
-      path: "/api/auth/token",
-      httpOnly: true,
-      maxAge: -1,
-      secure: isSecure,
-    });
+    this.clearRefreshTokenCookie(response);
 
     if (typeof redirectURI === "string") {
       return { redirectURI: redirectURI.toString() };
