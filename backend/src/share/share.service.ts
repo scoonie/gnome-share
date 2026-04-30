@@ -294,11 +294,12 @@ export class ShareService {
       },
     });
 
+    if (!share || !share.uploadLocked)
+      throw new NotFoundException("Share not found");
+
     if (share.removedReason)
       throw new NotFoundException(share.removedReason, "share_removed");
 
-    if (!share || !share.uploadLocked)
-      throw new NotFoundException("Share not found");
     return {
       ...share,
       hasPassword: !!share.security?.password,
