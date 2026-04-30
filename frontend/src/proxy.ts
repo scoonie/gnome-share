@@ -1,6 +1,7 @@
 import { jwtDecode } from "jwt-decode";
 import { NextRequest, NextResponse } from "next/server";
 import configService from "./services/config.service";
+import Config from "./types/config.type";
 
 // This proxy redirects based on different conditions:
 // - Authentication state
@@ -10,6 +11,47 @@ import configService from "./services/config.service";
 export const config = {
   matcher: "/((?!api|static|.*\\..*|_next).*)",
 };
+
+// In-memory cache for the backend `/api/configs` response. The proxy runs on
+// every page navigation, and without this cache each navigation issues a
+// fresh backend request (which is significant load behind a reverse proxy
+// like Traefik). The TTL is intentionally short so admin config changes
+// still propagate quickly.
+const CONFIG_CACHE_TTL_MS = (() => {
+  const raw = process.env.PROXY_CONFIG_CACHE_TTL_MS;
+  const parsed = raw ? parseInt(raw, 10) : NaN;
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : 30_000;
+})();
+let cachedConfig: { value: Config[]; expiresAt: number } | null = null;
+let inflightConfig: Promise<Config[]> | null = null;
+
+async function getBackendConfig(apiUrl: string): Promise<Config[]> {
+  const now = Date.now();
+  if (cachedConfig && cachedConfig.expiresAt > now) {
+    return cachedConfig.value;
+  }
+  if (inflightConfig) {
+    return inflightConfig;
+  }
+  inflightConfig = (async () => {
+    try {
+      const response = await fetch(`${apiUrl}/api/configs`);
+      if (!response.ok) {
+        throw new Error(
+          `Backend /api/configs returned ${response.status}`,
+        );
+      }
+      const value = (await response.json()) as Config[];
+      if (CONFIG_CACHE_TTL_MS > 0) {
+        cachedConfig = { value, expiresAt: Date.now() + CONFIG_CACHE_TTL_MS };
+      }
+      return value;
+    } finally {
+      inflightConfig = null;
+    }
+  })();
+  return inflightConfig;
+}
 
 export async function proxy(request: NextRequest) {
   const routes = {
@@ -27,9 +69,10 @@ export async function proxy(request: NextRequest) {
     disabled: new Routes([]),
   };
 
-  // Get config from backend
+  // Get config from backend (cached in-process to avoid issuing a backend
+  // request on every page navigation).
   const apiUrl = process.env.API_URL || "http://localhost:8080";
-  const config = await (await fetch(`${apiUrl}/api/configs`)).json();
+  const config = await getBackendConfig(apiUrl);
 
   const getConfig = (key: string) => {
     return configService.get(key, config);

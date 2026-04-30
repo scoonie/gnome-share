@@ -332,7 +332,12 @@ export class ShareService {
   }
 
   async isShareCompleted(id: string) {
-    return (await this.prisma.share.findUnique({ where: { id } })).uploadLocked;
+    const share = await this.prisma.share.findUnique({
+      where: { id },
+      select: { uploadLocked: true },
+    });
+    if (!share) throw new NotFoundException("Share not found");
+    return share.uploadLocked;
   }
 
   async isShareIdAvailable(id: string) {
