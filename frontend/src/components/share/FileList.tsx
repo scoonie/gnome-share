@@ -43,26 +43,30 @@ const FileList = ({
     direction: "desc",
   });
 
-  const sortFiles = () => {
-    if (files && sort.property) {
-      const sortedFiles = files.sort((a: any, b: any) => {
-        if (sort.direction === "asc") {
-          return b[sort.property!].localeCompare(a[sort.property!], undefined, {
-            numeric: true,
-          });
-        } else {
-          return a[sort.property!].localeCompare(b[sort.property!], undefined, {
-            numeric: true,
-          });
-        }
-      });
+  useEffect(() => {
+    if (!files || !sort.property) return;
+    const sortedFiles = [...files].sort((a: any, b: any) => {
+      if (sort.direction === "asc") {
+        return b[sort.property!].localeCompare(a[sort.property!], undefined, {
+          numeric: true,
+        });
+      } else {
+        return a[sort.property!].localeCompare(b[sort.property!], undefined, {
+          numeric: true,
+        });
+      }
+    });
 
-      setShare({
-        ...share,
-        files: sortedFiles,
-      });
-    }
-  };
+    // Skip the state update if the order is already correct, otherwise the
+    // setShare below would re-trigger this effect on every render.
+    const orderUnchanged = sortedFiles.every((f, i) => f === files[i]);
+    if (orderUnchanged) return;
+
+    setShare({
+      ...share,
+      files: sortedFiles,
+    });
+  }, [sort, files, share, setShare]);
 
   const copyFileLink = (file: FileMetaData) => {
     const link = `${window.location.origin}/api/shares/${
@@ -83,8 +87,6 @@ const FileList = ({
       });
     }
   };
-
-  useEffect(sortFiles, [sort]);
 
   return (
     <Box style={{ display: "block", overflowX: "auto" }}>

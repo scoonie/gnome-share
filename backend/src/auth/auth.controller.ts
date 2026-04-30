@@ -3,7 +3,6 @@ import {
   Controller,
   ForbiddenException,
   HttpCode,
-  Logger,
   Param,
   Patch,
   Post,
@@ -31,16 +30,6 @@ import { JwtGuard } from "./guard/jwt.guard";
 
 @Controller("auth")
 export class AuthController {
-  private readonly logger = new Logger(AuthController.name);
-  // Sunset date for the plaintext refresh-token cookie fallback. After this
-  // date the fallback is rejected outright; callers must re-authenticate so
-  // a new encrypted refresh-token cookie is issued. The window can also be
-  // closed early by setting DISABLE_PLAINTEXT_REFRESH_TOKEN_FALLBACK=true.
-  private static readonly PLAINTEXT_REFRESH_TOKEN_SUNSET = new Date(
-    "2026-10-31T00:00:00Z",
-  );
-  private plaintextFallbackWarned = false;
-
   constructor(
     private authService: AuthService,
     private authTotpService: AuthTotpService,
@@ -173,41 +162,14 @@ export class AuthController {
 
     let refreshToken: string;
     try {
-      // Try to decrypt assuming the new encrypted refresh token format.
       refreshToken = this.authService.decryptRefreshToken(
         request.cookies.refresh_token,
       );
     } catch {
-      // Backward compatibility: treat the cookie as a plaintext refresh
-      // token. This fallback exists only to keep pre-encryption sessions
-      // alive across the upgrade and is being sunset.
-      const fallbackDisabled =
-        process.env.DISABLE_PLAINTEXT_REFRESH_TOKEN_FALLBACK === "true";
-      const sunsetReached =
-        Date.now() >= AuthController.PLAINTEXT_REFRESH_TOKEN_SUNSET.getTime();
-      if (fallbackDisabled || sunsetReached) {
-        this.logger.warn(
-          "Rejected plaintext refresh-token cookie: fallback is disabled" +
-            (sunsetReached ? " (sunset date reached)" : "") +
-            ". The client must re-authenticate.",
-        );
-        this.clearRefreshTokenCookie(response);
-        throw new UnauthorizedException();
-      }
-      if (!this.plaintextFallbackWarned) {
-        this.plaintextFallbackWarned = true;
-        this.logger.warn(
-          `DEPRECATED: accepting plaintext refresh-token cookie. This ` +
-            `fallback will be removed on ` +
-            `${AuthController.PLAINTEXT_REFRESH_TOKEN_SUNSET.toISOString()}. ` +
-            `Set DISABLE_PLAINTEXT_REFRESH_TOKEN_FALLBACK=true to reject ` +
-            `these cookies immediately. Affected users will be signed out ` +
-            `and need to re-authenticate to receive an encrypted cookie.`,
-        );
-      } else {
-        this.logger.debug("Accepted deprecated plaintext refresh-token cookie");
-      }
-      refreshToken = request.cookies.refresh_token;
+      // Cookie is missing, tampered, or encrypted with a previous key.
+      // Force re-authentication.
+      this.clearRefreshTokenCookie(response);
+      throw new UnauthorizedException();
     }
 
     const accessToken = await this.authService.refreshAccessToken(refreshToken);
@@ -236,6 +198,8 @@ export class AuthController {
 
     const isSecure = this.config.get("general.secureCookies");
     response.cookie("access_token", "", {
+      httpOnly: true,
+      sameSite: "lax",
       maxAge: -1,
       secure: isSecure,
     });
