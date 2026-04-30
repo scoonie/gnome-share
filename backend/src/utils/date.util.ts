@@ -26,7 +26,7 @@ const VALID_TIMESPAN_UNITS: ReadonlySet<Timespan["unit"]> = new Set([
 ]);
 
 export function stringToTimespan(value: string): Timespan {
-  const [time, unit] = value.split(" ");
+  const [time, unit] = value.trim().split(/\s+/);
   return {
     value: parseInt(time),
     unit: unit as Timespan["unit"],
