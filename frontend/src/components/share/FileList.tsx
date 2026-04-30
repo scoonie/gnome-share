@@ -57,16 +57,15 @@ const FileList = ({
       }
     });
 
-    // Skip the state update if the order is already correct, otherwise the
-    // setShare below would re-trigger this effect on every render.
+    // Skip the state update if the order is already correct, otherwise
+    // re-running the effect would trigger an unnecessary re-render.
     const orderUnchanged = sortedFiles.every((f, i) => f === files[i]);
     if (orderUnchanged) return;
 
-    setShare({
-      ...share,
-      files: sortedFiles,
-    });
-  }, [sort, files, share, setShare]);
+    // Functional update so we don't need `share` in deps (and won't
+    // clobber concurrent updates to other fields on share).
+    setShare((prev) => (prev ? { ...prev, files: sortedFiles } : prev));
+  }, [sort, files, setShare]);
 
   const copyFileLink = (file: FileMetaData) => {
     const link = `${window.location.origin}/api/shares/${
