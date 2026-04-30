@@ -9,7 +9,7 @@ export class FileDTO {
   name: string;
 
   @Expose()
-  size: string;
+  size: number;
 
   share: ShareDTO;
 

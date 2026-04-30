@@ -104,7 +104,7 @@ export class LocalFileService {
     }
 
     const fileSizeSum = share.files.reduce(
-      (n, { size }) => n + parseInt(size),
+      (n, { size }) => n + size,
       0,
     );
 
@@ -134,7 +134,7 @@ export class LocalFileService {
     if (
       shareSizeSum > this.config.get("share.maxSize") ||
       (share.reverseShare?.maxShareSize &&
-        shareSizeSum > parseInt(share.reverseShare.maxShareSize))
+        shareSizeSum > share.reverseShare.maxShareSize)
     ) {
       throw new HttpException(
         "Max share size exceeded",
@@ -160,7 +160,7 @@ export class LocalFileService {
         data: {
           id: safeFileId,
           name: safeName,
-          size: fileSize.toString(),
+          size: fileSize,
           share: { connect: { id: safeShareId } },
         },
       });

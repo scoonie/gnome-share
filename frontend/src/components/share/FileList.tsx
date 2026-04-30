@@ -112,7 +112,7 @@ const FileList = ({
             : files!.map((file) => (
                 <tr key={file.name}>
                   <td>{file.name}</td>
-                  <td>{byteToHumanSizeString(parseInt(file.size))}</td>
+                  <td>{byteToHumanSizeString(file.size)}</td>
                   <td>
                     <Group justify="flex-end">
                       {shareService.doesFileSupportPreview(file.name) && (

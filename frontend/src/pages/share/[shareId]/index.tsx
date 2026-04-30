@@ -117,8 +117,8 @@ const Share = ({ shareId }: { shareId: string }) => {
                   count: share?.files?.length || 0,
                   size: byteToHumanSizeString(
                     share?.files?.reduce(
-                      (total: number, file: { size: string }) =>
-                        total + parseInt(file.size),
+                      (total: number, file: { size: number }) =>
+                        total + file.size,
                       0,
                     ) || 0,
                   ),

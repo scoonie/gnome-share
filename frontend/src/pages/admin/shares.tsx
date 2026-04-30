@@ -1,4 +1,4 @@
-import { Group, Space, Text, Title } from "@mantine/core";
+import { Group, Pagination, Space, Text, Title } from "@mantine/core";
 import { useModals } from "@mantine/modals";
 import { useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
@@ -9,17 +9,22 @@ import shareService from "../../services/share.service";
 import { MyShare } from "../../types/share.type";
 import toast from "../../utils/toast.util";
 
+const PAGE_LIMIT = 25;
+
 const Shares = () => {
   const [shares, setShares] = useState<MyShare[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
 
   const modals = useModals();
   const t = useTranslate();
 
-  const getShares = () => {
+  const getShares = (currentPage: number) => {
     setIsLoading(true);
-    shareService.list().then((shares) => {
+    shareService.list(currentPage, PAGE_LIMIT).then(({ shares, total }) => {
       setShares(shares);
+      setTotal(total);
       setIsLoading(false);
     });
   };
@@ -42,15 +47,20 @@ const Shares = () => {
       onConfirm: async () => {
         shareService
           .remove(share.id)
-          .then(() => setShares(shares.filter((v) => v.id != share.id)))
+          .then(() => {
+            setShares(shares.filter((v) => v.id != share.id));
+            setTotal((t) => t - 1);
+          })
           .catch(toast.axiosError);
       },
     });
   };
 
   useEffect(() => {
-    getShares();
-  }, []);
+    getShares(page);
+  }, [page]);
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_LIMIT));
 
   return (
     <>
@@ -66,6 +76,15 @@ const Shares = () => {
         deleteShare={deleteShare}
         isLoading={isLoading}
       />
+      {totalPages > 1 && (
+        <Group justify="center" mt="md">
+          <Pagination
+            value={page}
+            onChange={setPage}
+            total={totalPages}
+          />
+        </Group>
+      )}
       <Space h="xl" />
     </>
   );
