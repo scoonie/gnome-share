@@ -82,21 +82,32 @@ export class ClamScanService {
           continue;
         }
 
-        const { isInfected } = await clamScan
+        const scanResult = await clamScan
           .isInfected(filePath)
           .catch((err) => {
             this.logger.warn(
               `ClamAV scan error for file ${fileId} in share ${shareId}: ${err instanceof Error ? err.message : err}`,
             );
-            return { isInfected: false };
+            // The cached clamd connection may now be stale (for example if
+            // the ClamAV daemon was restarted). Drop it so the next scan
+            // re-initialises a fresh connection instead of silently
+            // returning "not infected" forever.
+            this.clamScanner = null;
+            return null;
           });
+
+        if (scanResult === null) {
+          // Connection was reset; abort this scan and let the next call
+          // re-establish the scanner.
+          return [];
+        }
 
         const fileRecord = await this.prisma.file.findUnique({
           where: { id: fileId },
         });
         const fileName = fileRecord?.name ?? fileId;
 
-        if (isInfected) {
+        if (scanResult.isInfected) {
           infectedFiles.push({ id: fileId, name: fileName });
           this.logger.warn(
             `Malicious file detected: ${fileName} (${fileId}) in share ${shareId}`,
@@ -110,6 +121,9 @@ export class ClamScanService {
 
       return infectedFiles;
     } catch (err) {
+      // Reset the cached scanner on unexpected errors too so a stale
+      // connection (e.g. after a ClamAV restart) doesn't keep failing.
+      this.clamScanner = null;
       this.logger.error(
         `Unexpected error during ClamAV scan for share ${shareId}: ${err instanceof Error ? err.message : err}`,
         err instanceof Error ? err.stack : undefined,
