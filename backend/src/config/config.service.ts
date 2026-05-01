@@ -98,7 +98,7 @@ export class ConfigService extends EventEmitter {
     });
     if (userCount >= 1) {
       this.logger.log(
-        "Skip initial user creation. Admin user is already existent.",
+        "Skip initial user creation. At least one admin user already exists.",
       );
       return;
     }
