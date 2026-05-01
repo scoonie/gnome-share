@@ -86,10 +86,6 @@ function routeNeedsUser(route: string, routes: RouteGroups) {
     return true;
   }
 
-  if (routes.unauthenticated.contains(route)) {
-    return !routes.public.contains(route);
-  }
-
   return !routes.public.contains(route);
 }
 
