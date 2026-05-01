@@ -153,8 +153,6 @@ App.getInitialProps = async ({ ctx }: { ctx: GetServerSidePropsContext }) => {
     pageProps.configVariables = (await axios(`${apiURL}/api/configs`)).data;
 
     pageProps.route = ctx.req.url;
-
-    i18nUtil.getLanguageFromAcceptHeader(ctx.req.headers["accept-language"]);
   }
   return { pageProps };
 };
