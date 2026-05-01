@@ -167,8 +167,16 @@ export class ShareService {
         archive.finalize().catch(onError);
       });
 
-      await fs.promises.rm(archivePath, { force: true });
-      await fs.promises.rename(tempArchivePath, archivePath);
+      try {
+        await fs.promises.rename(tempArchivePath, archivePath);
+      } catch (err) {
+        const code = (err as NodeJS.ErrnoException).code;
+        if (code !== "EEXIST" && code !== "EPERM") {
+          throw err;
+        }
+        await fs.promises.rm(archivePath, { force: true });
+        await fs.promises.rename(tempArchivePath, archivePath);
+      }
     } catch (err) {
       archive.abort();
       writeStream.destroy();
