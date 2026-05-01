@@ -12,6 +12,7 @@ import Link from "next/link";
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { FormattedMessage } from "react-intl";
 import api from "../../services/api.service";
+import useTranslate from "../../hooks/useTranslate.hook";
 
 const FilePreviewContext = React.createContext<{
   shareId: string;
@@ -125,12 +126,20 @@ const TextPreview = () => {
   const { shareId, fileId } = React.useContext(FilePreviewContext);
   const [text, setText] = useState<string>("");
   const { colorScheme } = useMantineColorScheme();
+  const t = useTranslate();
 
   useEffect(() => {
     api
       .get(`/shares/${shareId}/files/${fileId}?download=false`)
-      .then((res) => setText(res.data ?? "Preview couldn't be fetched."));
-  }, [shareId, fileId]);
+      .then((res) =>
+        setText(
+          res.data ?? t("share.modal.file-preview.error.fetch-failed"),
+        ),
+      )
+      .catch(() =>
+        setText(t("share.modal.file-preview.error.fetch-failed")),
+      );
+  }, [shareId, fileId, t]);
 
   const options: MarkdownToJSX.Options = {
     disableParsingRawHTML: true,

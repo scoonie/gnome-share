@@ -7,6 +7,7 @@ import toast from "../../utils/toast.util";
 
 const DownloadAllButton = ({ shareId }: { shareId: string }) => {
   const [isZipReady, setIsZipReady] = useState(false);
+  const [zipCreationFailed, setZipCreationFailed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const t = useTranslate();
 
@@ -18,9 +19,15 @@ const DownloadAllButton = ({ shareId }: { shareId: string }) => {
   };
 
   useEffect(() => {
+    setIsZipReady(false);
+    setZipCreationFailed(false);
+
     shareService
       .getMetaData(shareId)
-      .then((share) => setIsZipReady(share.isZipReady))
+      .then((share) => {
+        setIsZipReady(share.isZipReady);
+        setZipCreationFailed(share.zipCreationFailed);
+      })
       .catch(() => {});
 
     const timer = setInterval(() => {
@@ -28,21 +35,24 @@ const DownloadAllButton = ({ shareId }: { shareId: string }) => {
         .getMetaData(shareId)
         .then((share) => {
           setIsZipReady(share.isZipReady);
-          if (share.isZipReady) clearInterval(timer);
+          setZipCreationFailed(share.zipCreationFailed);
+          if (share.isZipReady || share.zipCreationFailed) clearInterval(timer);
         })
         .catch(() => clearInterval(timer));
     }, 5000);
     return () => {
       clearInterval(timer);
     };
-  }, []);
+  }, [shareId]);
 
   return (
     <Button
       variant="outline"
       loading={isLoading}
       onClick={() => {
-        if (!isZipReady) {
+        if (zipCreationFailed) {
+          toast.error(t("share.notify.download-all-failed"));
+        } else if (!isZipReady) {
           toast.error(t("share.notify.download-all-preparing"));
         } else {
           downloadAll();

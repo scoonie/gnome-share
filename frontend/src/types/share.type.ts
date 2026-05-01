@@ -32,6 +32,7 @@ export type CreateShare = {
 export type ShareMetaData = {
   id: string;
   isZipReady: boolean;
+  zipCreationFailed: boolean;
 };
 
 export type MyShare = Omit<Share, "hasPassword"> & {
