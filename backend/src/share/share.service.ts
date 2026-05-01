@@ -472,7 +472,7 @@ export class ShareService {
       try {
         await this.prisma.share.update({
           where: { id },
-          data: { isZipReady: true },
+          data: { isZipReady: true, zipCreationFailed: false },
         });
         return;
       } catch (e) {

@@ -79,14 +79,14 @@ model Share {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
 
-  name             String?
-  uploadLocked     Boolean  @default(false)
-  isZipReady       Boolean  @default(false)
-  zipCreationFailed Boolean @default(false)
-  views            Int      @default(0)
-  expiration       DateTime
-  description      String?
-  removedReason    String?
+  name              String?
+  uploadLocked      Boolean  @default(false)
+  isZipReady        Boolean  @default(false)
+  zipCreationFailed Boolean  @default(false)
+  views             Int      @default(0)
+  expiration        DateTime
+  description       String?
+  removedReason     String?
 
   // creatorId is nullable to support anonymous shares (no logged-in user).
   // Both deletion paths (user deleted, share deleted) are covered by onDelete:
