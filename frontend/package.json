@@ -41,5 +41,8 @@
     "postcss-preset-mantine": "^1.18.0",
     "prettier": "^3.8.3",
     "typescript": "^6.0.3"
+  },
+  "overrides": {
+    "postcss": "^8.5.13"
   }
 }

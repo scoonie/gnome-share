@@ -151,7 +151,6 @@ export const configVariables = {
     allowUnauthorizedCertificates: {
       type: "boolean",
       defaultValue: "false",
-
       secret: false,
     },
     host: {
