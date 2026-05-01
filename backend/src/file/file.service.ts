@@ -77,6 +77,10 @@ export class FileService {
       include: { files: true, reverseShare: true },
     });
 
+    if (!share) {
+      throw new NotFoundException("Share not found");
+    }
+
     if (share.uploadLocked)
       throw new BadRequestException("Share is already completed");
 

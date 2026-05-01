@@ -65,8 +65,36 @@ async function getCurrentUser(
   return (await response.json()) as ProxyUser;
 }
 
+type RouteGroups = {
+  unauthenticated: Routes;
+  public: Routes;
+  admin: Routes;
+  account: Routes;
+  disabled: Routes;
+};
+
+function routeNeedsUser(route: string, routes: RouteGroups) {
+  if (routes.disabled.contains(route)) {
+    return false;
+  }
+
+  if (routes.admin.contains(route) || routes.account.contains(route)) {
+    return true;
+  }
+
+  if (route === "/") {
+    return true;
+  }
+
+  if (routes.unauthenticated.contains(route)) {
+    return !routes.public.contains(route);
+  }
+
+  return !routes.public.contains(route);
+}
+
 export async function proxy(request: NextRequest) {
-  const routes = {
+  const routes: RouteGroups = {
     unauthenticated: new Routes(["/auth/*", "/"]),
     public: new Routes([
       "/share/*",
@@ -91,7 +119,6 @@ export async function proxy(request: NextRequest) {
   };
 
   const route = request.nextUrl.pathname;
-  const user = await getCurrentUser(apiUrl, request.headers.get("cookie"));
 
   if (!getConfig("share.allowRegistration")) {
     routes.disabled.push("/auth/signUp");
@@ -118,6 +145,10 @@ export async function proxy(request: NextRequest) {
       routes.disabled.push("/privacy");
     }
   }
+
+  const user = routeNeedsUser(route, routes)
+    ? await getCurrentUser(apiUrl, request.headers.get("cookie"))
+    : null;
 
   // prettier-ignore
   const rules = [
