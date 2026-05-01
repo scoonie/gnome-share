@@ -1,16 +1,18 @@
+import { useCallback } from "react";
 import { getCookie } from "cookies-next";
 import { createIntl, createIntlCache, useIntl } from "react-intl";
 import i18nUtil from "../utils/i18n.util";
 
 const useTranslate = () => {
   const intl = useIntl();
-  return (
-    id: string,
-    values?: Parameters<typeof intl.formatMessage>[1],
-    opts?: Parameters<typeof intl.formatMessage>[2],
-  ) => {
-    return intl.formatMessage({ id }, values, opts) as unknown as string;
-  };
+  return useCallback(
+    (
+      id: string,
+      values?: Parameters<typeof intl.formatMessage>[1],
+      opts?: Parameters<typeof intl.formatMessage>[2],
+    ) => intl.formatMessage({ id }, values, opts) as unknown as string,
+    [intl],
+  );
 };
 
 const cache = createIntlCache();

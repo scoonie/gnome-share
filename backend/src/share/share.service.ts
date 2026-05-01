@@ -167,16 +167,7 @@ export class ShareService {
     // Asynchronously create a zip of all files
     if (share.files.length > 1)
       this.createZip(id)
-        .then(() =>
-          this.prisma.share
-            .update({ where: { id }, data: { isZipReady: true } })
-            .catch((e) =>
-              this.logger.error(
-                `Zip created but failed to mark share ${id} as ready: ${e instanceof Error ? e.message : e}`,
-                e instanceof Error ? e.stack : undefined,
-              ),
-            ),
-        )
+        .then(() => this.markZipReady(id))
         .catch(async (err) => {
           this.logger.error(
             `Failed to create zip for share ${id}: ${err instanceof Error ? err.message : err}`,
@@ -337,10 +328,24 @@ export class ShareService {
   async getMetaData(id: string) {
     const share = await this.prisma.share.findUnique({
       where: { id },
+      include: { _count: { select: { files: true } } },
     });
 
     if (!share || !share.uploadLocked)
       throw new NotFoundException("Share not found");
+
+    // If the DB still shows isZipReady=false but the archive already exists on
+    // disk, recover from a transient DB write failure that happened after the
+    // zip was created successfully by returning isZipReady=true without
+    // mutating the DB row.
+    if (!share.isZipReady && share._count.files > 1) {
+      const safeShareId = path.basename(id);
+      const rootDir = path.resolve(SHARE_DIRECTORY);
+      const zipPath = path.resolve(rootDir, safeShareId, "archive.zip");
+      if (zipPath.startsWith(rootDir + path.sep) && fs.existsSync(zipPath)) {
+        return { ...share, isZipReady: true };
+      }
+    }
 
     return share;
   }
@@ -410,6 +415,32 @@ export class ShareService {
 
   async increaseViewCount(share: Share) {
     await this.tryIncreaseViewCount(share.id, null);
+  }
+
+  /**
+   * Retries the isZipReady=true DB update with exponential backoff.
+   * Up to 5 attempts with delays of 200ms, 400ms, 800ms, 1600ms, 3200ms.
+   */
+  private async markZipReady(id: string): Promise<void> {
+    const delays = [200, 400, 800, 1600, 3200];
+    for (let attempt = 1; attempt <= delays.length; attempt++) {
+      try {
+        await this.prisma.share.update({ where: { id }, data: { isZipReady: true } });
+        return;
+      } catch (e) {
+        this.logger.warn(
+          `Attempt ${attempt} to mark share ${id} as zip-ready failed: ${e instanceof Error ? e.message : e}`,
+        );
+        if (attempt < delays.length) {
+          await new Promise((resolve) => setTimeout(resolve, delays[attempt - 1]));
+        } else {
+          this.logger.error(
+            `All ${delays.length} attempts to mark share ${id} as zip-ready failed`,
+            e instanceof Error ? e.stack : undefined,
+          );
+        }
+      }
+    }
   }
 
   async getShareToken(shareId: string, password: string) {
