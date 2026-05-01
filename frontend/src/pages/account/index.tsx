@@ -19,7 +19,6 @@ import { TbAuth2Fa } from "react-icons/tb";
 import { FormattedMessage } from "react-intl";
 import * as yup from "yup";
 import Meta from "../../components/Meta";
-import LanguagePicker from "../../components/account/LanguagePicker";
 import showEnableTotpModal from "../../components/account/showEnableTotpModal";
 import useConfig from "../../hooks/config.hook";
 import useTranslate from "../../hooks/useTranslate.hook";
@@ -368,12 +367,6 @@ const Account = () => {
               )}
             </Tabs.Panel>
           </Tabs>
-        </Paper>
-        <Paper withBorder p="xl" mt="lg">
-          <Title order={5} mb="xs">
-            <FormattedMessage id="account.card.language.title" />
-          </Title>
-          <LanguagePicker />
         </Paper>
         <Center mt={80} mb="lg">
           <Stack>
