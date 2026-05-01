@@ -170,8 +170,8 @@ export class ShareService {
       try {
         await fs.promises.rename(tempArchivePath, archivePath);
       } catch (err) {
-        const code = (err as NodeJS.ErrnoException).code;
-        if (code !== "EEXIST" && code !== "EPERM") {
+        const errorCode = (err as NodeJS.ErrnoException).code;
+        if (errorCode !== "EEXIST" && errorCode !== "EPERM") {
           throw err;
         }
         const backupArchivePath = path.join(
