@@ -71,6 +71,9 @@ export class AuthService {
           );
         }
       }
+      // Any other error (Prisma or otherwise) must propagate so callers
+      // never receive `undefined` from a failed signup.
+      throw e;
     }
   }
 
@@ -337,23 +340,28 @@ export class AuthService {
   private getCookieEncryptionKey(): Buffer {
     const key = this.config.get("internal.cookieEncryptionKey");
     if (!key || typeof key !== "string") {
-      throw new InternalServerErrorException("Cookie encryption key is not configured");
+      throw new InternalServerErrorException(
+        "Cookie encryption key is not configured",
+      );
     }
-    // Prefer a base64-encoded 32-byte key if provided, otherwise derive one from the passphrase
+    // The seed always provisions a canonical 32-byte base64 key. Operators
+    // overriding this value must supply the same: exactly 32 random bytes,
+    // base64-encoded (44 chars including padding). We deliberately do NOT
+    // derive a key from arbitrary passphrase input — SHA-256 is not a KDF,
+    // and a real KDF (scrypt/argon2id) would silently mask weak inputs.
+    // Generate one with: `openssl rand -base64 32`.
     const trimmedKey = key.trim();
-    // For a 32-byte key, the canonical base64 length is 44 characters (including padding)
     if (trimmedKey.length === 44) {
       const decoded = Buffer.from(trimmedKey, "base64");
-      // Check for an exact 32-byte key and ensure the original value is canonical base64
-      if (
-        decoded.length === 32 &&
-        trimmedKey === decoded.toString("base64")
-      ) {
+      if (decoded.length === 32 && trimmedKey === decoded.toString("base64")) {
         return decoded;
       }
     }
-    // Derive a 32-byte key for AES-256 from the configured value (passphrase-style)
-    return crypto.createHash("sha256").update(key, "utf8").digest();
+    throw new InternalServerErrorException(
+      "internal.cookieEncryptionKey must be exactly 32 random bytes encoded " +
+        "as canonical base64 (44 chars). Generate one with: " +
+        "`openssl rand -base64 32`.",
+    );
   }
 
   private encryptRefreshToken(plainText: string): string {
@@ -399,6 +407,7 @@ export class AuthService {
     const isSecure = this.config.get("general.secureCookies");
     if (accessToken)
       response.cookie("access_token", accessToken, {
+        httpOnly: true,
         sameSite: "lax",
         secure: isSecure,
         maxAge: 1000 * 60 * 60 * 24 * 30 * 3, // 3 months

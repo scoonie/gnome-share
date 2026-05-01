@@ -43,26 +43,29 @@ const FileList = ({
     direction: "desc",
   });
 
-  const sortFiles = () => {
-    if (files && sort.property) {
-      const sortedFiles = files.sort((a: any, b: any) => {
-        if (sort.direction === "asc") {
-          return b[sort.property!].localeCompare(a[sort.property!], undefined, {
-            numeric: true,
-          });
-        } else {
-          return a[sort.property!].localeCompare(b[sort.property!], undefined, {
-            numeric: true,
-          });
-        }
-      });
+  useEffect(() => {
+    if (!files || !sort.property) return;
+    const sortedFiles = [...files].sort((a: any, b: any) => {
+      if (sort.direction === "asc") {
+        return b[sort.property!].localeCompare(a[sort.property!], undefined, {
+          numeric: true,
+        });
+      } else {
+        return a[sort.property!].localeCompare(b[sort.property!], undefined, {
+          numeric: true,
+        });
+      }
+    });
 
-      setShare({
-        ...share,
-        files: sortedFiles,
-      });
-    }
-  };
+    // Skip the state update if the order is already correct, otherwise
+    // re-running the effect would trigger an unnecessary re-render.
+    const orderUnchanged = sortedFiles.every((f, i) => f === files[i]);
+    if (orderUnchanged) return;
+
+    // Functional update so we don't need `share` in deps (and won't
+    // clobber concurrent updates to other fields on share).
+    setShare((prev) => (prev ? { ...prev, files: sortedFiles } : prev));
+  }, [sort, files, setShare]);
 
   const copyFileLink = (file: FileMetaData) => {
     const link = `${window.location.origin}/api/shares/${
@@ -83,8 +86,6 @@ const FileList = ({
       });
     }
   };
-
-  useEffect(sortFiles, [sort]);
 
   return (
     <Box style={{ display: "block", overflowX: "auto" }}>

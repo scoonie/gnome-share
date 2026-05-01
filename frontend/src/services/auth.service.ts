@@ -1,5 +1,3 @@
-import { getCookie } from "cookies-next";
-import * as jose from "jose";
 import api from "./api.service";
 
 const signIn = async (emailOrUsername: string, password: string) => {
@@ -58,15 +56,11 @@ const signOut = async () => {
 
 const refreshAccessToken = async () => {
   try {
-    const accessToken = getCookie("access_token") as string;
-
-    // If the access token expires in less than 2 minutes refresh it
-    if (
-      accessToken &&
-      (jose.decodeJwt(accessToken).exp ?? 0) * 1000 < Date.now() + 2 * 60 * 1000
-    ) {
-      await api.post("/auth/token");
-    }
+    // The access_token cookie is httpOnly and not readable from JS, so we
+    // can't inspect its expiry client-side. Just ask the backend to refresh;
+    // it returns 401 (handled silently below) when there is no valid
+    // refresh_token cookie or the user is signed out.
+    await api.post("/auth/token");
   } catch (e) {
     console.info("Refresh token invalid or expired");
   }
