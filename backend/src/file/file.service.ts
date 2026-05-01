@@ -61,7 +61,9 @@ export class FileService {
     }
 
     if (!file.name || typeof file.name !== "string") {
-      throw new BadRequestException("File name is required and must be a string");
+      throw new BadRequestException(
+        "File name is required and must be a string",
+      );
     }
     const safeName: string = path.basename(
       (file.name as string).replace(/\\/g, "/"),
@@ -103,18 +105,24 @@ export class FileService {
       throw new InternalServerErrorException("Not enough space on the server");
     }
 
-    const fileSizeSum = share.files.reduce(
-      (n, { size }) => n + size,
-      0,
-    );
+    const fileSizeSum = share.files.reduce((n, { size }) => n + size, 0);
 
     let inProgressSize = 0;
     try {
-      const dirEntries = await fs.readdir(path.resolve(SHARE_DIRECTORY, safeShareId));
+      const dirEntries = await fs.readdir(
+        path.resolve(SHARE_DIRECTORY, safeShareId),
+      );
       for (const entry of dirEntries) {
-        if (entry.endsWith(".tmp-chunk") && entry !== `${safeFileId}.tmp-chunk`) {
+        if (
+          entry.endsWith(".tmp-chunk") &&
+          entry !== `${safeFileId}.tmp-chunk`
+        ) {
           try {
-            const entryPath = path.resolve(SHARE_DIRECTORY, safeShareId, path.basename(entry));
+            const entryPath = path.resolve(
+              SHARE_DIRECTORY,
+              safeShareId,
+              path.basename(entry),
+            );
             if (!entryPath.startsWith(resolvedShareRoot + path.sep)) {
               continue;
             }
@@ -129,7 +137,8 @@ export class FileService {
       // Directory may not exist yet
     }
 
-    const shareSizeSum = fileSizeSum + inProgressSize + diskFileSize + buffer.byteLength;
+    const shareSizeSum =
+      fileSizeSum + inProgressSize + diskFileSize + buffer.byteLength;
 
     if (
       shareSizeSum > this.config.get("share.maxSize") ||
@@ -142,20 +151,12 @@ export class FileService {
       );
     }
 
-    await fs.appendFile(
-      tempChunkPath,
-      buffer,
-    );
+    await fs.appendFile(tempChunkPath, buffer);
 
     const isLastChunk = chunk.index == chunk.total - 1;
     if (isLastChunk) {
-      await fs.rename(
-        tempChunkPath,
-        finalFilePath,
-      );
-      const fileSize = (
-        await fs.stat(finalFilePath)
-      ).size;
+      await fs.rename(tempChunkPath, finalFilePath);
+      const fileSize = (await fs.stat(finalFilePath)).size;
       await this.prisma.file.create({
         data: {
           id: safeFileId,

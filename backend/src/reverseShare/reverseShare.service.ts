@@ -15,6 +15,9 @@ export class ReverseShareService {
   ) {}
 
   async create(data: CreateReverseShareDTO, creatorId: string) {
+    if (data.shareExpiration === "never") {
+      throw new BadRequestException("Permanent shares are not supported");
+    }
     const expirationDate = parseRelativeDateToAbsolute(data.shareExpiration);
 
     const maxExpiration = this.config.get("share.maxExpiration");

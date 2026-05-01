@@ -67,7 +67,9 @@ export class ClamScanService {
         return [];
       }
 
-      const files = (await fs.readdir(shareDir)).filter((file) => file !== "archive.zip");
+      const files = (await fs.readdir(shareDir)).filter(
+        (file) => file !== "archive.zip",
+      );
 
       this.logger.log(
         `Starting ClamAV scan for share ${shareId} (${files.length} file(s))`,

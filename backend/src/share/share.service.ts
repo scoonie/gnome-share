@@ -55,13 +55,18 @@ export class ShareService {
     if (reverseShare) {
       expirationDate = reverseShare.shareExpiration;
     } else {
+      if (share.expiration === "never") {
+        throw new BadRequestException("Permanent shares are not supported");
+      }
       const parsedExpiration = parseRelativeDateToAbsolute(share.expiration);
 
       const maxExpiration = this.config.get("share.maxExpiration");
       if (
         maxExpiration.value !== 0 &&
         parsedExpiration >
-          dayjs().add(maxExpiration.value, maxExpiration.unit as ManipulateType).toDate()
+          dayjs()
+            .add(maxExpiration.value, maxExpiration.unit as ManipulateType)
+            .toDate()
       ) {
         throw new BadRequestException(
           "Expiration date exceeds maximum expiration date",
@@ -84,7 +89,9 @@ export class ShareService {
     const shareTuple = await this.prisma.share.create({
       data: {
         ...share,
-        description: reverseShare ? reverseShare.description : share.description,
+        description: reverseShare
+          ? reverseShare.description
+          : share.description,
         expiration: expirationDate,
         creator: { connect: user ? { id: user.id } : undefined },
         security: { create: share.security },
@@ -546,7 +553,9 @@ export class ShareService {
           );
           return;
         }
-        await new Promise((resolve) => setTimeout(resolve, delays[attempt - 1]));
+        await new Promise((resolve) =>
+          setTimeout(resolve, delays[attempt - 1]),
+        );
       }
     }
   }

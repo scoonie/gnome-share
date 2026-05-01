@@ -2,11 +2,7 @@ import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
 import "@mantine/dropzone/styles.css";
 import "../styles/global.css";
-import {
-  MantineProvider,
-  Container,
-  Stack,
-} from "@mantine/core";
+import { MantineProvider, Container, Stack } from "@mantine/core";
 import { ModalsProvider } from "@mantine/modals";
 import { Notifications } from "@mantine/notifications";
 import axios from "axios";
@@ -77,10 +73,7 @@ function App({ Component, pageProps }: AppProps) {
         locale={language}
         defaultLocale={language}
       >
-        <MantineProvider
-          theme={mantineTheme}
-          defaultColorScheme="dark"
-        >
+        <MantineProvider theme={mantineTheme} defaultColorScheme="dark">
           <Notifications />
           <ModalsProvider>
             <ConfigContext.Provider

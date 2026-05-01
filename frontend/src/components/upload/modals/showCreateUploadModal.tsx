@@ -172,10 +172,7 @@ const CreateUploadModalBody = ({
 
       const expirationDate = dayjs().add(
         form.values.expiration_num,
-        form.values.expiration_unit.replace(
-          "-",
-          "",
-        ) as ManipulateType,
+        form.values.expiration_unit.replace("-", "") as ManipulateType,
       );
 
       if (
@@ -191,7 +188,10 @@ const CreateUploadModalBody = ({
           "expiration_num",
           t("upload.modal.expires.error.too-long", {
             max: dayjs
-              .duration(options.maxExpiration.value, options.maxExpiration.unit as ManipulateType)
+              .duration(
+                options.maxExpiration.value,
+                options.maxExpiration.unit as ManipulateType,
+              )
               .humanize(),
           }),
         );
@@ -253,12 +253,7 @@ const CreateUploadModalBody = ({
             </Button>
           </Group>
 
-          <Text
-            truncate
-            fs="italic"
-            size="xs"
-            c="dimmed"
-          >
+          <Text truncate fs="italic" size="xs" c="dimmed">
             {`${window.location.origin}/s/${form.values.link}`}
           </Text>
           {!options.isReverseShare && (
@@ -324,11 +319,7 @@ const CreateUploadModalBody = ({
                   />
                 </Grid.Col>
               </Grid>
-              <Text
-                fs="italic"
-                size="xs"
-                c="dimmed"
-              >
+              <Text fs="italic" size="xs" c="dimmed">
                 {getExpirationPreview(
                   {
                     expiresOn: t("upload.modal.completed.expires-on"),
@@ -339,7 +330,10 @@ const CreateUploadModalBody = ({
             </>
           )}
           <Accordion>
-            <Accordion.Item value="description" style={{ borderBottom: "none" }}>
+            <Accordion.Item
+              value="description"
+              style={{ borderBottom: "none" }}
+            >
               <Accordion.Control>
                 <FormattedMessage id="upload.modal.accordion.name-and-description.title" />
               </Accordion.Control>
@@ -363,7 +357,10 @@ const CreateUploadModalBody = ({
               </Accordion.Panel>
             </Accordion.Item>
             {options.enableEmailRecepients && (
-              <Accordion.Item value="recipients" style={{ borderBottom: "none" }}>
+              <Accordion.Item
+                value="recipients"
+                style={{ borderBottom: "none" }}
+              >
                 <Accordion.Control>
                   <FormattedMessage id="upload.modal.accordion.email.title" />
                 </Accordion.Control>

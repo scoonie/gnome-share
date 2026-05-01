@@ -233,7 +233,7 @@ export class AuthService {
 
   async signOut(accessToken: string) {
     let refreshTokenId: string | undefined;
-  
+
     try {
       const payload = await this.jwtService.verifyAsync(accessToken, {
         secret: this.config.get("internal.jwtSecret"),
@@ -383,9 +383,14 @@ export class AuthService {
     const authTag = data.subarray(12, 28);
     const encrypted = data.subarray(28);
     const key = this.getCookieEncryptionKey();
-    const decipher = crypto.createDecipheriv("aes-256-gcm", key, iv, { authTagLength: 16 });
+    const decipher = crypto.createDecipheriv("aes-256-gcm", key, iv, {
+      authTagLength: 16,
+    });
     decipher.setAuthTag(authTag);
-    const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
+    const decrypted = Buffer.concat([
+      decipher.update(encrypted),
+      decipher.final(),
+    ]);
     return decrypted.toString("utf8");
   }
 

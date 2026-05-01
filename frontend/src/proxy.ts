@@ -38,9 +38,7 @@ async function getBackendConfig(apiUrl: string): Promise<Config[]> {
     try {
       const response = await fetch(`${apiUrl}/api/configs`);
       if (!response.ok) {
-        throw new Error(
-          `Backend /api/configs returned ${response.status}`,
-        );
+        throw new Error(`Backend /api/configs returned ${response.status}`);
       }
       const value = (await response.json()) as Config[];
       if (CONFIG_CACHE_TTL_MS > 0) {

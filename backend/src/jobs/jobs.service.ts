@@ -134,7 +134,9 @@ export class JobsService {
             filesDeleted++;
           }
         } catch (e) {
-          this.logger.error(`Failed to process temporary file ${filePath}: ${e}`);
+          this.logger.error(
+            `Failed to process temporary file ${filePath}: ${e}`,
+          );
         }
       }
     }

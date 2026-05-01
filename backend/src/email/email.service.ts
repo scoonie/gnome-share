@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from "@nestjs/common";
 import type { User } from "../generated/prisma/client";
 import relativeTime from "dayjs/plugin/relativeTime";
 import dayjs from "dayjs";
@@ -31,16 +35,16 @@ export class EmailService {
 
     if (!this.transporter) {
       this.transporter = nodemailer.createTransport({
-      host: this.config.get("smtp.host"),
-      port: this.config.get("smtp.port"),
-      secure: this.config.get("smtp.port") == 465,
-      auth:
-        username || password ? { user: username, pass: password } : undefined,
-      tls: {
-        rejectUnauthorized: !this.config.get(
-          "smtp.allowUnauthorizedCertificates",
-        ),
-      },
+        host: this.config.get("smtp.host"),
+        port: this.config.get("smtp.port"),
+        secure: this.config.get("smtp.port") == 465,
+        auth:
+          username || password ? { user: username, pass: password } : undefined,
+        tls: {
+          rejectUnauthorized: !this.config.get(
+            "smtp.allowUnauthorizedCertificates",
+          ),
+        },
       });
     }
     return this.transporter;

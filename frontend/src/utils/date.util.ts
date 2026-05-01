@@ -15,10 +15,7 @@ export const getExpirationPreview = (
   const value = form.values.expiration_num + form.values.expiration_unit;
 
   const expirationDate = dayjs()
-    .add(
-      parseInt(value.split("-")[0]),
-      value.split("-")[1] as ManipulateType,
-    )
+    .add(parseInt(value.split("-")[0]), value.split("-")[1] as ManipulateType)
     .toDate();
 
   return messages.expiresOn.replace(

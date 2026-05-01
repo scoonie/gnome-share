@@ -84,10 +84,7 @@ const Body = ({
   const onSubmit = form.onSubmit(async (values) => {
     const expirationDate = dayjs().add(
       form.values.expiration_num,
-      form.values.expiration_unit.replace(
-        "-",
-        "",
-      ) as ManipulateType,
+      form.values.expiration_unit.replace("-", "") as ManipulateType,
     );
     if (
       maxExpiration.value != 0 &&
@@ -208,12 +205,7 @@ const Body = ({
                 />
               </Grid.Col>
             </Grid>
-            <Text
-              mt="sm"
-              fs="italic"
-              size="xs"
-              c="dimmed"
-            >
+            <Text mt="sm" fs="italic" size="xs" c="dimmed">
               {getExpirationPreview(
                 {
                   expiresOn: t("account.reverseShare.expires-on"),
