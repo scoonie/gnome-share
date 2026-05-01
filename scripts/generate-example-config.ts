@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as yaml from "yaml";
-import { configVariables } from "../backend/prisma/seed/config.seed";
+import { configVariables } from "../backend/prisma/seed/config-variables";
 import translations from "../frontend/src/i18n/translations/en-US";
 
 // Prepare an object that only contains the categories, keys and values

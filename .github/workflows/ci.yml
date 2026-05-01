@@ -66,3 +66,28 @@ jobs:
 
       - name: Build Frontend
         run: npm run build
+
+  validate-config-example:
+    name: Validate Generated Config Example
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: ./scripts/package-lock.json
+
+      - name: Install Script Dependencies
+        working-directory: ./scripts
+        run: npm ci
+
+      - name: Generate Config Example
+        working-directory: ./scripts
+        run: npm run generate-example-config
+
+      - name: Verify Config Example Is Current
+        run: git diff --exit-code -- config.example.yaml
