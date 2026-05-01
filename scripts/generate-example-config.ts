@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import * as path from "path";
 import * as yaml from "yaml";
 import { configVariables } from "../backend/prisma/seed/config-variables";
 import translations from "../frontend/src/i18n/translations/en-US";
@@ -22,7 +23,6 @@ configVariablesWithDefaultValues["initUser"] = {
   email: "admin@example.com",
   password: "my-secure-password",
   isAdmin: true,
-  ldapDN: "",
 };
 
 // Create the yaml document
@@ -50,7 +50,11 @@ doc.commentBefore = normalizeComment(
 );
 
 // Write the YAML content to a file
-fs.writeFileSync("../config.example.yaml", doc.toString({ indent: 2 }), "utf8");
+fs.writeFileSync(
+  path.join(__dirname, "..", "config.example.yaml"),
+  doc.toString({ indent: 2 }),
+  "utf8",
+);
 console.log("YAML file generated successfully!");
 
 // Helper functions

@@ -17,7 +17,7 @@ share:
   allowRegistration: "true"
   #Whether unauthenticated users can create shares
   allowUnauthenticatedShares: "false"
-  #Maximum share expiration. Set to 0 to allow unlimited expiration.
+  #Maximum share expiration. Set to 0 to allow any finite expiration.
   maxExpiration: 0 days
   #Default length for the generated ID of a share. This value is also used to generate links for reverse shares. A value below 8 is not considered secure.
   shareIdLength: "8"
@@ -194,4 +194,3 @@ initUser:
   email: admin@example.com
   password: my-secure-password
   isAdmin: true
-  ldapDN: ""

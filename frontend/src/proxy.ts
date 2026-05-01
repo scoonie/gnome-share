@@ -1,4 +1,3 @@
-import { jwtDecode } from "jwt-decode";
 import { NextRequest, NextResponse } from "next/server";
 import configService from "./services/config.service";
 import Config from "./types/config.type";
@@ -25,6 +24,8 @@ const CONFIG_CACHE_TTL_MS = (() => {
 let cachedConfig: { value: Config[]; expiresAt: number } | null = null;
 let inflightConfig: Promise<Config[]> | null = null;
 
+type ProxyUser = { isAdmin: boolean };
+
 async function getBackendConfig(apiUrl: string): Promise<Config[]> {
   const now = Date.now();
   if (cachedConfig && cachedConfig.expiresAt > now) {
@@ -37,9 +38,7 @@ async function getBackendConfig(apiUrl: string): Promise<Config[]> {
     try {
       const response = await fetch(`${apiUrl}/api/configs`);
       if (!response.ok) {
-        throw new Error(
-          `Backend /api/configs returned ${response.status}`,
-        );
+        throw new Error(`Backend /api/configs returned ${response.status}`);
       }
       const value = (await response.json()) as Config[];
       if (CONFIG_CACHE_TTL_MS > 0) {
@@ -53,8 +52,45 @@ async function getBackendConfig(apiUrl: string): Promise<Config[]> {
   return inflightConfig;
 }
 
+async function getCurrentUser(
+  apiUrl: string,
+  cookieHeader: string | null,
+): Promise<ProxyUser | null> {
+  if (!cookieHeader) return null;
+
+  const response = await fetch(`${apiUrl}/api/users/me`, {
+    headers: { cookie: cookieHeader },
+  });
+  if (!response.ok) return null;
+  return (await response.json()) as ProxyUser;
+}
+
+type RouteGroups = {
+  unauthenticated: Routes;
+  public: Routes;
+  admin: Routes;
+  account: Routes;
+  disabled: Routes;
+};
+
+function routeNeedsUser(route: string, routes: RouteGroups) {
+  if (routes.disabled.contains(route)) {
+    return false;
+  }
+
+  if (routes.admin.contains(route) || routes.account.contains(route)) {
+    return true;
+  }
+
+  if (route === "/") {
+    return true;
+  }
+
+  return !routes.public.contains(route);
+}
+
 export async function proxy(request: NextRequest) {
-  const routes = {
+  const routes: RouteGroups = {
     unauthenticated: new Routes(["/auth/*", "/"]),
     public: new Routes([
       "/share/*",
@@ -72,52 +108,43 @@ export async function proxy(request: NextRequest) {
   // Get config from backend (cached in-process to avoid issuing a backend
   // request on every page navigation).
   const apiUrl = process.env.API_URL || "http://localhost:8080";
-  const config = await getBackendConfig(apiUrl);
+  const backendConfig = await getBackendConfig(apiUrl);
 
   const getConfig = (key: string) => {
-    return configService.get(key, config);
+    return configService.get(key, backendConfig);
   };
 
   const route = request.nextUrl.pathname;
-  let user: { isAdmin: boolean } | null = null;
-  const accessToken = request.cookies.get("access_token")?.value;
-
-  try {
-    const claims = jwtDecode<{ exp: number; isAdmin: boolean }>(
-      accessToken as string,
-    );
-    if (claims.exp * 1000 > Date.now()) {
-      user = claims;
-    }
-  } catch {
-    user = null;
-  }
 
   if (!getConfig("share.allowRegistration")) {
-    routes.disabled.routes.push("/auth/signUp");
+    routes.disabled.push("/auth/signUp");
   }
 
   if (getConfig("share.allowUnauthenticatedShares")) {
-    routes.public.routes = ["*"];
+    routes.public = new Routes(["*"]);
   }
 
   if (!getConfig("smtp.enabled")) {
-    routes.disabled.routes.push("/auth/resetPassword*");
+    routes.disabled.push("/auth/resetPassword*");
   }
 
   if (!getConfig("legal.enabled")) {
-    routes.disabled.routes.push("/imprint", "/privacy");
+    routes.disabled.push("/imprint", "/privacy");
   } else {
     if (!getConfig("legal.imprintText") && !getConfig("legal.imprintUrl")) {
-      routes.disabled.routes.push("/imprint");
+      routes.disabled.push("/imprint");
     }
     if (
       !getConfig("legal.privacyPolicyText") &&
       !getConfig("legal.privacyPolicyUrl")
     ) {
-      routes.disabled.routes.push("/privacy");
+      routes.disabled.push("/privacy");
     }
   }
+
+  const user = routeNeedsUser(route, routes)
+    ? await getCurrentUser(apiUrl, request.headers.get("cookie"))
+    : null;
 
   // prettier-ignore
   const rules = [
@@ -175,14 +202,25 @@ export async function proxy(request: NextRequest) {
 
 // Helper class to check if a route matches a list of routes
 class Routes {
-  // eslint-disable-next-line no-unused-vars
-  constructor(public routes: string[]) {}
+  private patterns: RegExp[];
+
+  constructor(public routes: string[]) {
+    this.patterns = routes.map((route) => Routes.toPattern(route));
+  }
+
+  push(...routes: string[]) {
+    this.routes.push(...routes);
+    this.patterns.push(...routes.map((route) => Routes.toPattern(route)));
+  }
 
   contains(_route: string) {
-    for (const route of this.routes) {
-      if (new RegExp("^" + route.replace(/\*/g, ".*") + "$").test(_route))
-        return true;
+    for (const pattern of this.patterns) {
+      if (pattern.test(_route)) return true;
     }
     return false;
+  }
+
+  private static toPattern(route: string) {
+    return new RegExp("^" + route.replace(/\*/g, ".*") + "$");
   }
 }

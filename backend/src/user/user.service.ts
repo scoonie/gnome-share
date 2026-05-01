@@ -45,13 +45,14 @@ export class UserService {
       });
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
-        if (e.code == "P2002") {
+        if (e.code === "P2002") {
           const duplicatedField: string = e.meta.target[0];
           throw new BadRequestException(
             `A user with this ${duplicatedField} already exists`,
           );
         }
       }
+      throw e;
     }
   }
 
@@ -65,13 +66,14 @@ export class UserService {
       });
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
-        if (e.code == "P2002") {
+        if (e.code === "P2002") {
           const duplicatedField: string = e.meta.target[0];
           throw new BadRequestException(
             `A user with this ${duplicatedField} already exists`,
           );
         }
       }
+      throw e;
     }
   }
 

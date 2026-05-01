@@ -15,17 +15,18 @@ export class ReverseShareService {
   ) {}
 
   async create(data: CreateReverseShareDTO, creatorId: string) {
+    if (data.shareExpiration === "never") {
+      throw new BadRequestException("Permanent shares are not supported");
+    }
     const expirationDate = parseRelativeDateToAbsolute(data.shareExpiration);
-    const expiresNever = dayjs(0).toDate().getTime() === expirationDate.getTime();
 
     const maxExpiration = this.config.get("share.maxExpiration");
     if (
       maxExpiration.value !== 0 &&
-      (expiresNever ||
-        expirationDate >
-          dayjs()
-            .add(maxExpiration.value, maxExpiration.unit as ManipulateType)
-            .toDate())
+      expirationDate >
+        dayjs()
+          .add(maxExpiration.value, maxExpiration.unit as ManipulateType)
+          .toDate()
     ) {
       throw new BadRequestException(
         "Expiration date exceeds maximum expiration date",
@@ -100,10 +101,12 @@ export class ReverseShareService {
     });
 
     for (const share of shares) {
-      await this.prisma.share.delete({ where: { id: share.id } });
       await this.fileService.deleteAllFiles(share.id);
     }
 
+    await this.prisma.share.deleteMany({
+      where: { id: { in: shares.map((share) => share.id) } },
+    });
     await this.prisma.reverseShare.delete({ where: { id } });
   }
 }

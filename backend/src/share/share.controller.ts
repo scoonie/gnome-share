@@ -47,7 +47,10 @@ export class ShareController {
     @Query("limit") limit?: string,
   ) {
     const parsedPage = Math.max(1, parseInt(page ?? "1", 10) || 1);
-    const parsedLimit = Math.min(100, Math.max(1, parseInt(limit ?? "25", 10) || 25));
+    const parsedLimit = Math.min(
+      100,
+      Math.max(1, parseInt(limit ?? "25", 10) || 25),
+    );
     const { shares, total } = await this.shareService.getShares(
       parsedPage,
       parsedLimit,
@@ -144,13 +147,18 @@ export class ShareController {
     @Body() body: SharePasswordDto,
   ) {
     const token = await this.shareService.getShareToken(id, body.password);
+    const payload = this.jwtService.decode(token) as { exp?: number } | null;
+    const maxAge = payload?.exp
+      ? Math.max(0, payload.exp * 1000 - Date.now())
+      : undefined;
 
     this.clearShareTokenCookies(request, response);
     response.cookie(`share_${id}_token`, token, {
       path: "/",
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: "strict",
       secure: this.config.get("general.secureCookies"),
+      maxAge,
     });
 
     return { token };

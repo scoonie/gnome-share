@@ -169,7 +169,7 @@ const Upload = ({
     const share: CreateShare = {
       id: shareId,
       recipients: [],
-      expiration: "never",
+      expiration: "1-days",
       security: {},
     };
     uploadFiles(share, files);
@@ -249,9 +249,7 @@ const Upload = ({
       <Meta title={t("upload.title")} />
       {isReverseShare && (
         <Stack mb={20} gap={4}>
-          {reverseShareName && (
-            <Title order={3}>{reverseShareName}</Title>
-          )}
+          {reverseShareName && <Title order={3}>{reverseShareName}</Title>}
           {reverseShareDescription && (
             <Text c="dimmed">{reverseShareDescription}</Text>
           )}

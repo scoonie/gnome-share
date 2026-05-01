@@ -2,11 +2,7 @@ import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
 import "@mantine/dropzone/styles.css";
 import "../styles/global.css";
-import {
-  MantineProvider,
-  Container,
-  Stack,
-} from "@mantine/core";
+import { MantineProvider, Container, Stack } from "@mantine/core";
 import { ModalsProvider } from "@mantine/modals";
 import { Notifications } from "@mantine/notifications";
 import axios from "axios";
@@ -23,14 +19,13 @@ import { IntlProvider } from "react-intl";
 import Header from "../components/header/Header";
 import { ConfigContext } from "../hooks/config.hook";
 import { UserContext } from "../hooks/user.hook";
-import { LOCALES } from "../i18n/locales";
+import englishMessages from "../i18n/translations/en-US";
 import authService from "../services/auth.service";
 import configService from "../services/config.service";
 import userService from "../services/user.service";
 import mantineTheme from "../styles/mantine.style";
 import Config from "../types/config.type";
 import { CurrentUser } from "../types/user.type";
-import i18nUtil from "../utils/i18n.util";
 import Footer from "../components/footer/Footer";
 
 dayjs.extend(localizedFormat);
@@ -56,13 +51,13 @@ function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
     const interval = setInterval(
       async () => await authService.refreshAccessToken(),
-      2 * 60 * 1000, // 2 minutes
+      12 * 60 * 1000, // access tokens last 15 minutes; refresh before expiry
     );
 
     return () => clearInterval(interval);
   }, []);
 
-  const language = LOCALES.ENGLISH.code;
+  const language = "en-US";
   dayjs.locale("en");
 
   return (
@@ -74,14 +69,11 @@ function App({ Component, pageProps }: AppProps) {
         />
       </Head>
       <IntlProvider
-        messages={i18nUtil.getLocaleByCode()?.messages}
+        messages={englishMessages}
         locale={language}
         defaultLocale={language}
       >
-        <MantineProvider
-          theme={mantineTheme}
-          defaultColorScheme="dark"
-        >
+        <MantineProvider theme={mantineTheme} defaultColorScheme="dark">
           <Notifications />
           <ModalsProvider>
             <ConfigContext.Provider
@@ -144,13 +136,16 @@ App.getInitialProps = async ({ ctx }: { ctx: GetServerSidePropsContext }) => {
     const apiURL = process.env.API_URL || "http://localhost:8080";
     const cookieHeader = ctx.req.headers.cookie;
 
-    pageProps.user = await axios(`${apiURL}/api/users/me`, {
-      headers: { cookie: cookieHeader },
-    })
-      .then((res) => res.data)
-      .catch(() => null);
-
-    pageProps.configVariables = (await axios(`${apiURL}/api/configs`)).data;
+    const [user, configVariables] = await Promise.all([
+      axios(`${apiURL}/api/users/me`, {
+        headers: { cookie: cookieHeader },
+      })
+        .then((res) => res.data)
+        .catch(() => null),
+      axios(`${apiURL}/api/configs`).then((res) => res.data),
+    ]);
+    pageProps.user = user;
+    pageProps.configVariables = configVariables;
 
     pageProps.route = ctx.req.url;
   }

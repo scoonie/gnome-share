@@ -30,16 +30,23 @@ export class JobsService {
       },
     });
 
+    const cleanedShareIds: string[] = [];
     for (const expiredShare of expiredShares) {
-      await this.prisma.share.delete({
-        where: { id: expiredShare.id },
-      });
-
-      await this.fileService.deleteAllFiles(expiredShare.id);
+      try {
+        await this.fileService.deleteAllFiles(expiredShare.id);
+        cleanedShareIds.push(expiredShare.id);
+      } catch (e) {
+        this.logger.error(
+          `Failed to delete files for expired share ${expiredShare.id}: ${e}`,
+        );
+      }
     }
+    await this.prisma.share.deleteMany({
+      where: { id: { in: cleanedShareIds } },
+    });
 
-    if (expiredShares.length > 0) {
-      this.logger.log(`Deleted ${expiredShares.length} expired shares`);
+    if (cleanedShareIds.length > 0) {
+      this.logger.log(`Deleted ${cleanedShareIds.length} expired shares`);
     }
   }
 
@@ -71,16 +78,23 @@ export class JobsService {
       },
     });
 
+    const cleanedShareIds: string[] = [];
     for (const unfinishedShare of unfinishedShares) {
-      await this.prisma.share.delete({
-        where: { id: unfinishedShare.id },
-      });
-
-      await this.fileService.deleteAllFiles(unfinishedShare.id);
+      try {
+        await this.fileService.deleteAllFiles(unfinishedShare.id);
+        cleanedShareIds.push(unfinishedShare.id);
+      } catch (e) {
+        this.logger.error(
+          `Failed to delete files for unfinished share ${unfinishedShare.id}: ${e}`,
+        );
+      }
     }
+    await this.prisma.share.deleteMany({
+      where: { id: { in: cleanedShareIds } },
+    });
 
-    if (unfinishedShares.length > 0) {
-      this.logger.log(`Deleted ${unfinishedShares.length} unfinished shares`);
+    if (cleanedShareIds.length > 0) {
+      this.logger.log(`Deleted ${cleanedShareIds.length} unfinished shares`);
     }
   }
 
@@ -136,7 +150,9 @@ export class JobsService {
             filesDeleted++;
           }
         } catch (e) {
-          this.logger.error(`Failed to process temporary file ${filePath}: ${e}`);
+          this.logger.error(
+            `Failed to process temporary file ${filePath}: ${e}`,
+          );
         }
       }
     }

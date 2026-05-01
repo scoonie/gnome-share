@@ -519,7 +519,7 @@ export default {
     "Whether unauthenticated users can create shares",
   "admin.config.share.max-expiration": "Max expiration",
   "admin.config.share.max-expiration.description":
-    "Maximum share expiration. Set to 0 to allow unlimited expiration.",
+    "Maximum share expiration. Set to 0 to allow any finite expiration.",
   "admin.config.share.share-id-length": "Default share ID length",
   "admin.config.share.share-id-length.description":
     "Default length for the generated ID of a share. This value is also used to generate links for reverse shares. A value below 8 is not considered secure.",
@@ -527,7 +527,7 @@ export default {
   "admin.config.share.max-size.description": "Maximum share size",
   "admin.config.share.zip-compression-level": "Zip compression level",
   "admin.config.share.zip-compression-level.description":
-    "Adjust the level to balance between file size and compression speed. Valid values range from 0 to 9, with 0 being no compression and 9 being maximum compression. ",
+    "Adjust the level to balance between file size and compression speed. Valid values range from 0 to 9, with 0 being no compression and 9 being maximum compression.",
   "admin.config.share.chunk-size": "Chunk size",
   "admin.config.share.chunk-size.description":
     "Adjust the chunk size for your uploads to balance efficiency and reliability according to your internet connection. Smaller chunks can enhance success rates for unstable connections, while larger chunks make uploads faster for stable connections.",
