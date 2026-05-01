@@ -182,9 +182,14 @@ export class ShareService {
         try {
           await fs.promises.rename(tempArchivePath, archivePath);
         } catch (renameErr) {
-          await fs.promises.rename(backupArchivePath, archivePath).catch(() => {
-            return undefined;
-          });
+          await fs.promises
+            .rename(backupArchivePath, archivePath)
+            .catch((restoreErr) => {
+              this.logger.error(
+                `Failed to restore previous archive for share ${shareId}: ${restoreErr instanceof Error ? restoreErr.message : restoreErr}`,
+                restoreErr instanceof Error ? restoreErr.stack : undefined,
+              );
+            });
           throw renameErr;
         }
         await fs.promises.rm(backupArchivePath, { force: true });

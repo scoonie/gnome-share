@@ -1,6 +1,9 @@
 import { LOCALES } from "../i18n/locales";
 
-const getLocaleByCode = (_code?: string) => LOCALES.ENGLISH;
+const getLocaleByCode = (code?: string) => {
+  void code;
+  return LOCALES.ENGLISH;
+};
 
 export default {
   getLocaleByCode,
