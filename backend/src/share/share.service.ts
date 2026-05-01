@@ -167,6 +167,7 @@ export class ShareService {
         archive.finalize().catch(onError);
       });
 
+      await fs.promises.rm(archivePath, { force: true });
       await fs.promises.rename(tempArchivePath, archivePath);
     } catch (err) {
       archive.abort();
