@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
 } from "@nestjs/common";
@@ -116,7 +117,10 @@ export class ConfigService extends EventEmitter {
   get(key: `${string}.${string}`): any {
     const configVariable = this.configVariablesByKey.get(key);
 
-    if (!configVariable) throw new Error(`Config variable ${key} not found`);
+    if (!configVariable)
+      throw new InternalServerErrorException(
+        `Config variable ${key} not found`,
+      );
 
     const value = configVariable.value ?? configVariable.defaultValue;
 

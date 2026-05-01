@@ -134,6 +134,9 @@ export class EmailService {
       })
       .catch((e) => {
         this.logger.error(e);
+        // Surfacing the SMTP error to the caller is acceptable here: this is
+        // an admin-only endpoint and the admin already has SMTP credentials
+        // via the config UI, so the raw error message reveals nothing new.
         throw new InternalServerErrorException(e.message);
       });
   }

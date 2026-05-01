@@ -167,14 +167,20 @@ export class ShareService {
     // Asynchronously create a zip of all files
     if (share.files.length > 1)
       this.createZip(id)
-        .then(() =>
-          this.prisma.share.update({ where: { id }, data: { isZipReady: true } }),
-        )
-        .catch((err) => {
+        .then(() => this.markZipReady(id))
+        .catch(async (err) => {
           this.logger.error(
             `Failed to create zip for share ${id}: ${err instanceof Error ? err.message : err}`,
             err instanceof Error ? err.stack : undefined,
           );
+          await this.prisma.share
+            .update({ where: { id }, data: { zipCreationFailed: true } })
+            .catch((updateErr) =>
+              this.logger.error(
+                `Failed to persist zipCreationFailed=true for share ${id}: ${updateErr instanceof Error ? updateErr.message : updateErr}`,
+                updateErr instanceof Error ? updateErr.stack : undefined,
+              ),
+            );
         });
 
     // Send email for each recipient
@@ -449,6 +455,40 @@ export class ShareService {
     }
 
     return this.jwtService.sign(tokenPayload, tokenOptions);
+  }
+
+  /**
+   * Retries the isZipReady=true DB update with bounded exponential backoff.
+   * Up to 5 attempts; on final failure logs an error and gives up. The user
+   * will see the share remain in the "preparing" state, which is acceptable
+   * fallback behavior — the alternative (filesystem-existence fallback in
+   * getMetaData) races with createZip's write stream and is not safe without
+   * an atomic-rename refactor of createZip itself.
+   */
+  private async markZipReady(id: string): Promise<void> {
+    const delays = [200, 400, 800, 1600];
+    const maxAttempts = delays.length + 1;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        await this.prisma.share.update({
+          where: { id },
+          data: { isZipReady: true },
+        });
+        return;
+      } catch (e) {
+        this.logger.warn(
+          `Attempt ${attempt}/${maxAttempts} to mark share ${id} as zip-ready failed: ${e instanceof Error ? e.message : e}`,
+        );
+        if (attempt === maxAttempts) {
+          this.logger.error(
+            `All ${maxAttempts} attempts to mark share ${id} as zip-ready failed`,
+            e instanceof Error ? e.stack : undefined,
+          );
+          return;
+        }
+        await new Promise((resolve) => setTimeout(resolve, delays[attempt - 1]));
+      }
+    }
   }
 
   async verifyShareToken(shareId: string, token: string) {

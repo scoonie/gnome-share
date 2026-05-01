@@ -79,14 +79,18 @@ model Share {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
 
-  name          String?
-  uploadLocked  Boolean  @default(false)
-  isZipReady    Boolean  @default(false)
-  views         Int      @default(0)
-  expiration    DateTime
-  description   String?
-  removedReason String?
+  name             String?
+  uploadLocked     Boolean  @default(false)
+  isZipReady       Boolean  @default(false)
+  zipCreationFailed Boolean @default(false)
+  views            Int      @default(0)
+  expiration       DateTime
+  description      String?
+  removedReason    String?
 
+  // creatorId is nullable to support anonymous shares (no logged-in user).
+  // Both deletion paths (user deleted, share deleted) are covered by onDelete:
+  // Cascade on the relation, so no orphaned Share rows can exist.
   creatorId String?
   creator   User?   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
@@ -119,6 +123,8 @@ model ReverseShare {
   creator   User   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
   shares Share[]
+
+  @@index([creatorId])
 }
 
 model ShareRecipient {

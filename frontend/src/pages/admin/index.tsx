@@ -45,7 +45,7 @@ const Admin = () => {
           setManagementOptions([
             ...managementOptions,
             {
-              title: "Update",
+              title: t("admin.button.update"),
               icon: TbRefresh,
               route:
                 "https://github.com/scoonie/gnome-share/releases/latest",
