@@ -3,13 +3,23 @@ import type { User } from "../generated/prisma/client";
 import relativeTime from "dayjs/plugin/relativeTime";
 import dayjs from "dayjs";
 import * as nodemailer from "nodemailer";
+import SMTPTransport from "nodemailer/lib/smtp-transport";
 import { ConfigService } from "src/config/config.service";
 
 dayjs.extend(relativeTime);
 
 @Injectable()
 export class EmailService {
-  constructor(private config: ConfigService) {}
+  private transporter?: nodemailer.Transporter<SMTPTransport.SentMessageInfo>;
+
+  constructor(private config: ConfigService) {
+    this.config.addListener("update", (key: string) => {
+      if (key.startsWith("smtp.")) {
+        this.transporter?.close();
+        this.transporter = undefined;
+      }
+    });
+  }
   private readonly logger = new Logger(EmailService.name);
 
   getTransporter() {
@@ -19,7 +29,8 @@ export class EmailService {
     const username = this.config.get("smtp.username");
     const password = this.config.get("smtp.password");
 
-    return nodemailer.createTransport({
+    if (!this.transporter) {
+      this.transporter = nodemailer.createTransport({
       host: this.config.get("smtp.host"),
       port: this.config.get("smtp.port"),
       secure: this.config.get("smtp.port") == 465,
@@ -30,7 +41,9 @@ export class EmailService {
           "smtp.allowUnauthorizedCertificates",
         ),
       },
-    });
+      });
+    }
+    return this.transporter;
   }
 
   private async sendMail(email: string, subject: string, text: string) {

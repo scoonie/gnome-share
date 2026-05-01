@@ -1,7 +1,6 @@
 import { useCallback } from "react";
 import { createIntl, createIntlCache, useIntl } from "react-intl";
-import i18nUtil from "../utils/i18n.util";
-import { LOCALES } from "../i18n/locales";
+import englishMessages from "../i18n/translations/en-US";
 
 const useTranslate = () => {
   const intl = useIntl();
@@ -20,9 +19,9 @@ const cache = createIntlCache();
 export const translateOutsideContext = () => {
   const intl = createIntl(
     {
-      locale: LOCALES.ENGLISH.code,
-      messages: i18nUtil.getLocaleByCode()?.messages,
-      defaultLocale: LOCALES.ENGLISH.code,
+      locale: "en-US",
+      messages: englishMessages,
+      defaultLocale: "en-US",
     },
     cache,
   );

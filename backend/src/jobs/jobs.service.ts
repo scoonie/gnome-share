@@ -31,12 +31,11 @@ export class JobsService {
     });
 
     for (const expiredShare of expiredShares) {
-      await this.prisma.share.delete({
-        where: { id: expiredShare.id },
-      });
-
       await this.fileService.deleteAllFiles(expiredShare.id);
     }
+    await this.prisma.share.deleteMany({
+      where: { id: { in: expiredShares.map((share) => share.id) } },
+    });
 
     if (expiredShares.length > 0) {
       this.logger.log(`Deleted ${expiredShares.length} expired shares`);
@@ -72,12 +71,11 @@ export class JobsService {
     });
 
     for (const unfinishedShare of unfinishedShares) {
-      await this.prisma.share.delete({
-        where: { id: unfinishedShare.id },
-      });
-
       await this.fileService.deleteAllFiles(unfinishedShare.id);
     }
+    await this.prisma.share.deleteMany({
+      where: { id: { in: unfinishedShares.map((share) => share.id) } },
+    });
 
     if (unfinishedShares.length > 0) {
       this.logger.log(`Deleted ${unfinishedShares.length} unfinished shares`);

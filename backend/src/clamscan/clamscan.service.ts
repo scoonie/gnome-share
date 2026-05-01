@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import NodeClam from "clamscan";
-import * as fs from "fs";
+import * as fs from "fs/promises";
 import * as path from "path";
 import { FileService } from "src/file/file.service";
 import { PrismaService } from "src/prisma/prisma.service";
@@ -67,9 +67,7 @@ export class ClamScanService {
         return [];
       }
 
-      const files = fs
-        .readdirSync(shareDir)
-        .filter((file) => file != "archive.zip");
+      const files = (await fs.readdir(shareDir)).filter((file) => file !== "archive.zip");
 
       this.logger.log(
         `Starting ClamAV scan for share ${shareId} (${files.length} file(s))`,

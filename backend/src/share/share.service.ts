@@ -57,14 +57,11 @@ export class ShareService {
     } else {
       const parsedExpiration = parseRelativeDateToAbsolute(share.expiration);
 
-      const expiresNever = dayjs(0).toDate() == parsedExpiration;
-
       const maxExpiration = this.config.get("share.maxExpiration");
       if (
         maxExpiration.value !== 0 &&
-        (expiresNever ||
-          parsedExpiration >
-            dayjs().add(maxExpiration.value, maxExpiration.unit as ManipulateType).toDate())
+        parsedExpiration >
+          dayjs().add(maxExpiration.value, maxExpiration.unit as ManipulateType).toDate()
       ) {
         throw new BadRequestException(
           "Expiration date exceeds maximum expiration date",
@@ -490,15 +487,21 @@ export class ShareService {
     // requests both pass `views < maxViews` before either persists the increment.
     await this.tryIncreaseViewCount(shareId, share.security?.maxViews ?? null);
 
-    const token = await this.generateShareToken(shareId);
-    return token;
+    return this.generateShareToken(shareId, share);
   }
 
-  async generateShareToken(shareId: string) {
-    const { expiration, createdAt } = await this.prisma.share.findUnique({
-      where: { id: shareId },
-    });
-
+  async generateShareToken(
+    shareId: string,
+    share?: Pick<Share, "expiration" | "createdAt">,
+  ) {
+    const shareTokenSource =
+      share ??
+      (await this.prisma.share.findUnique({
+        where: { id: shareId },
+        select: { expiration: true, createdAt: true },
+      }));
+    if (!shareTokenSource) throw new NotFoundException("Share not found");
+    const { expiration, createdAt } = shareTokenSource;
     const tokenPayload = {
       shareId,
       shareCreatedAt: dayjs(createdAt).unix(),

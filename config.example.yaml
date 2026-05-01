@@ -17,13 +17,13 @@ share:
   allowRegistration: "true"
   #Whether unauthenticated users can create shares
   allowUnauthenticatedShares: "false"
-  #Maximum share expiration. Set to 0 to allow unlimited expiration.
+  #Maximum share expiration. Set to 0 to allow any finite expiration.
   maxExpiration: 0 days
   #Default length for the generated ID of a share. This value is also used to generate links for reverse shares. A value below 8 is not considered secure.
   shareIdLength: "8"
   #Maximum share size
   maxSize: "1000000000"
-  #Adjust the level to balance between file size and compression speed. Valid values range from 0 to 9, with 0 being no compression and 9 being maximum compression.
+  #Adjust the level to balance between file size and compression speed. Valid values range from 0 to 9, with 0 being no compression and 9 being maximum compression. 
   zipCompressionLevel: "9"
   #Adjust the chunk size for your uploads to balance efficiency and reliability according to your internet connection. Smaller chunks can enhance success rates for unstable connections, while larger chunks make uploads faster for stable connections.
   chunkSize: "10000000"
@@ -54,8 +54,8 @@ email:
     Hey!
 
 
-    {creator} ({creatorEmail}) shared some files with you. You can view or download the
-    files with this link: {shareUrl}
+    {creator} ({creatorEmail}) shared some files with you. You can view or
+    download the files with this link: {shareUrl}
 
 
     The share will expire {expires}.
@@ -91,16 +91,12 @@ email:
   #Subject of the sent email when an admin invites a user.
   inviteSubject: Gnome Share invite
   #Message which gets sent when an admin invites a user. {url} will be replaced with the invite URL, {email} with the email and {password} with the users password.
-  inviteMessage: >-
+  inviteMessage: |-
     Hey!
 
-
-    You were invited to Gnome Share. Click this link to accept the invite:
-    {url}
-
+    You were invited to Gnome Share. Click this link to accept the invite: {url}
 
     You can use the email "{email}" and the password "{password}" to sign in.
-
 
     Gnome Share
 smtp:
@@ -118,25 +114,6 @@ smtp:
   username: ""
   #Password of the SMTP server
   password: ""
-ldap:
-  #Use LDAP authentication for user login
-  enabled: "false"
-  #URL of the LDAP server
-  url: ""
-  #Default user used to perform the user search
-  bindDn: ""
-  #Password used to perform the user search
-  bindPassword: ""
-  #Base location, where the user search will be performed
-  searchBase: ""
-  #The user query will be used to search the 'User base' for the LDAP user. %username% can be used as the placeholder for the user given input.
-  searchQuery: ""
-  #Group required for administrative access.
-  adminGroups: ""
-  #LDAP attribute name for the groups, an user is a member of. This is used when checking for the admin group.
-  fieldNameMemberOf: memberOf
-  #LDAP attribute name for the email of an user.
-  fieldNameEmail: userPrincipalName
 oauth:
   #Allow users to register via social login
   allowRegistration: "true"
@@ -198,23 +175,6 @@ oauth:
   oidc-clientId: ""
   #Client secret of the OpenID Connect OAuth app
   oidc-clientSecret: ""
-s3:
-  #Whether S3 should be used to store the shared files instead of the local file system.
-  enabled: "false"
-  #The URL of the S3 bucket.
-  endpoint: ""
-  #The region of the S3 bucket.
-  region: ""
-  #The name of the S3 bucket.
-  bucketName: ""
-  #The default path which should be used to store the files in the S3 bucket.
-  bucketPath: ""
-  #The key which allows you to access the S3 bucket.
-  key: ""
-  #The secret which allows you to access the S3 bucket.
-  secret: ""
-  #Turn off for backends that do not support checksum (e.g. B2).
-  useChecksum: "true"
 legal:
   #Whether to show a link to imprint and privacy policy in the footer.
   enabled: "false"
@@ -234,4 +194,3 @@ initUser:
   email: admin@example.com
   password: my-secure-password
   isAdmin: true
-  ldapDN: ""

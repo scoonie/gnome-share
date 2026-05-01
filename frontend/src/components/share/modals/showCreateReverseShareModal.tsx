@@ -217,7 +217,6 @@ const Body = ({
               {getExpirationPreview(
                 {
                   expiresOn: t("account.reverseShare.expires-on"),
-                  neverExpires: t("account.reverseShare.never-expires"),
                 },
                 form,
               )}

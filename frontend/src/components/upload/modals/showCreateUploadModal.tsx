@@ -2,7 +2,6 @@ import {
   Accordion,
   Alert,
   Button,
-  Checkbox,
   Grid,
   Group,
   MultiSelect,
@@ -160,7 +159,6 @@ const CreateUploadModalBody = ({
       description: undefined,
       expiration_num: 14,
       expiration_unit: "-days",
-      never_expires: false,
     },
     validate: yupResolver(validationSchema),
   });
@@ -169,9 +167,8 @@ const CreateUploadModalBody = ({
     if (!(await shareService.isShareIdAvailable(values.link))) {
       form.setFieldError("link", t("upload.modal.link.error.taken"));
     } else {
-      const expirationString = form.values.never_expires
-        ? "never"
-        : form.values.expiration_num + form.values.expiration_unit;
+      const expirationString =
+        form.values.expiration_num + form.values.expiration_unit;
 
       const expirationDate = dayjs().add(
         form.values.expiration_num,
@@ -183,13 +180,12 @@ const CreateUploadModalBody = ({
 
       if (
         options.maxExpiration.value != 0 &&
-        (form.values.never_expires ||
-          expirationDate.isAfter(
-            dayjs().add(
-              options.maxExpiration.value,
-              options.maxExpiration.unit as ManipulateType,
-            ),
-          ))
+        expirationDate.isAfter(
+          dayjs().add(
+            options.maxExpiration.value,
+            options.maxExpiration.unit as ManipulateType,
+          ),
+        )
       ) {
         form.setFieldError(
           "expiration_num",
@@ -275,13 +271,11 @@ const CreateUploadModalBody = ({
                     decimalScale={0}
                     variant="filled"
                     label={t("upload.modal.expires.label")}
-                    disabled={form.values.never_expires}
                     {...form.getInputProps("expiration_num")}
                   />
                 </Grid.Col>
                 <Grid.Col span={6}>
                   <Select
-                    disabled={form.values.never_expires}
                     {...form.getInputProps("expiration_unit")}
                     data={[
                       {
@@ -329,12 +323,6 @@ const CreateUploadModalBody = ({
                     ]}
                   />
                 </Grid.Col>
-                <Grid.Col span={12}>
-                  <Checkbox
-                    label={t("upload.modal.expires.never-long")}
-                    {...form.getInputProps("never_expires")}
-                  />
-                </Grid.Col>
               </Grid>
               <Text
                 fs="italic"
@@ -343,7 +331,6 @@ const CreateUploadModalBody = ({
               >
                 {getExpirationPreview(
                   {
-                    neverExpires: t("upload.modal.completed.never-expires"),
                     expiresOn: t("upload.modal.completed.expires-on"),
                   },
                   form,
@@ -507,7 +494,10 @@ const SimplifiedCreateUploadModalModal = ({
       {
         id: link,
         name: values.name,
-        expiration: "never",
+        expiration:
+          options.maxExpiration.value === 0
+            ? "14-days"
+            : `${options.maxExpiration.value}-${options.maxExpiration.unit}`,
         recipients: [],
         description: values.description,
         security: {

@@ -13,7 +13,7 @@ import * as fs from "fs";
 import { PrismaService } from "src/prisma/prisma.service";
 import { stringToTimespan, isValidTimespan } from "src/utils/date.util";
 import { parse as yamlParse } from "yaml";
-import { YamlConfig } from "../../prisma/seed/config.seed";
+import { YamlConfig } from "../../prisma/seed/config-variables";
 import { CONFIG_FILE } from "src/constants";
 
 /**
@@ -96,7 +96,7 @@ export class ConfigService extends EventEmitter {
     const userCount = await this.prisma.user.count({
       where: { isAdmin: true },
     });
-    if (userCount === 1) {
+      if (userCount >= 1) {
       this.logger.log(
         "Skip initial user creation. Admin user is already existent.",
       );
@@ -135,7 +135,7 @@ export class ConfigService extends EventEmitter {
   async getByCategory(category: string) {
     const configVariables = this.configVariables
       .filter((c) => !c.locked && category == c.category)
-      .sort((c) => c.order);
+      .sort((a, b) => a.order - b.order);
 
     return configVariables.map((variable) => {
       return {

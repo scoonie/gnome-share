@@ -144,13 +144,18 @@ export class ShareController {
     @Body() body: SharePasswordDto,
   ) {
     const token = await this.shareService.getShareToken(id, body.password);
+    const payload = this.jwtService.decode(token) as { exp?: number } | null;
+    const maxAge = payload?.exp
+      ? Math.max(0, payload.exp * 1000 - Date.now())
+      : undefined;
 
     this.clearShareTokenCookies(request, response);
     response.cookie(`share_${id}_token`, token, {
       path: "/",
       httpOnly: true,
-      sameSite: "lax",
+      sameSite: "strict",
       secure: this.config.get("general.secureCookies"),
+      maxAge,
     });
 
     return { token };

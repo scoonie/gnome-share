@@ -169,7 +169,7 @@ const Upload = ({
     const share: CreateShare = {
       id: shareId,
       recipients: [],
-      expiration: "never",
+      expiration: "1-days",
       security: {},
     };
     uploadFiles(share, files);

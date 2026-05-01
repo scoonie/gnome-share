@@ -1,7 +1,9 @@
 import dayjs, { ManipulateType } from "dayjs";
 
 export function parseRelativeDateToAbsolute(relativeDate: string) {
-  if (relativeDate == "never") return dayjs(0).toDate();
+  if (relativeDate === "never") {
+    throw new Error("Permanent shares are not supported");
+  }
 
   return dayjs()
     .add(

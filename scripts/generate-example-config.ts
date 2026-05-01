@@ -1,6 +1,7 @@
 import * as fs from "fs";
+import * as path from "path";
 import * as yaml from "yaml";
-import { configVariables } from "../backend/prisma/seed/config.seed";
+import { configVariables } from "../backend/prisma/seed/config-variables";
 import translations from "../frontend/src/i18n/translations/en-US";
 
 // Prepare an object that only contains the categories, keys and values
@@ -22,7 +23,6 @@ configVariablesWithDefaultValues["initUser"] = {
   email: "admin@example.com",
   password: "my-secure-password",
   isAdmin: true,
-  ldapDN: "",
 };
 
 // Create the yaml document
@@ -51,7 +51,11 @@ doc.commentBefore +=
   "You can remove keys you don't want to set. If a key is missing, the value set in the UI will be used; if that is also unset, the default value applies.";
 
 // Write the YAML content to a file
-fs.writeFileSync("../config.example.yaml", doc.toString({ indent: 2 }), "utf8");
+fs.writeFileSync(
+  path.join(__dirname, "..", "config.example.yaml"),
+  doc.toString({ indent: 2 }),
+  "utf8",
+);
 console.log("YAML file generated successfully!");
 
 // Helper functions

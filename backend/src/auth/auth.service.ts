@@ -408,7 +408,7 @@ export class AuthService {
     if (accessToken)
       response.cookie("access_token", accessToken, {
         httpOnly: true,
-        sameSite: "lax",
+        sameSite: "strict",
         secure: isSecure,
         maxAge: 1000 * 60 * 60 * 24 * 30 * 3, // 3 months
       });
