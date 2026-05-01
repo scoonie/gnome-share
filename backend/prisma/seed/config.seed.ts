@@ -3,6 +3,7 @@ import { PrismaLibSql } from "@prisma/adapter-libsql";
 import * as path from "path";
 import { renameLegacyDb } from "../../src/utils/rename-legacy-db";
 import { configVariables } from "./config-variables";
+export { YamlConfig } from "./config-variables";
 
 // Rename legacy database if needed (safety net for seed-only runs)
 renameLegacyDb(path.join(process.cwd(), "data"));
