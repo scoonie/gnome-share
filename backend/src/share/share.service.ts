@@ -174,8 +174,20 @@ export class ShareService {
         if (code !== "EEXIST" && code !== "EPERM") {
           throw err;
         }
-        await fs.promises.rm(archivePath, { force: true });
-        await fs.promises.rename(tempArchivePath, archivePath);
+        const backupArchivePath = path.join(
+          sharePath,
+          `archive.zip.${process.pid}.${Date.now()}.bak`,
+        );
+        await fs.promises.rename(archivePath, backupArchivePath);
+        try {
+          await fs.promises.rename(tempArchivePath, archivePath);
+        } catch (renameErr) {
+          await fs.promises.rename(backupArchivePath, archivePath).catch(() => {
+            return undefined;
+          });
+          throw renameErr;
+        }
+        await fs.promises.rm(backupArchivePath, { force: true });
       }
     } catch (err) {
       archive.abort();
