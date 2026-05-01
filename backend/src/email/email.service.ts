@@ -90,9 +90,7 @@ export class EmailService {
         .replaceAll("{desc}", description ?? "No description")
         .replaceAll(
           "{expires}",
-          dayjs(expiration).unix() !== 0
-            ? dayjs(expiration).fromNow()
-            : "in: never",
+          expiration ? dayjs(expiration).fromNow() : "unknown",
         ),
     );
   }

@@ -22,11 +22,7 @@ export class JobsService {
   async deleteExpiredShares() {
     const expiredShares = await this.prisma.share.findMany({
       where: {
-        // We want to remove only shares that have an expiration date less than the current date, but not 0
-        AND: [
-          { expiration: { lt: new Date() } },
-          { expiration: { not: dayjs(0).toDate() } },
-        ],
+        expiration: { lt: new Date() },
       },
     });
 

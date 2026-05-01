@@ -111,11 +111,7 @@ const MyShares = () => {
                     )}
                   </td>
                   <td>
-                    {dayjs(share.expiration).unix() === 0 ? (
-                      <FormattedMessage id="account.shares.table.expiry-never" />
-                    ) : (
-                      dayjs(share.expiration).format("LLL")
-                    )}
+                    {dayjs(share.expiration).format("LLL")}
                   </td>
                   <td>
                     <Group justify="flex-end">

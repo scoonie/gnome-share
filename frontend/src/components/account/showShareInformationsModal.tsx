@@ -21,10 +21,7 @@ const showShareInformationsModal = (
   const shareSizeProgress = (share.size / maxShareSize) * 100;
 
   const formattedCreatedAt = dayjs(share.createdAt).format("LLL");
-  const formattedExpiration =
-    dayjs(share.expiration).unix() === 0
-      ? "Never"
-      : dayjs(share.expiration).format("LLL");
+  const formattedExpiration = dayjs(share.expiration).format("LLL");
 
   return modals.openModal({
     title: t("account.shares.modal.share-informations"),

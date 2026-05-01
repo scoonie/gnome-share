@@ -160,7 +160,6 @@ export default {
   "account.shares.table.size": "Size",
   "account.shares.table.password-protected": "Password protected",
   "account.shares.table.visitor-count": "{count} of {max}",
-  "account.shares.table.expiry-never": "Never",
 
   "account.shares.modal.share-informations": "Share informations",
   "account.shares.modal.share-link": "Share link",
@@ -219,7 +218,6 @@ export default {
   "account.reverseShares.modal.max-use.label": "Max uses",
   "account.reverseShares.modal.max-use.description":
     "The maximum amount of times this URL can be used to create a share.",
-  "account.reverseShare.never-expires": "This reverse share will never expire.",
   "account.reverseShare.expires-on":
     "This reverse share will expire on {expiration}.",
 
@@ -335,8 +333,6 @@ export default {
   "upload.modal.not-signed-in-description":
     "You will be unable to delete your share manually and view the visitor count.",
 
-  "upload.modal.expires.never": "never",
-  "upload.modal.expires.never-long": "Permanent share",
   "upload.modal.expires.error.too-long":
     "Expiration date exceeds the maximum of {max}.",
 
@@ -371,7 +367,6 @@ export default {
   "upload.modal.accordion.security.max-views.placeholder": "No limit",
 
   // showCompletedUploadModal.tsx
-  "upload.modal.completed.never-expires": "This share will never expire.",
   "upload.modal.completed.expires-on":
     "This share will expire on {expiration}.",
   "upload.modal.completed.share-ready": "Share ready",
@@ -654,60 +649,10 @@ export default {
   "admin.config.oauth.oidc-client-secret.description":
     "Client secret of the OpenID Connect OAuth app",
 
-  "admin.config.category.ldap": "LDAP",
-  "admin.config.ldap.enabled": "Enable LDAP",
-  "admin.config.ldap.enabled.description":
-    "Use LDAP authentication for user login",
-  "admin.config.ldap.url": "Server URL",
-  "admin.config.ldap.url.description": "URL of the LDAP server",
-  "admin.config.ldap.bind-dn": "Bind DN",
-  "admin.config.ldap.bind-dn.description":
-    "Default user used to perform the user search",
-  "admin.config.ldap.bind-password": "Bind password",
-  "admin.config.ldap.bind-password.description":
-    "Password used to perform the user search",
-  "admin.config.ldap.search-base": "User base",
-  "admin.config.ldap.search-base.description":
-    "Base location, where the user search will be performed",
-  "admin.config.ldap.search-query": "User query",
-  "admin.config.ldap.search-query.description":
-    "The user query will be used to search the 'User base' for the LDAP user. %username% can be used as the placeholder for the user given input.",
-  "admin.config.ldap.admin-groups": "Admin group",
-  "admin.config.ldap.admin-groups.description":
-    "Group required for administrative access.",
-  "admin.config.ldap.field-name-member-of": "User groups attribute name",
-  "admin.config.ldap.field-name-member-of.description":
-    "LDAP attribute name for the groups, an user is a member of. This is used when checking for the admin group.",
-  "admin.config.ldap.field-name-email": "User email attribute name",
-  "admin.config.ldap.field-name-email.description":
-    "LDAP attribute name for the email of an user.",
   "admin.config.notify.success": "Configuration updated successfully.",
   "admin.config.notify.logo-success":
     "Logo updated successfully. It may take a few minutes to update on the website.",
   "admin.config.notify.no-changes": "No changes to save.",
-
-  "admin.config.category.s3": "S3",
-  "admin.config.s3.enabled": "Enabled",
-  "admin.config.s3.enabled.description":
-    "Whether S3 should be used to store the shared files instead of the local file system.",
-  "admin.config.s3.endpoint": "Endpoint",
-  "admin.config.s3.endpoint.description": "The URL of the S3 bucket.",
-  "admin.config.s3.region": "Region",
-  "admin.config.s3.region.description": "The region of the S3 bucket.",
-  "admin.config.s3.bucket-name": "Bucket name",
-  "admin.config.s3.bucket-name.description": "The name of the S3 bucket.",
-  "admin.config.s3.bucket-path": "Path",
-  "admin.config.s3.bucket-path.description":
-    "The default path which should be used to store the files in the S3 bucket.",
-  "admin.config.s3.key": "Key",
-  "admin.config.s3.key.description":
-    "The key which allows you to access the S3 bucket.",
-  "admin.config.s3.secret": "Secret",
-  "admin.config.s3.secret.description":
-    "The secret which allows you to access the S3 bucket.",
-  "admin.config.s3.use-checksum": "Use checksum",
-  "admin.config.s3.use-checksum.description":
-    "Turn off for backends that do not support checksum (e.g. B2).",
 
   "admin.config.category.legal": "Legal",
   "admin.config.legal.enabled": "Enable legal notices",

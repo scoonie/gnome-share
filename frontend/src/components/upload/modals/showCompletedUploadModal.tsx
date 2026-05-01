@@ -74,12 +74,9 @@ const Body = ({
         size="xs"
         c="dimmed"
       >
-        {/* If our share.expiration is timestamp 0, show a different message */}
-        {dayjs(share.expiration).unix() === 0
-          ? t("upload.modal.completed.never-expires")
-          : t("upload.modal.completed.expires-on", {
-              expiration: dayjs(share.expiration).format("LLL"),
-            })}
+        {t("upload.modal.completed.expires-on", {
+          expiration: dayjs(share.expiration).format("LLL"),
+        })}
       </Text>
 
       <Button

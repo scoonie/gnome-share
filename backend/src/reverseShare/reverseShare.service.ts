@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, Logger } from "@nestjs/common";
 import dayjs, { ManipulateType } from "dayjs";
 import { ConfigService } from "src/config/config.service";
 import { FileService } from "src/file/file.service";
@@ -8,6 +8,8 @@ import { CreateReverseShareDTO } from "./dto/createReverseShare.dto";
 
 @Injectable()
 export class ReverseShareService {
+  private readonly logger = new Logger(ReverseShareService.name);
+
   constructor(
     private config: ConfigService,
     private prisma: PrismaService,
@@ -100,13 +102,25 @@ export class ReverseShareService {
       where: { reverseShare: { id } },
     });
 
+    const cleanedShareIds: string[] = [];
+
     for (const share of shares) {
-      await this.fileService.deleteAllFiles(share.id);
+      try {
+        await this.fileService.deleteAllFiles(share.id);
+        cleanedShareIds.push(share.id);
+      } catch (e) {
+        this.logger.error(
+          `Failed to delete files for reverse share ${id}, share ${share.id}: ${e}`,
+        );
+      }
     }
 
-    await this.prisma.share.deleteMany({
-      where: { id: { in: shares.map((share) => share.id) } },
-    });
+    if (cleanedShareIds.length > 0) {
+      await this.prisma.share.deleteMany({
+        where: { id: { in: cleanedShareIds } },
+      });
+    }
+
     await this.prisma.reverseShare.delete({ where: { id } });
   }
 }
