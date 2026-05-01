@@ -132,11 +132,12 @@ const TextPreview = () => {
     api
       .get(`/shares/${shareId}/files/${fileId}?download=false`)
       .then((res) =>
-        setText(
-          res.data ?? t("share.modal.file-preview.error.fetch-failed"),
-        ),
+        setText(res.data ?? t("share.modal.file-preview.error.fetch-failed")),
+      )
+      .catch(() =>
+        setText(t("share.modal.file-preview.error.fetch-failed")),
       );
-  }, [shareId, fileId]);
+  }, [shareId, fileId, t]);
 
   const options: MarkdownToJSX.Options = {
     disableParsingRawHTML: true,

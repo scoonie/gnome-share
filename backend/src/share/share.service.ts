@@ -168,7 +168,14 @@ export class ShareService {
     if (share.files.length > 1)
       this.createZip(id)
         .then(() =>
-          this.prisma.share.update({ where: { id }, data: { isZipReady: true } }),
+          this.prisma.share
+            .update({ where: { id }, data: { isZipReady: true } })
+            .catch((e) =>
+              this.logger.error(
+                `Zip created but failed to mark share ${id} as ready: ${e instanceof Error ? e.message : e}`,
+                e instanceof Error ? e.stack : undefined,
+              ),
+            ),
         )
         .catch(async (err) => {
           this.logger.error(

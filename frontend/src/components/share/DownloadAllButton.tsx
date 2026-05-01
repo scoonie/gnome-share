@@ -19,6 +19,9 @@ const DownloadAllButton = ({ shareId }: { shareId: string }) => {
   };
 
   useEffect(() => {
+    setIsZipReady(false);
+    setZipCreationFailed(false);
+
     shareService
       .getMetaData(shareId)
       .then((share) => {
@@ -41,7 +44,7 @@ const DownloadAllButton = ({ shareId }: { shareId: string }) => {
     return () => {
       clearInterval(timer);
     };
-  }, []);
+  }, [shareId]);
 
   return (
     <Button
