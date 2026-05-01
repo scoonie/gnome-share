@@ -75,9 +75,7 @@ const ManageShareTable = ({
                   <td>{share.views}</td>
                   <td>{byteToHumanSizeString(share.size)}</td>
                   <td>
-                    {dayjs(share.expiration).unix() === 0
-                      ? "Never"
-                      : dayjs(share.expiration).format("LLL")}
+                    {dayjs(share.expiration).format("LLL")}
                   </td>
                   <td>
                     <Group justify="flex-end">

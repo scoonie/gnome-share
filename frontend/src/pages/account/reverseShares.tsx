@@ -210,9 +210,7 @@ const MyShares = () => {
                     {byteToHumanSizeString(reverseShare.maxShareSize)}
                   </td>
                   <td>
-                    {dayjs(reverseShare.shareExpiration).unix() === 0
-                      ? "Never"
-                      : dayjs(reverseShare.shareExpiration).format("LLL")}
+                    {dayjs(reverseShare.shareExpiration).format("LLL")}
                   </td>
                   <td>
                     <Group justify="flex-end">

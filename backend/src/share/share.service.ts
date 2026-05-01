@@ -332,11 +332,7 @@ export class ShareService {
       where: {
         creator: { id: userId },
         uploadLocked: true,
-        // We want to grab any shares that are not expired or have their expiration date set to "never" (unix 0)
-        OR: [
-          { expiration: { gt: new Date() } },
-          { expiration: { equals: dayjs(0).toDate() } },
-        ],
+        expiration: { gt: new Date() },
       },
       orderBy: {
         expiration: "desc",
