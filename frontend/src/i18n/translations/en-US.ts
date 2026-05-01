@@ -248,6 +248,7 @@ export default {
   "admin.button.users": "User management",
   "admin.button.shares": "Share management",
   "admin.button.config": "Configuration",
+  "admin.button.update": "Update",
   "admin.version": "Version",
   // END /admin
 
@@ -404,6 +405,8 @@ export default {
   "share.button.download-all": "Download all",
   "share.notify.download-all-preparing":
     "The share is being prepared. Please try again in a few minutes.",
+  "share.notify.download-all-failed":
+    "The share archive could not be prepared. Please contact the share creator or download the files individually.",
 
   "share.modal.file-link": "File link",
   "share.table.name": "Name",
@@ -412,6 +415,8 @@ export default {
   "share.modal.file-preview.error.not-supported.title": "Preview not supported",
   "share.modal.file-preview.error.not-supported.description":
     "Previews are not supported for this type of files. Please download the file to view it.",
+  "share.modal.file-preview.error.fetch-failed":
+    "Preview couldn't be fetched.",
 
   // END /share/[id]
 
@@ -545,6 +550,14 @@ export default {
   "admin.config.smtp.password": "Password",
   "admin.config.smtp.password.description": "Password of the SMTP server",
   "admin.config.smtp.button.test": "Send test email",
+  "admin.config.smtp.notify.test.success": "Email sent successfully",
+  "admin.config.smtp.modal.test.error.title": "Failed to send email",
+  "admin.config.smtp.modal.test.error.description":
+    "While sending the test email, the following error occurred:",
+  "admin.config.smtp.modal.save.title": "Save configuration",
+  "admin.config.smtp.modal.save.description":
+    "To continue you need to save the configuration first. Do you want to save the configuration and send the test email?",
+  "admin.config.smtp.modal.save.confirm": "Save and send",
   "admin.config.smtp.allow-unauthorized-certificates":
     "Trust unauthorized SMTP server certificates",
   "admin.config.smtp.allow-unauthorized-certificates.description":

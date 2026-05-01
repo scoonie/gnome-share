@@ -79,14 +79,20 @@ model Share {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
 
-  name          String?
-  uploadLocked  Boolean  @default(false)
-  isZipReady    Boolean  @default(false)
-  views         Int      @default(0)
-  expiration    DateTime
-  description   String?
-  removedReason String?
+  name              String?
+  uploadLocked      Boolean  @default(false)
+  isZipReady        Boolean  @default(false)
+  zipCreationFailed Boolean  @default(false)
+  views             Int      @default(0)
+  expiration        DateTime
+  description       String?
+  removedReason     String?
 
+  // creatorId is optional because shares can be created anonymously through
+  // a ReverseShare (in that case the share is owned by the parent ReverseShare
+  // instead). Cascade ensures shares are removed when their owning user is
+  // deleted; reverse-share-created shares are likewise cascaded via
+  // reverseShareId below, so there is no orphaned-share path.
   creatorId String?
   creator   User?   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
@@ -119,6 +125,8 @@ model ReverseShare {
   creator   User   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
   shares Share[]
+
+  @@index([creatorId])
 }
 
 model ShareRecipient {

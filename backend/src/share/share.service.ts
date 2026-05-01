@@ -170,11 +170,24 @@ export class ShareService {
         .then(() =>
           this.prisma.share.update({ where: { id }, data: { isZipReady: true } }),
         )
-        .catch((err) => {
+        .catch(async (err) => {
           this.logger.error(
             `Failed to create zip for share ${id}: ${err instanceof Error ? err.message : err}`,
             err instanceof Error ? err.stack : undefined,
           );
+          // Persist the failure so the UI can surface it to the user
+          // (DownloadAllButton polls the share metadata).
+          await this.prisma.share
+            .update({
+              where: { id },
+              data: { zipCreationFailed: true },
+            })
+            .catch((updateErr) =>
+              this.logger.error(
+                `Failed to persist zipCreationFailed=true for share ${id}: ${updateErr instanceof Error ? updateErr.message : updateErr}`,
+                updateErr instanceof Error ? updateErr.stack : undefined,
+              ),
+            );
         });
 
     // Send email for each recipient

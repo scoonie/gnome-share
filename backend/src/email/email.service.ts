@@ -134,6 +134,12 @@ export class EmailService {
       })
       .catch((e) => {
         this.logger.error(e);
+        // This endpoint is admin-only (see ConfigController.testEmail) and the
+        // admin UI surfaces the SMTP error in a debug modal so the admin can
+        // fix their own SMTP configuration. The admin already has access to
+        // the SMTP credentials via the config UI, so returning the underlying
+        // error message here does not leak information beyond what the same
+        // admin can already see.
         throw new InternalServerErrorException(e.message);
       });
   }
