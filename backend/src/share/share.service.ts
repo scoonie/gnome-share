@@ -126,23 +126,56 @@ export class ShareService {
     const archive = archiver("zip", {
       zlib: { level: this.config.get("share.zipCompressionLevel") },
     });
-    const writeStream = fs.createWriteStream(
-      path.join(sharePath, "archive.zip"),
+    const archivePath = path.join(sharePath, "archive.zip");
+    const tempArchivePath = path.join(
+      sharePath,
+      `archive.zip.${process.pid}.${Date.now()}.tmp`,
     );
+    const writeStream = fs.createWriteStream(tempArchivePath);
 
-    for (const file of files) {
-      const safeFileId = path.basename(file.id);
-      const filePath = path.resolve(sharePath, safeFileId);
-      if (!filePath.startsWith(sharePath + path.sep)) {
-        continue;
-      }
-      archive.append(fs.createReadStream(filePath), {
-        name: file.name,
+    try {
+      await new Promise<void>((resolve, reject) => {
+        const onError = (err: Error) => {
+          archive.removeListener("error", onError);
+          writeStream.removeListener("error", onError);
+          writeStream.removeListener("close", onClose);
+          reject(err);
+        };
+        const onClose = () => {
+          archive.removeListener("error", onError);
+          writeStream.removeListener("error", onError);
+          resolve();
+        };
+
+        archive.on("error", onError);
+        writeStream.on("error", onError);
+        writeStream.on("close", onClose);
+
+        archive.pipe(writeStream);
+
+        for (const file of files) {
+          const safeFileId = path.basename(file.id);
+          const filePath = path.resolve(sharePath, safeFileId);
+          if (!filePath.startsWith(sharePath + path.sep)) {
+            continue;
+          }
+          archive.append(fs.createReadStream(filePath), {
+            name: file.name,
+          });
+        }
+
+        archive.finalize().catch(onError);
       });
-    }
 
-    archive.pipe(writeStream);
-    await archive.finalize();
+      await fs.promises.rename(tempArchivePath, archivePath);
+    } catch (err) {
+      archive.abort();
+      writeStream.destroy();
+      await fs.promises.rm(tempArchivePath, { force: true }).catch(() => {
+        return undefined;
+      });
+      throw err;
+    }
   }
 
   async complete(id: string, reverseShareToken?: string) {
@@ -459,11 +492,9 @@ export class ShareService {
 
   /**
    * Retries the isZipReady=true DB update with bounded exponential backoff.
-   * Up to 5 attempts; on final failure logs an error and gives up. The user
-   * will see the share remain in the "preparing" state, which is acceptable
-   * fallback behavior — the alternative (filesystem-existence fallback in
-   * getMetaData) races with createZip's write stream and is not safe without
-   * an atomic-rename refactor of createZip itself.
+   * Up to 5 attempts; on final failure logs an error and gives up. createZip
+   * only publishes archive.zip after the archive is complete, so readers never
+   * observe a partially written archive.
    */
   private async markZipReady(id: string): Promise<void> {
     const delays = [200, 400, 800, 1600];
