@@ -90,7 +90,7 @@ export class FileService {
     const chunkSize = this.config.get("share.chunkSize");
     const expectedChunkIndex = Math.ceil(diskFileSize / chunkSize);
 
-    if (expectedChunkIndex != chunk.index)
+    if (expectedChunkIndex !== chunk.index)
       throw new BadRequestException({
         message: "Unexpected chunk received",
         error: "unexpected_chunk_index",
@@ -153,7 +153,7 @@ export class FileService {
 
     await fs.appendFile(tempChunkPath, buffer);
 
-    const isLastChunk = chunk.index == chunk.total - 1;
+    const isLastChunk = chunk.index === chunk.total - 1;
     if (isLastChunk) {
       await fs.rename(tempChunkPath, finalFilePath);
       const fileSize = (await fs.stat(finalFilePath)).size;

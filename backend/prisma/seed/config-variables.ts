@@ -1,7 +1,5 @@
 import type { Prisma } from "../../src/generated/prisma/client";
 import * as crypto from "crypto";
-import * as path from "path";
-import { renameLegacyDb } from "../../src/utils/rename-legacy-db";
 
 export const configVariables = {
   internal: {
