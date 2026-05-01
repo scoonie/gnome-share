@@ -32,23 +32,22 @@ const doc: any = new yaml.Document(configVariablesWithDefaultValues);
 for (const category of doc.contents.items) {
   //  As `initUser` can't be configured from the UI, we have to add the description manually
   if (category.key.value === "initUser") {
-    category.key.commentBefore =
-      "This configuration is used to create the initial user when the application is started for the first time.\n";
-    category.key.commentBefore +=
-      "Make sure to change at least the password as soon as you log in!";
+    category.key.commentBefore = normalizeComment(
+      "This configuration is used to create the initial user when the application is started for the first time.\n" +
+        "Make sure to change at least the password as soon as you log in!"
+    );
   }
 
   for (const variable of category.value.items) {
-    variable.key.commentBefore = getDescription(
-      category.key.value,
-      variable.key.value
+    variable.key.commentBefore = normalizeComment(
+      getDescription(category.key.value, variable.key.value)
     );
   }
 }
-doc.commentBefore =
-  "This configuration is pre-filled with the default values.\n";
-doc.commentBefore +=
-  "You can remove keys you don't want to set. If a key is missing, the value set in the UI will be used; if that is also unset, the default value applies.";
+doc.commentBefore = normalizeComment(
+  "This configuration is pre-filled with the default values.\n" +
+    "You can remove keys you don't want to set. If a key is missing, the value set in the UI will be used; if that is also unset, the default value applies."
+);
 
 // Write the YAML content to a file
 fs.writeFileSync("../config.example.yaml", doc.toString({ indent: 2 }), "utf8");
@@ -63,4 +62,8 @@ function getDescription(category: string, name: string) {
 
 function camelToKebab(str: string) {
   return str.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
+}
+
+function normalizeComment(comment?: string) {
+  return comment?.replace(/[ \t]+$/gm, "");
 }
