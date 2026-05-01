@@ -1,4 +1,3 @@
-import type { Prisma } from "../../src/generated/prisma/client";
 import * as crypto from "crypto";
 
 export const configVariables = {
@@ -342,9 +341,15 @@ export type YamlConfig = {
 
 type ConfigVariables = {
   [category: string]: {
-    [variable: string]: Omit<
-      Prisma.ConfigCreateInput,
-      "name" | "category" | "order"
-    >;
+    [variable: string]: ConfigVariable;
   };
+};
+
+type ConfigVariable = {
+  type: string;
+  defaultValue?: string;
+  value?: string;
+  obscured?: boolean;
+  secret?: boolean;
+  locked?: boolean;
 };

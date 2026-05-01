@@ -85,6 +85,14 @@ npm ci
 npm run generate-example-config
 ```
 
+`backend/prisma/seed/config-variables.ts` is the single source of truth for
+config metadata (keys, types, defaults, secret/locked flags). It **must** remain
+importable by `scripts/generate-example-config.ts` without generating backend
+artifacts or running `prisma generate`. Do not add imports from
+`../../src/generated/prisma/client`, instantiate `PrismaClient`, read from the
+database, or trigger any seed/backend startup side effects from that file.
+All Prisma and database usage belongs in `config.seed.ts`.
+
 ## Testing and CI
 
 CI builds the backend and frontend, runs high-severity npm audits, and verifies
