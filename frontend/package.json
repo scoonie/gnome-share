@@ -17,7 +17,7 @@
     "@mantine/hooks": "^9.1.1",
     "@mantine/modals": "^9.1.1",
     "@mantine/notifications": "^9.1.1",
-    "axios": "^1.15.2",
+    "axios": "^1.16.0",
     "cookies-next": "^6.1.1",
     "dayjs": "^1.11.20",
     "jose": "^6.2.3",
