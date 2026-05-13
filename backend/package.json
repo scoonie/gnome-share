@@ -94,6 +94,6 @@
     "prettier": "^3.8.3",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^6.0.3",
-    "wait-on": "^9.0.5"
+    "wait-on": "^9.0.10"
   }
 }
