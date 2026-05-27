@@ -19,7 +19,7 @@
     "@mantine/notifications": "^9.2.1",
     "axios": "^1.16.1",
     "cookies-next": "^6.1.1",
-    "dayjs": "^1.11.20",
+    "dayjs": "^1.11.21",
     "jose": "^6.2.3",
     "markdown-to-jsx": "^9.8.1",
     "mime-types": "^3.0.2",
