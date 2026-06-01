@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import { JwtService, JwtSignOptions } from "@nestjs/jwt";
 import type { Share, User } from "../generated/prisma/client";
-import archiver from "archiver";
+import { ZipArchive } from "archiver";
 import * as argon from "argon2";
 import * as fs from "fs";
 import * as path from "path";
@@ -127,7 +127,7 @@ export class ShareService {
     }
 
     const files = await this.prisma.file.findMany({ where: { shareId } });
-    const archive = archiver("zip", {
+    const archive = new ZipArchive({
       zlib: { level: this.config.get("share.zipCompressionLevel") },
     });
     const archivePath = path.join(sharePath, "archive.zip");
