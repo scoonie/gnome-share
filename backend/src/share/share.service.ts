@@ -127,7 +127,11 @@ export class ShareService {
     }
 
     const files = await this.prisma.file.findMany({ where: { shareId } });
-    const archive = archiver("zip", {
+    const archive = new (
+      archiver as unknown as {
+        ZipArchive: new (options?: unknown) => ReturnType<typeof archiver>;
+      }
+    ).ZipArchive({
       zlib: { level: this.config.get("share.zipCompressionLevel") },
     });
     const archivePath = path.join(sharePath, "archive.zip");
