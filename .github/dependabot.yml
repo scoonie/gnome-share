@@ -20,6 +20,9 @@ updates:
           - "react-dom"
           - "@types/react"
           - "@types/react-dom"
+      mantine:
+        patterns:
+          - "@mantine/*"
 
   # Maintain the base Docker images in the Dockerfile
   - package-ecosystem: "docker"
