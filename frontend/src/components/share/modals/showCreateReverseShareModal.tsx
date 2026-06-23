@@ -1,11 +1,14 @@
 import {
   Button,
+  Checkbox,
+  Collapse,
   Grid,
   Group,
   NumberInput,
   Select,
   Stack,
   Switch,
+  TagsInput,
   Text,
   Textarea,
   TextInput,
@@ -15,6 +18,7 @@ import { yupResolver } from "../../../utils/yupResolver";
 import { useModals } from "@mantine/modals";
 import { ModalsContextProps } from "../../../types/modals.type";
 import dayjs, { ManipulateType } from "dayjs";
+import { useState } from "react";
 import { FormattedMessage } from "react-intl";
 import * as yup from "yup";
 import useTranslate, {
@@ -58,6 +62,8 @@ const Body = ({
   const modals = useModals();
   const t = useTranslate();
 
+  const [showAdvanced, setShowAdvanced] = useState(false);
+
   const form = useForm({
     initialValues: {
       name: "",
@@ -67,6 +73,7 @@ const Body = ({
       sendEmailNotification: false,
       expiration_num: 14,
       expiration_unit: "-days",
+      viewerEmails: [] as string[],
     },
     validate: yupResolver(
       yup.object().shape({
@@ -113,6 +120,7 @@ const Body = ({
         false,
         values.name,
         values.description || undefined,
+        values.viewerEmails,
       )
       .then(({ link }) => {
         modals.closeAll();
@@ -239,6 +247,27 @@ const Body = ({
               {...form.getInputProps("sendEmailNotification", {
                 type: "checkbox",
               })}
+            />
+          )}
+          <Checkbox
+            mt="xs"
+            label={t("account.reverseShares.modal.show-advanced")}
+            checked={showAdvanced}
+            onChange={(event) =>
+              setShowAdvanced(event.currentTarget.checked)
+            }
+          />
+          {showAdvanced && (
+            <TagsInput
+              variant="filled"
+              label={t("account.reverseShares.modal.viewer-emails.label")}
+              placeholder={t(
+                "account.reverseShares.modal.viewer-emails.placeholder",
+              )}
+              description={t(
+                "account.reverseShares.modal.viewer-emails.description",
+              )}
+              {...form.getInputProps("viewerEmails")}
             />
           )}
           <Button mt="md" type="submit">

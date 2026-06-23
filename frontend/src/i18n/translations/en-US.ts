@@ -218,6 +218,16 @@ export default {
   "account.reverseShares.modal.max-use.label": "Max uses",
   "account.reverseShares.modal.max-use.description":
     "The maximum amount of times this URL can be used to create a share.",
+
+  "account.reverseShares.modal.show-advanced": "Show advanced",
+  "account.reverseShares.modal.viewer-emails.label": "Share with other users",
+  "account.reverseShares.modal.viewer-emails.placeholder":
+    "e.g. colleague@example.com",
+  "account.reverseShares.modal.viewer-emails.description":
+    "Enter the email addresses of other users who should be able to see this reverse share from your point of view, so you can monitor incoming files together. The users don't need to exist yet; they will see it once they have an account with a matching email.",
+
+  "account.reverseShares.modal.edit.title": "Edit reverse share",
+  "account.reverseShares.table.shared-with-you": "Shared with you",
   "account.reverseShare.expires-on":
     "This reverse share will expire on {expiration}.",
 
@@ -722,6 +732,7 @@ export default {
   "common.button.go-home": "Go home",
   "common.notify.copied": "Your link was copied to the clipboard",
   "common.notify.copied-link": "Your link was copied to the clipboard",
+  "common.notify.saved": "Your changes were saved",
   "common.success": "Success",
 
   "common.error": "Error",

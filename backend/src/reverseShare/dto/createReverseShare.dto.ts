@@ -1,5 +1,7 @@
 import {
+  IsArray,
   IsBoolean,
+  IsEmail,
   IsInt,
   IsNotEmpty,
   IsOptional,
@@ -41,4 +43,9 @@ export class CreateReverseShareDTO {
 
   @IsBoolean()
   publicAccess: boolean;
+
+  @IsOptional()
+  @IsArray()
+  @IsEmail({}, { each: true })
+  viewerEmails?: string[];
 }

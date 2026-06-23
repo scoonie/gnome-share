@@ -55,6 +55,8 @@ export type MyReverseShare = {
   shareExpiration: Date;
   remainingUses: number;
   token: string;
+  viewerEmails: string[];
+  isOwner: boolean;
   shares: (Omit<MyShare, "size"> & { files: ShareFile[] })[];
 };
 
