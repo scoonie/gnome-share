@@ -1,8 +1,8 @@
-import { IsArray, IsEmail, IsOptional } from "class-validator";
+import { IsArray, IsDefined, IsEmail } from "class-validator";
 
 export class UpdateReverseShareDTO {
-  @IsOptional()
+  @IsDefined()
   @IsArray()
   @IsEmail({}, { each: true })
-  viewerEmails?: string[];
+  viewerEmails: string[];
 }

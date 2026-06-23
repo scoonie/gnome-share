@@ -220,28 +220,30 @@ const MyShares = () => {
                   </td>
                   <td>
                     <Group justify="flex-end">
-                      <ActionIcon
-                        color="maroon"
-                        variant="light"
-                        size={25}
-                        onClick={() => {
-                          if (window.isSecureContext) {
-                            clipboard.copy(
-                              `${window.location.origin}/upload/${
-                                reverseShare.token
-                              }`,
-                            );
-                            toast.success(t("common.notify.copied-link"));
-                          } else {
-                            showReverseShareLinkModal(
-                              modals,
-                              reverseShare.token,
-                            );
-                          }
-                        }}
-                      >
-                        <TbLink />
-                      </ActionIcon>
+                      {reverseShare.isOwner && (
+                        <ActionIcon
+                          color="maroon"
+                          variant="light"
+                          size={25}
+                          onClick={() => {
+                            if (window.isSecureContext) {
+                              clipboard.copy(
+                                `${window.location.origin}/upload/${
+                                  reverseShare.token
+                                }`,
+                              );
+                              toast.success(t("common.notify.copied-link"));
+                            } else {
+                              showReverseShareLinkModal(
+                                modals,
+                                reverseShare.token,
+                              );
+                            }
+                          }}
+                        >
+                          <TbLink />
+                        </ActionIcon>
+                      )}
                       {reverseShare.isOwner && (
                         <ActionIcon
                           color="maroon"

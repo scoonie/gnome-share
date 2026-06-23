@@ -1,7 +1,6 @@
 import {
   Button,
   Checkbox,
-  Collapse,
   Grid,
   Group,
   NumberInput,
