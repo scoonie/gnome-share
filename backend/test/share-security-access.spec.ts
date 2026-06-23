@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { canAccessPrivateReverseShare } from "../src/share/guard/shareSecurity.guard";
+import { canAccessReverseShare } from "../src/share/guard/shareSecurity.guard";
 
 const buildShare = (overrides: any = {}) => ({
   creatorId: "share-creator",
@@ -14,9 +14,9 @@ const buildShare = (overrides: any = {}) => ({
 
 test("public reverse shares are accessible to anyone", () => {
   const share = buildShare({ publicAccess: true });
-  assert.equal(canAccessPrivateReverseShare(share, undefined), true);
+  assert.equal(canAccessReverseShare(share, undefined), true);
   assert.equal(
-    canAccessPrivateReverseShare(share, { id: "random", email: "x@y.com" }),
+    canAccessReverseShare(share, { id: "random", email: "x@y.com" }),
     true,
   );
 });
@@ -24,7 +24,7 @@ test("public reverse shares are accessible to anyone", () => {
 test("share creator can access a private reverse share", () => {
   const share = buildShare();
   assert.equal(
-    canAccessPrivateReverseShare(share, { id: "share-creator" }),
+    canAccessReverseShare(share, { id: "share-creator" }),
     true,
   );
 });
@@ -32,7 +32,7 @@ test("share creator can access a private reverse share", () => {
 test("reverse share creator can access a private reverse share", () => {
   const share = buildShare();
   assert.equal(
-    canAccessPrivateReverseShare(share, { id: "rs-creator" }),
+    canAccessReverseShare(share, { id: "rs-creator" }),
     true,
   );
 });
@@ -40,7 +40,7 @@ test("reverse share creator can access a private reverse share", () => {
 test("listed viewer can access a private reverse share (case-insensitive)", () => {
   const share = buildShare();
   assert.equal(
-    canAccessPrivateReverseShare(share, {
+    canAccessReverseShare(share, {
       id: "viewer-id",
       email: "  Viewer@Example.com ",
     }),
@@ -51,7 +51,7 @@ test("listed viewer can access a private reverse share (case-insensitive)", () =
 test("non-viewer is denied access to a private reverse share", () => {
   const share = buildShare();
   assert.equal(
-    canAccessPrivateReverseShare(share, {
+    canAccessReverseShare(share, {
       id: "stranger",
       email: "stranger@example.com",
     }),
@@ -62,7 +62,7 @@ test("non-viewer is denied access to a private reverse share", () => {
 test("removed viewer is denied access (live list)", () => {
   const share = buildShare({ viewers: [] });
   assert.equal(
-    canAccessPrivateReverseShare(share, {
+    canAccessReverseShare(share, {
       id: "viewer-id",
       email: "viewer@example.com",
     }),
@@ -72,5 +72,5 @@ test("removed viewer is denied access (live list)", () => {
 
 test("unauthenticated user is denied access to a private reverse share", () => {
   const share = buildShare();
-  assert.equal(canAccessPrivateReverseShare(share, undefined), false);
+  assert.equal(canAccessReverseShare(share, undefined), false);
 });

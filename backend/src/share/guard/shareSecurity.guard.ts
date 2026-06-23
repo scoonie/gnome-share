@@ -13,13 +13,14 @@ import { JwtGuard } from "src/auth/guard/jwt.guard";
 import type { User } from "../../generated/prisma/client";
 
 /**
- * Determines whether a user may access a share that belongs to a private
- * (non-public) reverse share. Access is granted to the share creator, the
+ * Determines whether a user may access a share that belongs to a reverse
+ * share. Public reverse shares are accessible to everyone. For private
+ * (non-public) reverse shares, access is granted to the share creator, the
  * reverse share creator, and any user whose email is listed as a reverse
  * share viewer (matched case-insensitively and trimmed). Evaluated live on
  * every request, so removing a viewer immediately revokes their access.
  */
-export function canAccessPrivateReverseShare(
+export function canAccessReverseShare(
   share: {
     creatorId: string | null;
     reverseShare: {
@@ -74,7 +75,7 @@ export class ShareSecurityGuard extends JwtGuard {
       where: { id: shareId },
       include: {
         security: true,
-        reverseShare: { include: { viewers: true } },
+        reverseShare: { include: { viewers: { select: { email: true } } } },
       },
     });
 
@@ -105,7 +106,7 @@ export class ShareSecurityGuard extends JwtGuard {
     // the reverse share if it's not public
     if (
       share.reverseShare &&
-      !canAccessPrivateReverseShare(share, user)
+      !canAccessReverseShare(share, user)
     )
       throw new ForbiddenException(
         "Only reverse share creator can access this share",
