@@ -12,6 +12,42 @@ import { ConfigService } from "src/config/config.service";
 import { JwtGuard } from "src/auth/guard/jwt.guard";
 import type { User } from "../../generated/prisma/client";
 
+/**
+ * Determines whether a user may access a share that belongs to a private
+ * (non-public) reverse share. Access is granted to the share creator, the
+ * reverse share creator, and any user whose email is listed as a reverse
+ * share viewer (matched case-insensitively and trimmed). Evaluated live on
+ * every request, so removing a viewer immediately revokes their access.
+ */
+export function canAccessPrivateReverseShare(
+  share: {
+    creatorId: string | null;
+    reverseShare: {
+      creatorId: string;
+      publicAccess: boolean;
+      viewers?: { email: string }[];
+    };
+  },
+  user?: { id?: string; email?: string },
+): boolean {
+  if (share.reverseShare.publicAccess) return true;
+
+  if (
+    user?.id &&
+    (share.creatorId === user.id || share.reverseShare.creatorId === user.id)
+  )
+    return true;
+
+  const userEmail = user?.email?.trim().toLowerCase();
+  if (userEmail) {
+    const viewers = share.reverseShare.viewers ?? [];
+    if (viewers.some((viewer) => viewer.email.trim().toLowerCase() === userEmail))
+      return true;
+  }
+
+  return false;
+}
+
 @Injectable()
 export class ShareSecurityGuard extends JwtGuard {
   constructor(
@@ -36,7 +72,10 @@ export class ShareSecurityGuard extends JwtGuard {
 
     const share = await this.prisma.share.findUnique({
       where: { id: shareId },
-      include: { security: true, reverseShare: true },
+      include: {
+        security: true,
+        reverseShare: { include: { viewers: true } },
+      },
     });
 
     if (
@@ -62,12 +101,11 @@ export class ShareSecurityGuard extends JwtGuard {
     await super.canActivate(context);
     const user = request.user as User;
 
-    // Only the creator and reverse share creator can access the reverse share if it's not public
+    // Only the creator, reverse share creator, and listed viewers can access
+    // the reverse share if it's not public
     if (
       share.reverseShare &&
-      !share.reverseShare.publicAccess &&
-      share.creatorId !== user?.id &&
-      share.reverseShare.creatorId !== user?.id
+      !canAccessPrivateReverseShare(share, user)
     )
       throw new ForbiddenException(
         "Only reverse share creator can access this share",
