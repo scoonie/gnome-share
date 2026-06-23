@@ -119,6 +119,7 @@ const createReverseShare = async (
   publicAccess: boolean,
   name: string,
   description?: string,
+  viewerEmails?: string[],
 ) => {
   return (
     await api.post("reverseShares", {
@@ -130,8 +131,16 @@ const createReverseShare = async (
       sendEmailNotification,
       simplified,
       publicAccess,
+      viewerEmails,
     })
   ).data;
+};
+
+const updateReverseShare = async (
+  id: string,
+  data: { viewerEmails: string[] },
+) => {
+  return (await api.patch(`reverseShares/${encodeURIComponent(id)}`, data)).data;
 };
 
 const getMyReverseShares = async (): Promise<MyReverseShare[]> => {
@@ -166,6 +175,7 @@ export default {
   uploadFile,
   setReverseShare,
   createReverseShare,
+  updateReverseShare,
   getMyReverseShares,
   removeReverseShare,
 };

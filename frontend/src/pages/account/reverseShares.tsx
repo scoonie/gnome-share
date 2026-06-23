@@ -17,13 +17,14 @@ import { useClipboard } from "@mantine/hooks";
 import { useModals } from "@mantine/modals";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import { TbInfoCircle, TbLink, TbPlus, TbTrash } from "react-icons/tb";
+import { TbInfoCircle, TbLink, TbPencil, TbPlus, TbTrash } from "react-icons/tb";
 import { FormattedMessage } from "react-intl";
 import Meta from "../../components/Meta";
 import showReverseShareLinkModal from "../../components/account/showReverseShareLinkModal";
 import showShareLinkModal from "../../components/account/showShareLinkModal";
 import CenterLoader from "../../components/core/CenterLoader";
 import showCreateReverseShareModal from "../../components/share/modals/showCreateReverseShareModal";
+import showEditReverseShareModal from "../../components/share/modals/showEditReverseShareModal";
 import useConfig from "../../hooks/config.hook";
 import useTranslate from "../../hooks/useTranslate.hook";
 import shareService from "../../services/share.service";
@@ -126,6 +127,11 @@ const MyShares = () => {
                     <Text size="sm" truncate>
                       {reverseShare.name}
                     </Text>
+                    {!reverseShare.isOwner && (
+                      <Text size="xs" c="dimmed">
+                        <FormattedMessage id="account.reverseShares.table.shared-with-you" />
+                      </Text>
+                    )}
                   </td>
                   <td style={{ width: 220 }}>
                     {reverseShare.shares.length == 0 ? (
@@ -214,62 +220,84 @@ const MyShares = () => {
                   </td>
                   <td>
                     <Group justify="flex-end">
-                      <ActionIcon
-                        color="maroon"
-                        variant="light"
-                        size={25}
-                        onClick={() => {
-                          if (window.isSecureContext) {
-                            clipboard.copy(
-                              `${window.location.origin}/upload/${
-                                reverseShare.token
-                              }`,
-                            );
-                            toast.success(t("common.notify.copied-link"));
-                          } else {
-                            showReverseShareLinkModal(
-                              modals,
-                              reverseShare.token,
-                            );
-                          }
-                        }}
-                      >
-                        <TbLink />
-                      </ActionIcon>
-                      <ActionIcon
-                        color="red"
-                        variant="light"
-                        size={25}
-                        onClick={() => {
-                          modals.openConfirmModal({
-                            title: t(
-                              "account.reverseShares.modal.delete.title",
-                            ),
-                            children: (
-                              <Text size="sm">
-                                <FormattedMessage id="account.reverseShares.modal.delete.description" />
-                              </Text>
-                            ),
-                            confirmProps: {
-                              color: "red",
-                            },
-                            labels: {
-                              confirm: t("common.button.delete"),
-                              cancel: t("common.button.cancel"),
-                            },
-                            onConfirm: () => {
-                              shareService.removeReverseShare(reverseShare.id);
-                              setReverseShares(
-                                reverseShares.filter(
-                                  (item) => item.id !== reverseShare.id,
-                                ),
+                      {reverseShare.isOwner && (
+                        <ActionIcon
+                          color="maroon"
+                          variant="light"
+                          size={25}
+                          onClick={() => {
+                            if (window.isSecureContext) {
+                              clipboard.copy(
+                                `${window.location.origin}/upload/${
+                                  reverseShare.token
+                                }`,
                               );
-                            },
-                          });
-                        }}
-                      >
-                        <TbTrash />
-                      </ActionIcon>
+                              toast.success(t("common.notify.copied-link"));
+                            } else {
+                              showReverseShareLinkModal(
+                                modals,
+                                reverseShare.token,
+                              );
+                            }
+                          }}
+                        >
+                          <TbLink />
+                        </ActionIcon>
+                      )}
+                      {reverseShare.isOwner && (
+                        <ActionIcon
+                          color="maroon"
+                          variant="light"
+                          size={25}
+                          onClick={() =>
+                            showEditReverseShareModal(
+                              modals,
+                              reverseShare,
+                              getReverseShares,
+                            )
+                          }
+                        >
+                          <TbPencil />
+                        </ActionIcon>
+                      )}
+                      {reverseShare.isOwner && (
+                        <ActionIcon
+                          color="red"
+                          variant="light"
+                          size={25}
+                          onClick={() => {
+                            modals.openConfirmModal({
+                              title: t(
+                                "account.reverseShares.modal.delete.title",
+                              ),
+                              children: (
+                                <Text size="sm">
+                                  <FormattedMessage id="account.reverseShares.modal.delete.description" />
+                                </Text>
+                              ),
+                              confirmProps: {
+                                color: "red",
+                              },
+                              labels: {
+                                confirm: t("common.button.delete"),
+                                cancel: t("common.button.cancel"),
+                              },
+                              onConfirm: () => {
+                                shareService.removeReverseShare(
+                                  reverseShare.id,
+                                );
+                                setReverseShares(
+                                  reverseShares.filter(
+                                    (item) => item.id !== reverseShare.id,
+                                  ),
+                                );
+                              },
+                            });
+                          }}
+                        >
+                          <TbTrash />
+                        </ActionIcon>
+                      )}
                     </Group>
                   </td>
                 </tr>

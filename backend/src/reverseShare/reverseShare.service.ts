@@ -5,6 +5,7 @@ import { FileService } from "src/file/file.service";
 import { PrismaService } from "src/prisma/prisma.service";
 import { parseRelativeDateToAbsolute } from "src/utils/date.util";
 import { CreateReverseShareDTO } from "./dto/createReverseShare.dto";
+import { UpdateReverseShareDTO } from "./dto/updateReverseShare.dto";
 
 @Injectable()
 export class ReverseShareService {
@@ -15,6 +16,22 @@ export class ReverseShareService {
     private prisma: PrismaService,
     private fileService: FileService,
   ) {}
+
+  private normalizeViewerEmails(
+    viewerEmails: string[] | undefined,
+    creatorEmail?: string,
+  ): string[] {
+    if (!viewerEmails) return [];
+
+    const normalizedCreatorEmail = creatorEmail?.trim().toLowerCase();
+
+    const normalized = viewerEmails
+      .map((email) => email.trim().toLowerCase())
+      .filter((email) => email.length > 0)
+      .filter((email) => email !== normalizedCreatorEmail);
+
+    return Array.from(new Set(normalized));
+  }
 
   async create(data: CreateReverseShareDTO, creatorId: string) {
     if (data.shareExpiration === "never") {
@@ -42,6 +59,15 @@ export class ReverseShareService {
         `Max share size can't be greater than ${globalMaxShareSize} bytes.`,
       );
 
+    const creator = await this.prisma.user.findUnique({
+      where: { id: creatorId },
+    });
+
+    const viewerEmails = this.normalizeViewerEmails(
+      data.viewerEmails,
+      creator?.email,
+    );
+
     const reverseShare = await this.prisma.reverseShare.create({
       data: {
         name: data.name,
@@ -53,10 +79,38 @@ export class ReverseShareService {
         simplified: data.simplified,
         publicAccess: data.publicAccess,
         creatorId,
+        viewers: {
+          create: viewerEmails.map((email) => ({ email })),
+        },
       },
     });
 
     return reverseShare.token;
+  }
+
+  async update(id: string, data: UpdateReverseShareDTO) {
+    const reverseShare = await this.prisma.reverseShare.findUnique({
+      where: { id },
+      include: { creator: true },
+    });
+
+    if (!reverseShare) {
+      throw new BadRequestException("Reverse share not found");
+    }
+
+    const viewerEmails = this.normalizeViewerEmails(
+      data.viewerEmails,
+      reverseShare.creator.email,
+    );
+
+    await this.prisma.$transaction([
+      this.prisma.reverseShareViewer.deleteMany({
+        where: { reverseShareId: id },
+      }),
+      this.prisma.reverseShareViewer.createMany({
+        data: viewerEmails.map((email) => ({ email, reverseShareId: id })),
+      }),
+    ]);
   }
 
   async getByToken(reverseShareToken?: string) {
@@ -70,18 +124,41 @@ export class ReverseShareService {
   }
 
   async getAllByUser(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    const userEmail = user?.email.trim().toLowerCase();
+
     const reverseShares = await this.prisma.reverseShare.findMany({
       where: {
-        creatorId: userId,
         shareExpiration: { gt: new Date() },
+        OR: [
+          { creatorId: userId },
+          ...(userEmail
+            ? [{ viewers: { some: { email: userEmail } } }]
+            : []),
+        ],
       },
       orderBy: {
         shareExpiration: "desc",
       },
-      include: { shares: { include: { creator: true, files: true } } },
+      include: {
+        shares: { include: { creator: true, files: true } },
+        viewers: true,
+      },
     });
 
-    return reverseShares;
+    return reverseShares.map((reverseShare) => {
+      const isOwner = reverseShare.creatorId === userId;
+      return {
+        ...reverseShare,
+        isOwner,
+        viewerEmails: isOwner
+          ? reverseShare.viewers.map((viewer) => viewer.email)
+          : [],
+      };
+    });
   }
 
   async isValid(reverseShareToken: string) {
