@@ -43,7 +43,7 @@
     "jmespath": "^0.16.0",
     "jose": "^6.2.3",
     "mime-types": "^3.0.2",
-    "nanoid": "^5.1.15",
+    "nanoid": "^5.1.16",
     "nodemailer": "^9.0.3",
     "otplib": "^13.4.1",
     "passport": "^0.7.0",
