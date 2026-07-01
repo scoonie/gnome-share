@@ -44,7 +44,7 @@
     "jose": "^6.2.3",
     "mime-types": "^3.0.2",
     "nanoid": "^5.1.15",
-    "nodemailer": "^9.0.1",
+    "nodemailer": "^9.0.3",
     "otplib": "^13.4.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
