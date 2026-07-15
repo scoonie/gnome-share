@@ -74,7 +74,7 @@
     "ws": ">=8.21.0"
   },
   "devDependencies": {
-    "@nestjs/cli": "^11.0.23",
+    "@nestjs/cli": "^11.0.24",
     "@nestjs/schematics": "^11.1.0",
     "@types/clamscan": "^2.4.1",
     "@types/cookie-parser": "^1.4.10",
