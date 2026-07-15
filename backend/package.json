@@ -89,7 +89,7 @@
     "@types/uuid": "^11.0.0",
     "cross-env": "^10.1.0",
     "newman": "^6.2.2",
-    "prettier": "^3.9.4",
+    "prettier": "^3.9.5",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^6.0.3",
     "wait-on": "^9.0.10"
