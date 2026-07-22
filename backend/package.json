@@ -27,7 +27,7 @@
     "@nestjs/schedule": "^6.1.3",
     "@nestjs/swagger": "^11.4.5",
     "@nestjs/throttler": "^6.5.0",
-    "@prisma/adapter-libsql": "^7.8.0",
+    "@prisma/adapter-libsql": "^7.9.0",
     "@prisma/client": "^7.8.0",
     "archiver": "^8.0.0",
     "argon2": "^0.44.0",
