@@ -30,7 +30,7 @@
     "@prisma/adapter-libsql": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "archiver": "^8.0.0",
-    "argon2": "^0.44.0",
+    "argon2": "^0.45.1",
     "body-parser": "^2.3.0",
     "cache-manager": "^7.2.9",
     "cacheable": "^2.5.0",
