@@ -26,8 +26,8 @@
     "next": "^16.2.10",
     "next-http-proxy-middleware": "^1.2.8",
     "p-limit": "^7.3.0",
-    "react": "^19.2.7",
-    "react-dom": "^19.2.7",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
     "react-icons": "^5.7.0",
     "react-intl": "^10.1.16",
     "sharp": "^0.35.3",
@@ -36,8 +36,8 @@
   "devDependencies": {
     "@types/mime-types": "^3.0.1",
     "@types/node": "^26.1.1",
-    "@types/react": "^19.2.17",
-    "@types/react-dom": "^19.2.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
     "postcss-preset-mantine": "^1.18.0",
     "prettier": "^3.9.5",
     "typescript": "^6.0.3"
