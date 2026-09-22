@@ -74,9 +74,62 @@ function expandArg(arg) {
   return matches.length > 0 ? matches : [arg];
 }
 
+function expandNodeArgs(nodeArgs) {
+  const nodeValueOptions = new Set([
+    "-e",
+    "--eval",
+    "-p",
+    "--print",
+    "-r",
+    "--require",
+    "--import",
+    "--loader",
+    "--test-name-pattern",
+    "--test-reporter",
+    "--test-reporter-destination",
+    "--watch-path",
+  ]);
+  const positionals = [];
+  const prefix = [];
+  let consumeNext = false;
+  let parsingOptions = true;
+
+  for (const nodeArg of nodeArgs) {
+    if (!parsingOptions) {
+      positionals.push(nodeArg);
+      continue;
+    }
+
+    prefix.push(nodeArg);
+
+    if (consumeNext) {
+      consumeNext = false;
+      continue;
+    }
+
+    if (nodeArg === "--") {
+      parsingOptions = false;
+      continue;
+    }
+
+    if (!nodeArg.startsWith("-")) {
+      parsingOptions = false;
+      positionals.push(prefix.pop());
+      continue;
+    }
+
+    const optionName = nodeArg.split("=")[0];
+    if (nodeValueOptions.has(optionName) && !nodeArg.includes("=")) {
+      consumeNext = true;
+    }
+  }
+
+  return [...prefix, ...positionals.flatMap(expandArg)];
+}
+
 let expandedArgs;
 try {
-  expandedArgs = args.flatMap(expandArg);
+  expandedArgs = target === "node" ? expandNodeArgs(args) : args.flatMap(expandArg);
 } catch (error) {
   console.error(error);
   process.exit(1);
