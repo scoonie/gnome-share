@@ -14,9 +14,9 @@ const compatEnv = {
     .join(" "),
 };
 
-function runNodeScript(scriptPath, args, env = process.env) {
+function runCommand(command, args, env = process.env) {
   return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, [scriptPath, ...args], {
+    const child = spawn(command, args, {
       cwd,
       env,
       stdio: "inherit",
@@ -31,13 +31,17 @@ function runNodeScript(scriptPath, args, env = process.env) {
 
       reject(
         new Error(
-          `${path.basename(scriptPath)} exited with ${
+          `${path.basename(args[0] || command)} exited with ${
             signal ? `signal ${signal}` : `code ${code}`
           }`,
         ),
       );
     });
   });
+}
+
+function runNodeScript(scriptPath, args, env = process.env) {
+  return runCommand(process.execPath, [scriptPath, ...args], env);
 }
 
 async function main() {
@@ -98,7 +102,11 @@ async function main() {
       }),
       serverFailure,
     ]);
-    await runNodeScript(newmanBin, ["run", "./test/newman-system-tests.json"]);
+    await runCommand(process.execPath, [
+      newmanBin,
+      "run",
+      "./test/newman-system-tests.json",
+    ]);
   } finally {
     process.removeListener("exit", stopServer);
     process.removeListener("SIGINT", handleSigInt);
