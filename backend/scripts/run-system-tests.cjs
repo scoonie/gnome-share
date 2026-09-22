@@ -78,6 +78,7 @@ async function main() {
     await Promise.race([
       waitOn({
         resources: ["http://localhost:8080/api/configs"],
+        timeout: 60_000,
       }).then(() => {
         serverReady = true;
       }),
