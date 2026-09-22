@@ -73,6 +73,20 @@ async function main() {
   process.on("exit", stopServer);
   process.on("SIGINT", handleSigInt);
   process.on("SIGTERM", handleSigTerm);
+  const serverFailure = new Promise((_, reject) => {
+    server.once("error", reject);
+    server.once("exit", (code, signal) => {
+      if (!serverReady) {
+        reject(
+          new Error(
+            `Nest server exited before readiness with ${
+              signal ? `signal ${signal}` : `code ${code}`
+            }`,
+          ),
+        );
+      }
+    });
+  });
 
   try {
     await Promise.race([
@@ -82,20 +96,7 @@ async function main() {
       }).then(() => {
         serverReady = true;
       }),
-      new Promise((_, reject) => {
-        server.once("error", reject);
-        server.once("exit", (code, signal) => {
-          if (!serverReady) {
-            reject(
-              new Error(
-                `Nest server exited before readiness with ${
-                  signal ? `signal ${signal}` : `code ${code}`
-                }`,
-              ),
-            );
-          }
-        });
-      }),
+      serverFailure,
     ]);
     await runNodeScript(newmanBin, ["run", "./test/newman-system-tests.json"]);
   } finally {
