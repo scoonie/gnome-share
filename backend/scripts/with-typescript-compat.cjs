@@ -23,9 +23,9 @@ const resolvedTarget =
   target === "node"
     ? null
     : {
-        nest: require.resolve("@nestjs/cli/bin/nest.js"),
-        "ts-node": require.resolve("ts-node/dist/bin.js"),
-      }[target];
+        nest: () => require.resolve("@nestjs/cli/bin/nest.js"),
+        "ts-node": () => require.resolve("ts-node/dist/bin.js"),
+      }[target]?.();
 
 if (target !== "node" && !resolvedTarget) {
   console.error(`Unsupported target: ${target}`);
