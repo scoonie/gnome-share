@@ -37,24 +37,55 @@ function expandArg(arg) {
     return [arg];
   }
 
-  if (path.dirname(arg).includes("*")) {
-    throw new Error(
-      `Unsupported glob pattern "${arg}". Only flat filename globs are supported here.`,
-    );
+  const normalizedArg = arg.replace(/\\/g, "/");
+  let regexSource = "";
+
+  for (let index = 0; index < normalizedArg.length; index++) {
+    const character = normalizedArg[index];
+
+    if (character === "*") {
+      if (normalizedArg[index + 1] === "*") {
+        if (normalizedArg[index + 2] === "/") {
+          regexSource += "(?:.*/)?";
+          index += 2;
+        } else {
+          regexSource += ".*";
+          index++;
+        }
+      } else {
+        regexSource += "[^/]*";
+      }
+      continue;
+    }
+
+    regexSource += /[.+?^${}()|[\]\\]/.test(character)
+      ? `\\${character}`
+      : character;
   }
 
-  const directory = path.resolve(cwd, path.dirname(arg));
-  const pattern = path
-    .basename(arg)
-    .replace(/[.+?^${}()|[\]\\]/g, "\\$&")
-    .replace(/\*/g, ".*");
-  const matcher = new RegExp(`^${pattern}$`);
+  const pattern = new RegExp(`^${regexSource}$`);
+  const matches = [];
+  const directories = [cwd];
 
-  return fs
-    .readdirSync(directory)
-    .sort()
-    .filter((entry) => matcher.test(entry))
-    .map((entry) => path.join(path.dirname(arg), entry));
+  while (directories.length > 0) {
+    const directory = directories.pop();
+    const entries = fs
+      .readdirSync(directory, { withFileTypes: true })
+      .sort((left, right) => left.name.localeCompare(right.name));
+
+    for (const entry of entries) {
+      const absolutePath = path.join(directory, entry.name);
+      const relativePath = path.relative(cwd, absolutePath).replace(/\\/g, "/");
+
+      if (entry.isDirectory()) {
+        directories.push(absolutePath);
+      } else if (pattern.test(relativePath)) {
+        matches.push(relativePath);
+      }
+    }
+  }
+
+  return matches.length > 0 ? matches : [arg];
 }
 
 let expandedArgs;
