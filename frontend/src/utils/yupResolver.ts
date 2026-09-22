@@ -1,8 +1,13 @@
 import { FormErrors } from "@mantine/form";
-import { ObjectSchema, ValidationError } from "yup";
+import { ValidationError } from "yup";
 
 export function yupResolver(
-  schema: ObjectSchema<any>,
+  schema: {
+    validateSync: (
+      values: Record<string, unknown>,
+      options?: { abortEarly?: boolean },
+    ) => unknown;
+  },
 ): (values: Record<string, unknown>) => FormErrors {
   return (values: Record<string, unknown>) => {
     try {
