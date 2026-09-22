@@ -18,20 +18,6 @@ const env = {
     .join(" "),
 };
 
-const command = process.execPath;
-const resolvedTarget =
-  target === "node"
-    ? null
-    : {
-        nest: () => require.resolve("@nestjs/cli/bin/nest.js"),
-        "ts-node": () => require.resolve("ts-node/dist/bin.js"),
-      }[target]?.();
-
-if (target !== "node" && !resolvedTarget) {
-  console.error(`Unsupported target: ${target}`);
-  process.exit(1);
-}
-
 function expandArg(arg) {
   if (!arg.includes("*")) {
     return [arg];
@@ -95,10 +81,27 @@ try {
   console.error(error);
   process.exit(1);
 }
-const commandArgs =
-  target === "node" ? expandedArgs : [resolvedTarget, ...expandedArgs];
+const resolvedTarget = {
+  node: () => ({
+    command: process.execPath,
+    args: expandedArgs,
+  }),
+  nest: () => ({
+    command: process.execPath,
+    args: [require.resolve("@nestjs/cli/bin/nest.js"), ...expandedArgs],
+  }),
+  "ts-node": () => ({
+    command: process.execPath,
+    args: [require.resolve("ts-node/dist/bin.js"), ...expandedArgs],
+  }),
+}[target]?.();
 
-const child = spawn(command, commandArgs, {
+if (!resolvedTarget) {
+  console.error(`Unsupported target: ${target}`);
+  process.exit(1);
+}
+
+const child = spawn(resolvedTarget.command, resolvedTarget.args, {
   cwd,
   env,
   stdio: "inherit",
