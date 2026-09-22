@@ -52,6 +52,7 @@ function expandArg(arg) {
 
   return fs
     .readdirSync(directory)
+    .sort()
     .filter((entry) => matcher.test(entry))
     .map((entry) => path.join(path.dirname(arg), entry));
 }

@@ -62,7 +62,6 @@ async function main() {
     }
   };
 
-  process.on("exit", stopServer);
   const handleSigInt = () => {
     stopServer();
     process.exit(130);
@@ -71,6 +70,7 @@ async function main() {
     stopServer();
     process.exit(143);
   };
+  process.on("exit", stopServer);
   process.on("SIGINT", handleSigInt);
   process.on("SIGTERM", handleSigTerm);
 
@@ -98,6 +98,7 @@ async function main() {
     ]);
     await runNodeScript(newmanBin, ["run", "./test/newman-system-tests.json"]);
   } finally {
+    process.removeListener("exit", stopServer);
     process.removeListener("SIGINT", handleSigInt);
     process.removeListener("SIGTERM", handleSigTerm);
     stopServer();
