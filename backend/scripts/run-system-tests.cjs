@@ -53,7 +53,7 @@ async function main() {
     NODE_ENV: process.env.NODE_ENV || "development",
   };
 
-  const server = spawn(process.execPath, [nestBin, "start"], {
+  const server = spawn(process.execPath, [nestBin, "start", "--watch"], {
     cwd,
     env: serverEnv,
     stdio: "inherit",
