@@ -64,6 +64,9 @@ function expandArg(arg) {
       const relativePath = path.relative(cwd, absolutePath).replace(/\\/g, "/");
 
       if (entry.isDirectory()) {
+        if (entry.name === "node_modules") {
+          continue;
+        }
         directories.push(absolutePath);
       } else if (pattern.test(relativePath)) {
         matches.push(relativePath);
