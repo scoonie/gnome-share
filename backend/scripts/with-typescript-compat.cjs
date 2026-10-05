@@ -10,13 +10,7 @@ if (!target) {
 }
 
 const cwd = path.resolve(__dirname, "..");
-const compatRequire = `--require=${path.join(cwd, "typescript-compat.cjs")}`;
-const env = {
-  ...process.env,
-  NODE_OPTIONS: [process.env.NODE_OPTIONS, compatRequire]
-    .filter(Boolean)
-    .join(" "),
-};
+const compatModulePath = path.join(cwd, "typescript-compat.cjs");
 
 function expandArg(arg) {
   if (!arg.includes("*")) {
@@ -179,15 +173,25 @@ try {
 const resolvedTarget = {
   node: () => ({
     command: process.execPath,
-    args: expandedArgs,
+    args: ["--require", compatModulePath, ...expandedArgs],
   }),
   nest: () => ({
     command: process.execPath,
-    args: [require.resolve("@nestjs/cli/bin/nest.js"), ...expandedArgs],
+    args: [
+      "--require",
+      compatModulePath,
+      require.resolve("@nestjs/cli/bin/nest.js"),
+      ...expandedArgs,
+    ],
   }),
   "ts-node": () => ({
     command: process.execPath,
-    args: [require.resolve("ts-node/dist/bin.js"), ...expandedArgs],
+    args: [
+      "--require",
+      compatModulePath,
+      require.resolve("ts-node/dist/bin.js"),
+      ...expandedArgs,
+    ],
   }),
 }[target]?.();
 
@@ -198,7 +202,7 @@ if (!resolvedTarget) {
 
 const child = spawn(resolvedTarget.command, resolvedTarget.args, {
   cwd,
-  env,
+  env: process.env,
   stdio: "inherit",
 });
 

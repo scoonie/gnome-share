@@ -6,13 +6,7 @@ const cwd = path.resolve(__dirname, "..");
 const prismaBin = require.resolve("prisma/build/index.js");
 const nestBin = require.resolve("@nestjs/cli/bin/nest.js");
 const newmanBin = require.resolve("newman/bin/newman.js");
-const compatRequire = `--require=${path.join(cwd, "typescript-compat.cjs")}`;
-const compatEnv = {
-  ...process.env,
-  NODE_OPTIONS: [process.env.NODE_OPTIONS, compatRequire]
-    .filter(Boolean)
-    .join(" "),
-};
+const compatModulePath = path.join(cwd, "typescript-compat.cjs");
 
 function runCommand(command, args, env = process.env) {
   return new Promise((resolve, reject) => {
@@ -40,24 +34,31 @@ function runCommand(command, args, env = process.env) {
   });
 }
 
-function runNodeScript(scriptPath, args, env = process.env) {
-  return runCommand(process.execPath, [scriptPath, ...args], env);
+function runNodeScript(scriptPath, args, env = process.env, useCompat = false) {
+  const nodeArgs = useCompat
+    ? ["--require", compatModulePath, scriptPath, ...args]
+    : [scriptPath, ...args];
+  return runCommand(process.execPath, nodeArgs, env);
 }
 
 async function main() {
-  await runNodeScript(prismaBin, ["migrate", "reset", "-f"], compatEnv);
-  await runNodeScript(prismaBin, ["db", "seed"], compatEnv);
+  await runNodeScript(prismaBin, ["migrate", "reset", "-f"], process.env, true);
+  await runNodeScript(prismaBin, ["db", "seed"], process.env, true);
 
   const serverEnv = {
-    ...compatEnv,
+    ...process.env,
     NODE_ENV: process.env.NODE_ENV || "development",
   };
 
-  const server = spawn(process.execPath, [nestBin, "start", "--watch"], {
-    cwd,
-    env: serverEnv,
-    stdio: "inherit",
-  });
+  const server = spawn(
+    process.execPath,
+    ["--require", compatModulePath, nestBin, "start", "--watch"],
+    {
+      cwd,
+      env: serverEnv,
+      stdio: "inherit",
+    },
+  );
   let serverReady = false;
 
   const stopServer = () => {

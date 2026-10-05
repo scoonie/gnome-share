@@ -36,8 +36,8 @@ async function main() {
 
   const output = primary.output.toLowerCase();
   const needsWebpackFallback =
-    output.includes("postcss-preset-mantine") &&
-    (output.includes("postcss") || output.includes("turbopack"));
+    output.includes("cannot find module 'postcss'") &&
+    output.includes("postcss-preset-mantine");
 
   if (!needsWebpackFallback) {
     process.exit(primary.code ?? 1);
