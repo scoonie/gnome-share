@@ -28,7 +28,7 @@
     "@nestjs/swagger": "^11.4.6",
     "@prisma/adapter-libsql": "^7.10.0",
     "@prisma/client": "^7.10.0",
-    "@nestjs/throttler": "^6.5.0",
+    "@nestjs/throttler": "^6.7.1",
     "argon2": "^0.45.1",
     "archiver": "^8.0.0",
     "body-parser": "^2.3.0",
