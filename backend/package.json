@@ -39,7 +39,7 @@
     "class-validator": "^0.15.1",
     "content-disposition": "^2.0.0",
     "cookie-parser": "^1.4.7",
-    "dayjs": "^1.11.21",
+    "dayjs": "^1.11.23",
     "jmespath": "^0.16.0",
     "jose": "^6.2.4",
     "mime-types": "^3.0.2",
