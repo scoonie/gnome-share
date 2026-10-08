@@ -2,6 +2,7 @@ name: Continuous Integration
 
 permissions:
   contents: read
+  pull-requests: read
 
 on:
   pull_request:
@@ -10,8 +11,40 @@ on:
     branches: [ "main" ]
 
 jobs:
+  changes:
+    name: Detect Changed Areas
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+      scripts: ${{ steps.filter.outputs.scripts }}
+    steps:
+      - name: Checkout Code
+        if: github.event_name == 'push'
+        uses: actions/checkout@v7
+
+      - name: Filter Paths
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+              - 'Dockerfile'
+              - '.github/workflows/ci.yml'
+            frontend:
+              - 'frontend/**'
+              - 'Dockerfile'
+              - '.github/workflows/ci.yml'
+            scripts:
+              - 'scripts/**'
+              - 'config.example.yaml'
+              - '.github/workflows/ci.yml'
+
   test-backend:
     name: Build & Test Backend
+    needs: changes
+    if: github.event_name == 'push' || needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -43,6 +76,8 @@ jobs:
 
   test-frontend:
     name: Build & Test Frontend
+    needs: changes
+    if: github.event_name == 'push' || needs.changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -69,6 +104,8 @@ jobs:
 
   validate-config-example:
     name: Validate Generated Config Example
+    needs: changes
+    if: github.event_name == 'push' || needs.changes.outputs.scripts == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
