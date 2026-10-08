@@ -41,7 +41,7 @@
     "cookie-parser": "^1.4.7",
     "dayjs": "^1.11.23",
     "jmespath": "^0.16.0",
-    "jose": "^6.2.4",
+    "jose": "^6.2.12",
     "mime-types": "^3.0.2",
     "nanoid": "^6.0.1",
     "nodemailer": "^10.0.15",
