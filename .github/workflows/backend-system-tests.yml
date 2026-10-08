@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'backend/**'
+      - 'Dockerfile'
       - '.github/workflows/backend-system-tests.yml'
   push:
     tags:

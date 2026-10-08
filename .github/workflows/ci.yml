@@ -30,9 +30,11 @@ jobs:
           filters: |
             backend:
               - 'backend/**'
+              - 'Dockerfile'
               - '.github/workflows/ci.yml'
             frontend:
               - 'frontend/**'
+              - 'Dockerfile'
               - '.github/workflows/ci.yml'
             scripts:
               - 'scripts/**'
