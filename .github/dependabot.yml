@@ -1,13 +1,32 @@
 version: 2
 updates:
-# Maintain dependencies for the Backend (Node.js/npm)
   - package-ecosystem: "npm"
     directory: "/backend"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    groups:
+      nestjs:
+        patterns:
+          - "@nestjs/*"
+      prisma:
+        patterns:
+          - "prisma"
+          - "@prisma/*"
+      typescript-stack:
+        patterns:
+          - "ts-node"
+          - "tsconfig-paths"
+          - "typescript"
+          - "typescript-compat"
+      backend-tooling:
+        patterns:
+          - "@types/*"
+          - "cross-env"
+          - "newman"
+          - "prettier"
+          - "wait-on"
 
-# Maintain dependencies for the Frontend (Node.js/npm)
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
@@ -23,8 +42,18 @@ updates:
       mantine:
         patterns:
           - "@mantine/*"
+      next-stack:
+        patterns:
+          - "next"
+          - "sharp"
+      frontend-tooling:
+        patterns:
+          - "@types/node"
+          - "postcss"
+          - "postcss-preset-mantine"
+          - "prettier"
+          - "typescript"
 
-  # Maintain the base Docker images in the Dockerfile
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
@@ -34,7 +63,6 @@ updates:
       - dependency-name: "node"
         update-types: ["version-update:semver-major"]
 
-  # Maintain any GitHub Actions workflows you add in the future
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

@@ -1,6 +1,8 @@
 name: Update Package Locks
 
 on:
+  schedule:
+    - cron: '0 5 * * 1-5'
   push:
     branches:
       - main
@@ -29,11 +31,11 @@ jobs:
 
       - name: Generate Backend Lockfile
         working-directory: ./backend
-        run: npm install --package-lock-only --ignore-scripts
+        run: npm audit fix --package-lock-only --omit=dev --ignore-scripts
 
       - name: Generate Frontend Lockfile
         working-directory: ./frontend
-        run: npm install --package-lock-only --ignore-scripts
+        run: npm audit fix --package-lock-only --ignore-scripts
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8
