@@ -31,7 +31,7 @@
     "@nestjs/throttler": "^6.5.0",
     "argon2": "^0.45.1",
     "archiver": "^8.0.0",
-    "body-parser": "^2.3.0",
+    "body-parser": "^2.4.0",
     "cache-manager": "^7.2.9",
     "cacheable": "^2.5.0",
     "clamscan": "^2.4.0",
